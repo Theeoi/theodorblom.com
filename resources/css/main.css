@@ -1,8 +1,8 @@
-main.content {
+.main-content {
    min-height: calc(100vh - 50px); /* 50 px = header + footer height */ 
 }
 
-footer {
-    width: 100%
+.footer-content {
+    width: 100%;
     margin: 2px auto 0 auto;
 }

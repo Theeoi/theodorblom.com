@@ -3,7 +3,7 @@
 ?>
 
 <main>
-    <div class="content">
+    <div class="main-content">
         A very empty site!
     </div>
 </main>
