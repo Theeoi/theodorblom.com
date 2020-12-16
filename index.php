@@ -3,9 +3,7 @@
 ?>
 
 <main>
-    <div class="main-content">
-        Test content!
-    </div>
+    A very empty site!
 </main>
 
 <?php
