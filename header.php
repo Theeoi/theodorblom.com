@@ -7,7 +7,7 @@
 
         <title>Theodor Blom</title>
     
-        <link rel="stylesheet" href="resourses/css/main.css"
+        <link rel="stylesheet" href="resources/css/main.css"
 
     </head>
     <body>

@@ -3,7 +3,9 @@
 ?>
 
 <main>
+    <div class="main-content">
         Test content!
+    </div>
 </main>
 
 <?php
