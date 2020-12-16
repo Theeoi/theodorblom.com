@@ -5,7 +5,7 @@
         <meta name="description" content="Trying out HTML/CSS/JS and MySQL!">
         <meta name=viewport content="width=device-width, initial-scale=1.0">
 
-        <title>TestSite [WIP]</title>
+        <title>Theodor Blom</title>
     </head>
     <body>
         <header>
