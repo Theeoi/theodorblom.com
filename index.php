@@ -3,7 +3,7 @@
 ?>
 
 <main>
-    Test content!
+        Test content!
 </main>
 
 <?php

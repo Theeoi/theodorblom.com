@@ -1,0 +1,3 @@
+main {
+   min-height: calc(100vh - 50px); /* 50 px = header + footer height */ 
+}
