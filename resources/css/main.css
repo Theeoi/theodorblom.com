@@ -1,3 +1,7 @@
-main {
+main.content {
    min-height: calc(100vh - 50px); /* 50 px = header + footer height */ 
+}
+
+#footer {
+    margin: 2px auto 0 auto;
 }

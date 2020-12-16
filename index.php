@@ -3,7 +3,9 @@
 ?>
 
 <main>
-    A very empty site!
+    <div class="content">
+        A very empty site!
+    </div>
 </main>
 
 <?php
