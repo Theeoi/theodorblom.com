@@ -7,10 +7,20 @@
 
         <title>Theodor Blom</title>
     
-        <link rel="stylesheet" href="resources/css/main.css"
+        <link rel="stylesheet" href="resources/css/main.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <!-- Imports Icons --> 
 
     </head>
     <body>
         <header>
-            
+            <div class="header-content">
+                <div class="socials-btn" style="float:right">
+                    <a href="https://www.facebook.com/theodor.blom.5" class="fa fa-facebook"></a> 
+                    <a href="https://www.instagram.com/theoalexanderb/" class="fa fa-instagram"></a> 
+                    <a href="https://twitter.com/TheodorBlom" class="fa fa-twitter"></a> 
+                    <a href="https://www.linkedin.com/in/theodor-blom-35498a133/" class="fa fa-linkedin"></a> 
+                    <a href="https://www.reddit.com/user/Theeoii" class="fa fa-reddit"></a> 
+                    <a href="https://github.com/Theeoi" class="fa fa-github"></a> 
+                </div>
+            </div> 
         </header>
