@@ -46,6 +46,12 @@
    padding: 10px;
 }
 
+.timer-btn {
+    margin: 30px 0 30px 0;
+    padding: 20px 40px 20px 40px;
+    font-size: 18px;
+}
+
 .footer-content {
     position: fixed;
     width: 100%;

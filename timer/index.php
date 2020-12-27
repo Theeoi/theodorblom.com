@@ -15,9 +15,35 @@
 ?>
 
 <main>
-    <div class="main-content">
-        Here there will be a timer!
+    <div class="main-content" style="text-align: center">
+        <h2>Random Timer</h2>
+        <br>
+        <p>Starts a timer with a random time within the set interval.</p>
+
+        <button id="timer-start" class="timer-btn">Start Timer</button>
+        <button id="timer-cancel" class="timer-btn" hidden>Cancel Timer</button>
+        
+        <div id="timer-done" hidden>
+            <h4>TIMER IS DONE!</h4>
+            <p>Elapsed time: <span id="elapsedTime"></span> seconds.</p>
+            <br>
+        </div>
+
+        <p>
+            <label>
+                Minimum time:
+                <input type="number" id="timer-min" min="1" value="1">
+                seconds
+            </label>
+            <br>
+            <label>
+                Maximum time:
+                <input type="number" id="timer-max" min="2" value="60">
+                seconds
+            </label>
+        </p>
     </div>
+    <script src="../resources/js/timer.js"></script>
 </main>
 
 <?php
