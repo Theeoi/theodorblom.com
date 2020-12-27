@@ -1,8 +1,8 @@
 var timeout = null;
 var sound = new Audio();
-sound.volume = 0;
-sound.muted = true;
-sound.src = "../resources/mp3/timer.mp3"
+sound.volume = 1;
+sound.muted = false;
+sound.src = "../resources/mp3/GongGong.mp3"
 
 document.getElementById("timer-start").addEventListener("click", startTimer);
 
@@ -29,6 +29,9 @@ function startTimer() {
 
     clearTimeout(timeout);
     timeout = setTimeout(function() {
+        if (document.getElementById("timer-sound").checked) {
+            sound.play();
+        }
         document.getElementById("timer-done").hidden = false;
         document.getElementById("elapsedTime").innerText = timer;
     }, timer * 1000);

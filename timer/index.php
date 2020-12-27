@@ -41,6 +41,12 @@
                 <input type="number" id="timer-max" min="2" value="60">
                 seconds
             </label>
+            <br><br>
+            <b>Timer end</b><br>
+            <label>
+                <input type="checkbox" id="timer-sound" checked> 
+                Play sound
+            </label>
         </p>
     </div>
     <script src="../resources/js/timer.js"></script>
