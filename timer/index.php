@@ -22,7 +22,12 @@
 
         <button id="timer-start" class="timer-btn">Start Timer</button>
         <button id="timer-cancel" class="timer-btn" hidden>Cancel Timer</button>
-        
+    
+        <div id="tick-tock" hidden>
+            <p>tick tock<span id="timer-loading"></span></p>
+            <br> 
+        </div>
+     
         <div id="timer-done" hidden>
             <h4>TIMER IS DONE!</h4>
             <p>Elapsed time: <span id="elapsedTime"></span> seconds.</p>
