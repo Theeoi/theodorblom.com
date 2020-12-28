@@ -19,6 +19,7 @@
         <h2>Random Timer</h2>
         <br>
         <p>Starts a timer with a random time within the set interval.</p>
+        <p>Sadly, does not (yet) function in the background.</p>
 
         <button id="timer-start" class="timer-btn">Start Timer</button>
         <button id="timer-cancel" class="timer-btn" hidden>Cancel Timer</button>
