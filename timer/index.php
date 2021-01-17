@@ -13,6 +13,7 @@
 <?php
     require "../header.php";
 ?>
+<script type="text/javascript" src="../resources/js/navdrop.js"></script>
 
 <main>
     <div class="main-content" style="text-align: center">

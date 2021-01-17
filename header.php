@@ -2,8 +2,14 @@
     <body>
         <header>
             <div class="header-content">
-                <div class="topnav" style="float:left"> 
+                <div class="topnav-home" style="float:left"> 
                     <a href="/">TB</a>
+                </div>
+                <div class="topnav" style="float:left"> 
+                    <a href="#" class="navdrop-link" onclick="topDropFunc(); return false;">Utility <i class="fa fa-caret-down navdrop-link"></i></a>
+                    <div id="utility-navdrop" class="navdrop-content">
+                        <a href="/timer">Timer</a>
+                    </div>
                 </div>
 
                 <div class="socials-btn" style="float:right">
@@ -14,5 +20,5 @@
                     <a href="https://github.com/Theeoi" class="fa fa-github"></a> 
                     <a href="https://soundcloud.com/user-270867297" class="fa fa-soundcloud"></a> 
                 </div>
-            </div> 
+            </div>
         </header>
