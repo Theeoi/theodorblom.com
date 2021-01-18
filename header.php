@@ -3,7 +3,7 @@
         <header>
             <div class="header-content">
                 <div class="topnav-home" style="float:left"> 
-                    <a href="/">TB</a>
+                <a href="/"><img src="<?=$TB_home;?>" height="35px"></a>
                 </div>
                 <div class="topnav" style="float:left"> 
                     <a href="#" class="navdrop-link" onclick="topDropFunc(); return false;">Utility <i class="fa fa-caret-down navdrop-link"></i></a>
