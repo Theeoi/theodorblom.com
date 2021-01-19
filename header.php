@@ -5,11 +5,14 @@
                 <div class="topnav-home" style="float:left"> 
                 <a href="/"><img src="<?=$TB_home;?>" height="35px"></a>
                 </div>
-                <div class="topnav" style="float:left"> 
-                    <a href="#" class="navdrop-link" onclick="topDropFunc(); return false;">Utility <i class="fa fa-caret-down navdrop-link"></i></a>
+                <div id="topnav" class="topnav"> 
+                    <a href="javascript:void(0);" class="navdrop-link" onclick="topDropFunc(); return false;">Utility <i class="fa fa-caret-down navdrop-link"></i></a>
                     <div id="utility-navdrop" class="navdrop-content">
                         <a href="/timer">Timer</a>
                     </div>
+                    <a href="javascript:void(0);" class="icon" onclick="responsiveBar(); return false;">
+                        <i class="fa fa-bars"></i>
+                    </a>
                 </div>
 
                 <div class="socials-btn" style="float:right">

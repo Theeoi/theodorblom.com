@@ -1,4 +1,14 @@
 
+function responsiveBar() {
+    var x = document.getElementById("topnav");
+    if (x.className == "topnav") {
+        x.className += " responsive";
+    }
+    else {
+        x.className = "topnav";
+    }
+}
+
 function topDropFunc() {
   document.getElementById("utility-navdrop").classList.toggle("navdrop-show");
 }
