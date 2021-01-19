@@ -15,7 +15,7 @@
     $TB_home = "../resources/png/TB.png";
     require "../header.php";
 ?>
-<script type="text/javascript" src="../resources/js/navdrop.js"></script>
+<script type="text/javascript" src="../resources/js/navbar.js"></script>
 
 <main>
     <div class="main-content" style="text-align: center">
