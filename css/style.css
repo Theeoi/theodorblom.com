@@ -117,6 +117,17 @@ h3 { font-size: var(--fs-h3); }
     display: flex;
     justify-content: space-between;
     padding: 1em;
+    z-index: 2;
+}
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.sticky + .intro {
+    padding-top: 8em;
 }
 
 .logo {
