@@ -278,7 +278,7 @@ h3 { font-size: var(--fs-h3); }
 .footer {
     background: var(--clr-bg);
     text-align: center;
-    padding: 2.5em 0;
+    padding: 1.7em 0;
 }
 
 .footer a:hover {
