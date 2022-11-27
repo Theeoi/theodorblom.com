@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  deploy:
     runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v1
@@ -19,4 +19,14 @@ jobs:
           KEY: ${{ secrets.SSHKEY }}
         with:
           source: "."
-          target: "/var/www/theodorblom/"
+          target: "/var/www/theodorblom.com/"
+
+      - name: Reload apache server
+        uses: appleboy/ssh-action@master
+        with:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PORT: ${{ secrets.PORT }}
+          KEY: ${{ secrets.SSHKEY }}
+          script: systemctl reload apache
+
