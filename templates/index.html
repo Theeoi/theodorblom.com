@@ -1,8 +1,157 @@
-<!DOCTYPE html>
-<html>
-  <body>
-    <h1>Testing! -> Working??</h1>
-    <p>please work..</p>
-    <p>Will this be a new line??</p>
-  </body>
+<!DOCTYPE hmtl>
+<hmtl lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>T.Blom</title>
+        <link rel="stylesheet" 
+            href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" 
+            integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer" />
+        <link rel="stylesheet" 
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" 
+            integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer" />
+
+        <link rel="stylesheet" type="text/css" 
+              href="{{ url_for('static', filename='css/style.css')}}">
+
+        <!-- FONTS -->
+       <link rel="stylesheet" media="screen" href="https://fontlibrary.org//face/cantarell-v16" type="text/css"/>
+       <link rel="stylesheet" media="screen" href="https://fontlibrary.org//face/mononoki" type="text/css"/>
+
+    </head>
+    <body>
+        <header class="header" id="sticky-header">
+            <div class="logo">
+                <a href="#home"><h2 id="typeit"></h2></a>
+            </div>
+
+            <button class="nav-toggle" aria-label="toggle navigation">
+                <span class="hamburger"></span>
+            </button>
+
+            <nav class="nav">
+                <ul class="nav__list">
+                    <li class="nav__item"><a href="#home" class="nav__link">Home</a></li>
+                    <!--
+                       -<li class="nav__item"><a href="#education" class="nav__link">Education</a></li>
+                       -<li class="nav__item"><a href="#programming" class="nav__link">Programming</a></li>
+                       -<li class="nav__item"><a href="#music" class="nav__link">Music</a></li>
+                       -<li class="nav__item"><a href="#design" class="nav__link">Graphic Design</a></li>
+                       -->
+                </ul>
+            </nav>
+
+        </header>
+
+        <section class="intro" id="home">
+          <img src="{{ url_for('static', filename='resources/img/theo.jpg') }}" alt="a picture of Theodor Blom"
+                class="intro__img">
+
+            <ul class="social-list">
+                <li class="social-list__item">
+                    <a class="social-list__link" href="mailto:me@theodorblom.com">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                <li class="social-list__item">
+                    <a class="social-list__link" href="https://www.instagram.com/theoalexanderb/">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </li>
+                <li class="social-list__item">
+                    <a class="social-list__link" href="https://twitter.com/TheodorBlom">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                </li>
+                <li class="social-list__item">
+                    <a class="social-list__link" href="https://www.linkedin.com/in/theodor-blom-35498a133/">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </li>
+                <li class="social-list__item">
+                    <a class="social-list__link" href="https://github.com/Theeoi">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </li>
+                <li class="social-list__item">
+                    <a class="social-list__link" href="https://soundcloud.com/user-270867297">
+                        <i class="fab fa-soundcloud"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <p class="intro__tagline">[Under construction]</p>
+
+        </section>
+<!--        
+   -        <section class="education" id="education">
+   -            <h2 class="section__title section__title--education">Inspired
+   -                Materials Scientist</h2>
+   -            <p class="section__subtitle section__subtitle--education">M.Sc.
+   -            Nanoscience, Lund University</p>
+   -
+   -            <div class="education__body">
+   -                <p></p>
+   -                <p></p>
+   -            </div>
+   -
+   -        </section>
+   -        <section class="programming" id="programming">
+   -            <h2 class="section__title section__title--programming">Hobbyist
+   -                Programmer</h2>
+   -            <p class="section__subtitle section__subtitle--programming">Python, HTML, CSS and JS</p>
+   -
+   -            <div class="programming__body">
+   -                <p></p>
+   -                <p></p>
+   -            </div>
+   -
+   -        </section>
+   -        
+   -        <section class="musician" id="music">
+   -            <h2 class="section__title section__title--musician">Passionate
+   -                Musician</h2>
+   -            <p class="section__subtitle section__subtitle--musician">Choir, Guitar and Music Production</p>
+   -
+   -            <div class="musician__body">
+   -                <p></p>
+   -                <p></p>
+   -            </div>
+   -
+   -        </section>
+   -        
+   -        <section class="graphic-design" id="design">
+   -            <h2 class="section__title section__title--design">Aspiring Graphical Designer</h2>
+   -            <p class="section__subtitle section__subtitle--design">Adobe Photoshop, Illustrator and InDesign</p>
+   -
+   -            <div class="design__body">
+   -                <p></p>
+   -                <p></p>
+   -            </div>
+   -        
+   -        </section>
+   -->
+
+        <footer class="footer">
+            <div class="footer__copyright">
+                <i class="far fa-copyright" aria-hidden="true"></i>
+                <span>2022</span>
+                <span><a href="mailto:me@theodorblom.com">Theodor Blom</a></span> | 
+                <span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a></span>
+        </footer>
+
+        <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+        <script src="https://unpkg.com/typeit@8.2.0/dist/index.umd.js"></script>
+
+        <script>
+            new TypeIt("#typeit", {
+                strings: "Theodor Blom",
+                speed: 250,
+                waitUntilVisible: true,
+            }).go();
+        </script>
+    </body>
 </html>
