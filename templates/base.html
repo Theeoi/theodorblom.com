@@ -50,19 +50,33 @@
         </header>
         {% block content %}{% endblock %}
         <footer class="footer">
+            <div id="made-with">
+                Made with Flask
+                <i class="fab fa-python"></i>
+                |
+                Found an error? <a href="https://github.com/Theeoi/theodorblom.com">Submit
+                an issue!
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
+        <div id="copyright">
             <i class="far fa-copyright" aria-hidden="true"></i>
-            <span>2022</span>
-            <span><a href="mailto:me@theodorblom.com">Theodor Blom</a></span> |
-            <span><a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a></span>
-        </footer>
-        <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
-        <script src="https://unpkg.com/typeit@8.2.0/dist/index.umd.js"></script>
-        <script>
+            2022
+            <a href="mailto:me@theodorblom.com">Theodor Blom</a> |
+            <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>
+        </div>
+        <div id="login">
+            <a href="#">Login</a>
+        </div>
+    </footer>
+    <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+    <script src="https://unpkg.com/typeit@8.2.0/dist/index.umd.js"></script>
+    <script>
       new TypeIt("#typeit", {
         strings: "Theodor Blom",
         speed: 250,
         waitUntilVisible: true,
       }).go();
-        </script>
-    </body>
+    </script>
+</body>
 </html>

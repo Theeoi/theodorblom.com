@@ -69,7 +69,6 @@ footer {
     width: 100%;
     left: 0;
     bottom: 0;
-    overflow: hidden;
 }
 
 section {
@@ -276,9 +275,34 @@ h3 { font-size: var(--fs-h3); }
 /* Footer */
 
 .footer {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-wrap: wrap;
     background: var(--clr-bg);
     text-align: center;
+    color: var(--clr-accent-purple);
     padding: 1.7em 0;
+}
+
+#made-with {
+    flex: 0 2 500px;
+}
+
+#copyright {
+    flex: 1 1;
+}
+
+#login {
+    flex: 0 1 100px;
+}
+
+@media (max-width: 910px) {
+    .footer {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: center;
+    }
 }
 
 .footer a:hover {
