@@ -1,18 +1,9 @@
 #!/usr/bin/env python
-from flask import Flask, render_template
+"""Run the website."""
+from website import create_app
 
-app = Flask(__name__)
-
-
-@app.route("/")
-def homepage():
-    return render_template("index.html")
-
-
-@app.route("/blog/")
-def blog():
-    return render_template("blog.html")
-
+ENABLE_INSTANCE: bool = True
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    app = create_app(ENABLE_INSTANCE)
+    app.run(host=app.config["HOST"], debug=app.config["DEBUG"])
