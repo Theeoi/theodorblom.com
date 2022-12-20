@@ -37,12 +37,11 @@ To contribute you have to set up your own instance of the app.
   1. Clone the repo `git clone https://github.com/Theeoi/theodorblom.com`
   2. Go into the directory `cd theodorblom.com`
   3. Install requirements `pip install -r requirements.txt`
-  4. Configure your own instance
-    4.1. Create the instance directory `mkdir instance`
-    4.2. Configure your instance `echo "DEBUG = True" > instance/config.py`
-    4.3. Open 'app.py' in a text editor and change ENABLE_INSTANCE to True.
-  5. Run the app `python app.py`
-  6. View the webpage at [127.0.0.1:5000](http://127.0.0.1:5000)
+  4. Create the instance directory `mkdir instance`
+  5. Configure your instance `echo "DEBUG = True" > instance/config.py`
+  6. Open 'app.py' in a text editor and change ENABLE_INSTANCE to True.
+  7. Run the app `python app.py`
+  8. View the webpage at [127.0.0.1:5000](http://127.0.0.1:5000)
 
 ## Project Status
 
