@@ -2,8 +2,10 @@
 """
 Configuration file for flask app.
 
-Define production configuration variables here.
+Define default (dev) configuration variables here.
+Production variables are configured on the server.
 """
 
-DEBUG = False
 HOST = "0.0.0.0"
+DEBUG = True
+SECRET_KEY = "dev"

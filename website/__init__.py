@@ -3,17 +3,11 @@
 from flask import Flask
 
 
-def create_app(enable_instance: bool = False):
-    """
-    Create and return the flask-app.
-
-    If you want to run the app with your instance configuration, set
-    "enable_instance = True" and change app.config.from_pyfile accordingly.
-    """
-    app = Flask(__name__, instance_relative_config=enable_instance)
+def create_app():
+    """Create and return the flask-app."""
+    app = Flask(__name__, instance_relative_config=True)
     app.config.from_object('config')
-    if enable_instance:
-        app.config.from_pyfile('config.py')
+    app.config.from_pyfile('config.py', silent=True)
 
     # import and register views here
     from .views.home import home
