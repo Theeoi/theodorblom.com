@@ -1,6 +1,11 @@
 <!DOCTYPE hmtl>
 {% extends "base.html" %}
 {% block title %}{% endblock %}
+{% block additional_css %}
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='css/home.css')}}"/>
+{% endblock %}
 {% block content %}
     <section class="intro" id="home">
         <img src="{{ url_for('static', filename='resources/img/theo.jpg') }}"
