@@ -39,7 +39,7 @@ def create_user():
             flash("Username is too short. Must be at least 2 characters long.",
                   category='error')
         elif len(password1) < 6:
-            flash("Password is too short. Must be at least 5 characters long.",
+            flash("Password is too short. Must be at least 6 characters long.",
                   category='error')
         else:
             new_user = User(username=username,
