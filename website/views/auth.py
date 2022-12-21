@@ -2,9 +2,10 @@
 """Views for the /auth url."""
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import login_user, logout_user, login_required
 from .. import db
 from ..models import User
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -12,12 +13,29 @@ auth = Blueprint('auth', __name__, url_prefix='/auth')
 @auth.route('/login/', methods=['GET', 'POST'])
 def login():
     """Definition of the /auth/login site."""
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        user = User.query.filter_by(username=username).first()
+        if user:
+            if check_password_hash(user.password, password):
+                flash("Logged in!", category='success')
+                login_user(user, remember=True)
+                return redirect(url_for('home.welcome'))
+            else:
+                flash("Password is incorrect.", category='error')
+        else:
+            flash("User does not exist.", category='error')
+
     return render_template("auth/login.html")
 
 
 @auth.route('/logout/')
+@login_required
 def logout():
     """Definition of the /auth/logout site."""
+    logout_user()
     return redirect(url_for("home.welcome"))
 
 
