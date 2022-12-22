@@ -27,7 +27,7 @@ def login():
                 return redirect(url_for('home.welcome'))
             else:
                 flash("Password is incorrect.", category='error')
-                current_app.logger.warning("User {user.username} input wrong
+                current_app.logger.warning("User {user.username} input wrong \
                                            password!")
         else:
             flash("User does not exist.", category='error')
@@ -78,7 +78,7 @@ def create_user():
             db.session.add(new_user)
             db.session.commit()
             flash("User created!", category='success')
-            current_app.logger.info("User with username {new_user.username} was
-                                    created.")
+            current_app.logger.info("User with username {new_user.username} \
+                                    was created.")
 
     return render_template("auth/create-user.html", user=current_user)
