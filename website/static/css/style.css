@@ -221,6 +221,53 @@ h3 { font-size: var(--fs-h3); }
 .hamburger::before { top: 8px; }
 .hamburger::after { bottom: 8px; }
 
+/* Alerts */
+
+.alert {
+    position: relative;
+    width: auto;
+    height: auto;
+    cursor: pointer;
+}
+
+.alertCheckbox {
+    display: none;
+}
+
+:checked + .alert {
+    display: none;
+}
+ 
+.alertClose {
+    float: right;
+}
+
+.alertText {
+    display: table;
+}
+
+.clear {
+    clear: both;
+}
+
+.alert-error {
+    background-color: #FEE;
+    border: 1px solid #EDD;
+    color: #A66;
+}
+
+.alert-success {
+    background-color: #EFE;
+    border: 1px solid #DED;
+    color: #9A9;
+}
+
+.alert-message {
+  background-color: #EFF;
+  border: 1px solid #DEE;
+  color: #9AA;
+}
+
 /* Footer */
 
 .footer {

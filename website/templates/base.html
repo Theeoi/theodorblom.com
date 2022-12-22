@@ -52,10 +52,16 @@
         {% with messages = get_flashed_messages(with_categories=True) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div role="alert">
-                        {{ message }}
-                        <button type="button"></button>
-                    </div>
+                    <label>
+                        <input type="checkbox" class="alertCheckbox" autocomplete="off" />
+                        <div class="alert alert-{{ category }}" role="alert">
+                            <span class="alertClose">X</span>
+                            <span class="alertText">
+                                {{ message }}
+                                <br class="clear"/>
+                            </span>
+                        </div>
+                    </label>
                 {% endfor %}
             {% endif %}
         {% endwith %}
