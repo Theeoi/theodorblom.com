@@ -22,8 +22,8 @@
     --clr-accent-cyan: #8be9fd;
     --clr-accent-green: #50fa7b;
 
-    --fs-h1: 3rem;
-    --fs-h2: 2.25rem;
+    --fs-h1: 2.25rem;
+    --fs-h2: 1.75rem;
     --fs-h3: 1.25rem;
     --fs-body: 1rem;
 
@@ -33,8 +33,8 @@
 
 @media (min-width: 800px) {
     :root {
-        --fs-h1: 4.5rem;
-        --fs-h2: 3.5rem;
+        --fs-h1: 3.5rem;
+        --fs-h2: 2.5rem;
         --fs-h3: 1.5rem;
         --fs-body: 1.125rem;
     }
@@ -72,7 +72,7 @@ footer {
 }
 
 section {
-    padding: 3em 2em;
+    padding: 1em 1em;
 }
 
 img {
@@ -100,7 +100,7 @@ h2 { font-size: var(--fs-h2); }
 h3 { font-size: var(--fs-h3); }
 
 .section__title {
-    margin-bottom: .25em;
+    margin-bottom: 1em;
 }
 
 .section__subtitle {
@@ -117,6 +117,7 @@ h3 { font-size: var(--fs-h3); }
     display: flex;
     justify-content: space-between;
     padding: 1em;
+    margin: 0 0 2em 0;
     z-index: 2;
 }
 
@@ -229,7 +230,7 @@ h3 { font-size: var(--fs-h3); }
     height: auto;
     cursor: pointer;
     padding: 5px;
-    margin: 0 0 10px 0;
+    margin: -2em 0 10px 0;
     border-radius: 3px;
 }
 
@@ -287,15 +288,15 @@ h3 { font-size: var(--fs-h3); }
     padding: 1.7em 0;
 }
 
-#made-with {
+div#made-with {
     flex: 0 2 500px;
 }
 
-#copyright {
+div#copyright {
     flex: 1 1;
 }
 
-#login {
+div#login {
     flex: 0 1 100px;
 }
 
