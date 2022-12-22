@@ -2,7 +2,7 @@
 """Views for the /auth url."""
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from .. import db
 from ..models import User
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -28,7 +28,7 @@ def login():
         else:
             flash("User does not exist.", category='error')
 
-    return render_template("auth/login.html")
+    return render_template("auth/login.html", user=current_user)
 
 
 @auth.route('/logout/')
@@ -41,6 +41,7 @@ def logout():
 
 
 @auth.route('/create-user/', methods=['GET', 'POST'])
+@login_required
 def create_user():
     """Definition of the /auth/create-user site."""
     if request.method == "POST":
@@ -68,4 +69,4 @@ def create_user():
             db.session.commit()
             flash("User created!", category='success')
 
-    return render_template("auth/create-user.html")
+    return render_template("auth/create-user.html", user=current_user)
