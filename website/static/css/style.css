@@ -228,6 +228,9 @@ h3 { font-size: var(--fs-h3); }
     width: auto;
     height: auto;
     cursor: pointer;
+    padding: 5px;
+    margin: 0 0 10px 0;
+    border-radius: 3px;
 }
 
 .alertCheckbox {
@@ -240,10 +243,13 @@ h3 { font-size: var(--fs-h3); }
  
 .alertClose {
     float: right;
+    padding: 7px 10px 7px 10px;
+    font-size: 10px;
 }
 
 .alertText {
     display: table;
+    margin: 0 10px 0 10px;
 }
 
 .clear {
