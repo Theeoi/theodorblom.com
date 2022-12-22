@@ -35,6 +35,7 @@ def login():
 @login_required
 def logout():
     """Definition of the /auth/logout site."""
+    flash("Logged out!", category='success')
     logout_user()
     return redirect(url_for("home.welcome"))
 
