@@ -1,0 +1,38 @@
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+input {
+  margin: 0 0 5vh 0;
+  border: 1px solid var(--clr-accent-cyan);
+  border-right: none;
+  border-top: none;
+  border-left: none;
+  background-color: transparent;
+  outline: none;
+  color: var(--clr-text);
+}
+
+input::placeholder {
+  text-align: center;
+  color: var(--clr-text);
+}
+
+input[type=submit] {
+  background: var(--clr-accent-purple);
+  width: 100%;
+  padding: 2vh;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}

@@ -7,27 +7,28 @@
           href="{{ url_for('static', filename='css/auth.css')}}"/>
 {% endblock %}
 {% block content %}
-    <form method="POST">
-        <h3>Create user</h3>
-        <div>
-            <label for="username">Username</label>
+    <div class="formContainer">
+        <h2 class="section__title">Create user</h2>
+        <form class="auth-form" method="post">
             <input type="text"
                    id="username"
                    name="username"
-                   placeholder="Enter username"/>
-            <label for="username">Password</label>
+                   placeholder="Username"
+                   onfocus="this.placeholder=''"
+                   onblur="this.placeholder='Username'"/>
             <input type="password"
                    id="password1"
                    name="password1"
-                   placeholder="Enter password"/>
-            <label for="username">Reenter password</label>
+                   placeholder="Password"
+                   onfocus="this.placeholder=''"
+                   onblur="this.placeholder='Password'"/>
             <input type="password"
                    id="password2"
                    name="password2"
-                   placeholder="Reenter password"/>
-            <div>
-                <button type="submit">Create user!</button>
-            </div>
-        </div>
-    </form>
+                   placeholder="Reenter password"
+                   onfocus="this.placeholder=''"
+                   onblur="this.placeholder='Reenter password'"/>
+            <input type="submit" id="create-user" value="Submit"/>
+        </form>
+    </div>
 {% endblock %}
