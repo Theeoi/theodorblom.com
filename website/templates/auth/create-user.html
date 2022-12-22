@@ -1,0 +1,33 @@
+<!DOCTYPE hmtl>
+{% extends "base.html" %}
+{% block title %}- Auth{% endblock %}
+{% block additional_css %}
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='css/auth.css')}}"/>
+{% endblock %}
+{% block content %}
+    <form method="POST">
+        <h3>Create user</h3>
+        <div>
+            <label for="username">Username</label>
+            <input type="text"
+                   id="username"
+                   name="username"
+                   placeholder="Enter username"/>
+            <label for="username">Password</label>
+            <input type="password"
+                   id="password1"
+                   name="password1"
+                   placeholder="Enter password"/>
+            <label for="username">Reenter password</label>
+            <input type="password"
+                   id="password2"
+                   name="password2"
+                   placeholder="Reenter password"/>
+            <div>
+                <button type="submit">Create user!</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
