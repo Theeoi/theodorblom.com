@@ -42,5 +42,7 @@ def create_app():
 def create_db(app):
     """Create the database if is does not exist."""
     if not path.exists("instance/" + app.config["SQL_DB_NAME"]):
+        app.logger.error("Database was not found!")
         with app.app_context():
             db.create_all()
+            app.logger.info("Created new database.")
