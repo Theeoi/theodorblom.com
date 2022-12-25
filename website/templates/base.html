@@ -45,6 +45,16 @@
                 <ul class="nav__list">
                     <li class="nav__item">
                         <a href="/" class="nav__link">Home</a>
+                        <br/>
+                        <a href="/blog" class="nav__link">Blog</a>
+                        {% if user.is_authenticated %}
+                            <br/>
+                            <span class="nav__link">---</span>
+                            <br/>
+                            <a href="/blog/create-post" class="nav__link">Create blogpost</a>
+                            <br/>
+                            <a href="/auth/create-user" class="nav__link">Create user</a>
+                        {% endif %}
                     </li>
                 </ul>
             </nav>
