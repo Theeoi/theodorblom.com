@@ -18,12 +18,12 @@ def create_app() -> Flask:
 
     # import and register views here
     from .views.home import home
-    from .views.blog import blog
     from .views.auth import auth
+    # from .views.blog import blog
 
     app.register_blueprint(home)
-    app.register_blueprint(blog)
     app.register_blueprint(auth)
+    # app.register_blueprint(blog)
 
     from .models import User
 
