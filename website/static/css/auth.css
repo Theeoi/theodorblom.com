@@ -1,3 +1,7 @@
+.sticky + .formContainer {
+    padding-top: 7em;
+}
+
 .formContainer {
   display: flex;
   flex-direction: column;
@@ -13,7 +17,7 @@
 }
 
 input {
-  margin: 0 0 5vh 0;
+  margin: 3vh 0 3vh 0;
   border: 1px solid var(--clr-accent-cyan);
   border-right: none;
   border-top: none;
