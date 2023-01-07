@@ -1,0 +1,13 @@
+<!DOCTYPE hmtl>
+{% extends "base.html" %}
+{% block title %}- Blog{% endblock %}
+{% block additional_css %}
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='css/blog.css')}}"/>
+{% endblock %}
+{% block content %}
+    <h2 class="section__title">{{ blogpost.title }}</h2>
+    <div id="content">{{ blogpost.content }}</div>
+    <div id="post-date">{{ blogpost.date_created }}</div>
+{% endblock %}

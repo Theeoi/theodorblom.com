@@ -6,4 +6,21 @@
           type="text/css"
           href="{{ url_for('static', filename='css/blog.css')}}"/>
 {% endblock %}
-{% block content %}{% endblock %}
+{% block content %}
+    <div class="formContainer">
+        <h2 class="section__title">Create blogpost</h2>
+        <form class="blog-form" method="post">
+            <input type="text"
+                   id="title"
+                   name="title"
+                   placeholder="Title"
+                   onfocus="this.placeholder=''"/>
+            <input type="text"
+                   id="content"
+                   name="content"
+                   placeholder="What's on your mind?"
+                   onfocus="this.placeholder=''"/>
+            <input type="submit" id="create-post" value="Submit"/>
+        </form>
+    </div>
+{% endblock %}

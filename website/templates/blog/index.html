@@ -6,4 +6,15 @@
           type="text/css"
           href="{{ url_for('static', filename='css/blog.css')}}"/>
 {% endblock %}
-{% block content %}{% endblock %}
+{% block content %}
+    <h2 class="section__title">Blog</h2>
+    <div id="blogposts">
+        {% for blogpost in blogposts %}
+            <div>
+                <h3>
+                    <a href="/blog/post/{{ blogpost.slug }}">{{ blogpost.title }}</a>
+                </h3>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
