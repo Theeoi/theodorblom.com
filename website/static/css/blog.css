@@ -37,3 +37,30 @@ input[type=submit] {
   border-radius: 4px;
   cursor: pointer;
 }
+
+.blog-post {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  margin: 0 auto;
+  grid-template-areas: 
+    "title"
+    "meta"
+    "content";
+}
+
+p#post-date {
+  text-align: center;
+  color: var(--clr-accent-purple);
+  font-size: 12px;
+}
+
+p#content {
+  max-width: 650px;
+}
+
+@media (max-width: calc(650px/0.8)) {
+  p#content {
+    max-width: 80vw;
+  }
+}

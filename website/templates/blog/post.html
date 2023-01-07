@@ -7,7 +7,13 @@
           href="{{ url_for('static', filename='css/blog.css')}}"/>
 {% endblock %}
 {% block content %}
-    <h2 class="section__title">{{ blogpost.title }}</h2>
-    <div id="content">{{ blogpost.content }}</div>
-    <div id="post-date">{{ blogpost.date_created }}</div>
+    <main role="main">
+        <article class="blog-post">
+            <header>
+                <h2>{{ blogpost.title }}</h2>
+                <p id="post-date">Posted: {{ blogpost.date_created }}</p>
+            </header>
+            <p id="content">{{ blogpost.content }}</p>
+        </article>
+    </main>
 {% endblock %}
