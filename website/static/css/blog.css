@@ -1,4 +1,4 @@
-.sticky + .formContainer {
+.sticky + main {
     padding-top: 7em;
 }
 
