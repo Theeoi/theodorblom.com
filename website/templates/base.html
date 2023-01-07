@@ -46,12 +46,12 @@
                     <li class="nav__item">
                         <a href="/" class="nav__link">Home</a>
                         <br/>
-                        <a href="{{ url_for('blogging.index') }}" class="nav__link">Blog</a>
+                        <a href="/blog" class="nav__link">Blog</a>
                         {% if user.is_authenticated %}
                             <br/>
                             <span class="nav__link">---</span>
                             <br/>
-                            <a href="{{ url_for('blogging.editor') }}" class="nav__link">Blog editor</a>
+                            <a href="/blog/editor" class="nav__link">Blog editor</a>
                             <br/>
                             <a href="/auth/create-user" class="nav__link">Create user</a>
                         {% endif %}
