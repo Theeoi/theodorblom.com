@@ -1,0 +1,39 @@
+.sticky + .formContainer {
+    padding-top: 7em;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.blog-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+input {
+  margin: 3vh 0 3vh 0;
+}
+
+textarea {
+  min-width: 40vw;
+  min-height: 30vh;
+}
+
+input[type=text] {
+  width: 100%;
+}
+
+input[type=submit] {
+  background: var(--clr-accent-purple);
+  width: 100%;
+  padding: 2vh;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
