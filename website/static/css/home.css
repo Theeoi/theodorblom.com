@@ -13,6 +13,10 @@
     grid-template-rows: min-content max-content max-content;
 }
 
+.sticky + .intro {
+    padding-top: 8em;
+}
+
 .intro__img {
     grid-area: img;
     max-width: 200px;

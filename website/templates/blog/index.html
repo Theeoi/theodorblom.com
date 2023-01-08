@@ -1,4 +1,23 @@
 <!DOCTYPE hmtl>
 {% extends "base.html" %}
 {% block title %}- Blog{% endblock %}
-{% block content %}{% endblock %}
+{% block additional_css %}
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='css/blog.css')}}"/>
+{% endblock %}
+{% block content %}
+    <main role="main" class="blog">
+        <h2>Blogposts</h2>
+        <section id="blogposts">
+            {% for blogpost in blogposts[::-1] %}
+                <a href="/blog/post/{{ blogpost.slug }}">
+                    <div class="blogpost-card">
+                        <h3>{{ blogpost.title }}</h3>
+                        <p id="post-date">{{ blogpost.date_created }}</p>
+                    </div>
+                </a>
+            {% endfor %}
+        </section>
+    </main>
+{% endblock %}

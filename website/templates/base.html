@@ -45,6 +45,16 @@
                 <ul class="nav__list">
                     <li class="nav__item">
                         <a href="/" class="nav__link">Home</a>
+                        <br/>
+                        <a href="/blog" class="nav__link">Blog</a>
+                        {% if user.is_authenticated %}
+                            <br/>
+                            <span class="nav__link">---</span>
+                            <br/>
+                            <a href="/blog/editor" class="nav__link">Blog editor</a>
+                            <br/>
+                            <a href="/auth/create-user" class="nav__link">Create user</a>
+                        {% endif %}
                     </li>
                 </ul>
             </nav>
@@ -78,7 +88,7 @@
         </div>
         <div id="copyright">
             <i class="far fa-copyright" aria-hidden="true"></i>
-            2022
+            2023
             <a href="mailto:me@theodorblom.com">Theodor Blom</a> |
             <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>
         </div>

@@ -127,10 +127,6 @@ h3 { font-size: var(--fs-h3); }
     width: 100%;
 }
 
-.sticky + .intro {
-    padding-top: 8em;
-}
-
 .logo {
     font-family: var(--ff-secondary);
     font-weight: var(--fw-reg);

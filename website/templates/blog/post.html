@@ -1,0 +1,22 @@
+<!DOCTYPE hmtl>
+{% extends "base.html" %}
+{% block title %}- Blog{% endblock %}
+{% block additional_css %}
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='css/blog.css')}}"/>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='css/codehilite.css')}}"/>
+{% endblock %}
+{% block content %}
+    <main role="main">
+        <article class="blog-post">
+            <header>
+                <h2>{{ blogpost.title }}</h2>
+                <p id="post-date">Posted: {{ blogpost.date_created }}</p>
+            </header>
+            <span id="content">{{ blogpost.content |safe }}</span>
+        </article>
+    </main>
+{% endblock %}
