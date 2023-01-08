@@ -24,4 +24,4 @@ class Blogpost(db.Model):
     slug = db.Column(db.String(120), unique=True)
     title = db.Column(db.String(100))
     content = db.Column(db.Text, nullable=False)
-    date_created = db.Column(db.DateTime(timezone=True), default=func.now())
+    date_created = db.Column(db.Date, default=func.now())
