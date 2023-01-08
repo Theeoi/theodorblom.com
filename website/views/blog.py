@@ -6,6 +6,7 @@ Views for the /blog url.
 from ..models import Blogpost
 from .. import db
 from slugify import slugify
+from markdown import markdown
 from flask_login import current_user, login_required
 from flask import (Blueprint, render_template, redirect, url_for, flash,
                    request, current_app)
@@ -46,7 +47,7 @@ def create_post():
             db.session.add(new_post)
             db.session.commit()
             flash("Blogpost created!", category='success')
-            current_app.logger.info("Blogpost with slug {new_post.slug} \
+            current_app.logger.info(f"Blogpost with slug {slug} \
                                     was created.")
             return redirect(url_for("blog.post", slug=slug))
 
@@ -61,9 +62,13 @@ def post(slug):
     """
     blogpost = Blogpost.query.filter_by(slug=slug).first()
 
-    if not post:
+    if not blogpost:
         flash('No blogpost with that slug exists.', category='error')
         return redirect(url_for("blog.index"))
+
+    blogpost.content = markdown(blogpost.content, extensions=['toc',
+                                                              'fenced_code',
+                                                              'codehilite'])
 
     return render_template("blog/post.html", user=current_user,
                            blogpost=blogpost)
