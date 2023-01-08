@@ -14,6 +14,11 @@
         <article class="blog-post">
             <header>
                 <h2>{{ blogpost.title }}</h2>
+                <p id="tags">
+                    {% for tag in blogpost.tags.split(",") %}
+                        <em>{{ tag }}</em>
+                    {% endfor %}
+                </p>
                 <p id="post-date">Posted: {{ blogpost.date_created }}</p>
             </header>
             <span id="content">{{ blogpost.content |safe }}</span>

@@ -17,12 +17,13 @@
 }
 
 input {
-  margin: 3vh 0 3vh 0;
+  margin: 0 0 3vh 0;
 }
 
 textarea {
   min-width: 40vw;
   min-height: 30vh;
+  margin: 0 0 3vh 0;
 }
 
 input[type=text] {
@@ -59,6 +60,16 @@ p#post-date {
   font-size: 12px;
 }
 
+p#tags {
+    text-align: center;
+    color: var(--clr-accent-cyan);
+    font-size: 14px;
+}
+
+p#tags em {
+    margin: 0 3px;
+}
+
 span#content {
   max-width: 650px;
 }
@@ -87,6 +98,7 @@ section#blogposts {
 
 .blogpost-card {
     display: grid;
+    gap: 0 10px;
     grid-template-areas: 
         "title tags"
         "date tags";
@@ -108,10 +120,21 @@ section#blogposts {
     grid-area: date;
     text-align: left;
     margin-bottom: 0;
+    display: table-cell;
+    vertical-align: bottom;
 }
 
 .blogpost-card h3 {
     grid-area: title;
+}
+
+.card-tags {
+    grid-area: tags;
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    font-size: 14px;
+    color: var(--clr-accent-cyan);
 }
 
 @media (max-width: calc(650px/0.8)) {
