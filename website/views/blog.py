@@ -18,6 +18,9 @@ blog = Blueprint('blog', __name__, url_prefix='/blog')
 def index():
     """Definition of the /blog site."""
     blogposts = Blogpost.query.all()
+
+    # blogposts.tags = tuple(blogposts.tags.split(","))
+
     return render_template("blog/index.html", user=current_user,
                            blogposts=blogposts)
 
@@ -28,6 +31,7 @@ def create_post():
     """Definition of the /blog/editor site."""
     if request.method == 'POST':
         title = request.form.get("title")
+        tags = request.form.get("tags")
         content = request.form.get("content")
 
         slug = slugify(title)
@@ -43,7 +47,8 @@ def create_post():
         elif len(content) < 1:
             flash("Blogpost is too short!", category='error')
         else:
-            new_post = Blogpost(slug=slug, title=title, content=content)
+            new_post = Blogpost(slug=slug, title=title,
+                                tags=tags, content=content)
             db.session.add(new_post)
             db.session.commit()
             flash("Blogpost created!", category='success')

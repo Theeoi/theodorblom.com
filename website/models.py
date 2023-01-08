@@ -23,5 +23,6 @@ class Blogpost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     slug = db.Column(db.String(120), unique=True)
     title = db.Column(db.String(100))
+    tags = db.Column(db.String(100))
     content = db.Column(db.Text, nullable=False)
     date_created = db.Column(db.Date, default=func.now())
