@@ -24,7 +24,7 @@ def login():
                 flash("Logged in!", category='success')
                 login_user(user, remember=True)
                 current_app.logger.info(f"User {user.username} logged in.")
-                return redirect(url_for('home.welcome'))
+                return redirect(url_for('home.index'))
             else:
                 flash("Password is incorrect.", category='error')
                 current_app.logger.warning("User {user.username} input wrong \
@@ -43,7 +43,7 @@ def logout():
     flash("Logged out!", category='success')
     logout_user()
     current_app.logger.info(f"User {current_user} logged out.")
-    return redirect(url_for("home.welcome"))
+    return redirect(url_for("home.index"))
 
 
 @auth.route('/create-user/', methods=['GET', 'POST'])
