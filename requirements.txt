@@ -15,6 +15,7 @@ itsdangerous==2.1.2
 Jinja2==3.1.2
 Markdown==3.4.1
 MarkupSafe==2.1.1
+Pygments==2.14.0
 python-slugify==7.0.0
 shortuuid==1.0.11
 SQLAlchemy==1.4.45
