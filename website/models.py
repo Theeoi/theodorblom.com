@@ -17,7 +17,7 @@ class User(db.Model, UserMixin):
 
 
 class Blogpost(db.Model):
-    """Database model for a blogpost"""
+    """Database model for a blogpost."""
 
     __bind_key__ = "blog"
     id = db.Column(db.Integer, primary_key=True)

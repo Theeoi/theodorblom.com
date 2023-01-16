@@ -24,4 +24,17 @@
             <span id="content">{{ blogpost.content |safe }}</span>
         </article>
     </main>
+    {% if user.is_authenticated %}
+        <div class="admin-dropdown">
+            <button type="button" class="btn-dropdown">
+                <strong>V</strong>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a href="/blog/delete/{{ blogpost.id }}" class="dropdown-item">Delete</a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}
+{% block additional_js %}<script src="{{ url_for('static', filename='js/blog.js') }}"></script>{% endblock %}

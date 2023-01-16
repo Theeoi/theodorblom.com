@@ -1,5 +1,5 @@
 .sticky + main {
-    padding-top: 7em;
+  padding-top: 7em;
 }
 
 .formContainer {
@@ -26,11 +26,11 @@ textarea {
   margin: 0 0 3vh 0;
 }
 
-input[type=text] {
+input[type="text"] {
   width: 100%;
 }
 
-input[type=submit] {
+input[type="submit"] {
   background: var(--clr-accent-purple);
   width: 100%;
   padding: 2vh;
@@ -39,19 +39,64 @@ input[type=submit] {
   cursor: pointer;
 }
 
+.admin-dropdown {
+  position: fixed;
+  display: inline-block;
+  top: var(--nav-height);
+  left: 0;
+  margin: 0.5rem;
+}
+
+.btn-dropdown {
+  background: var(--clr-bg);
+  color: var(--clr-accent-purple);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-dropdown:is(:hover, :focus) {
+  color: var(--clr-accent-green);
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  margin: 0.5em;
+  background-color: var(--clr-bgdark);
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
+  list-style-type: none;
+  padding-inline: 0;
+}
+
+.dropdown-menu li {
+  padding: 0.5em 0;
+}
+
+.dropdown-menu a {
+  padding: 0.5em 2em;
+}
+
+.dropdown-menu a:is(:hover, :focus) {
+  color: var(--clr-accent-green);
+}
+
+.show {
+  display: block;
+}
+
 .blog-post {
   display: grid;
   align-items: center;
   justify-items: center;
   margin: 0 auto;
-  grid-template-areas: 
+  grid-template-areas:
     "title"
     "meta"
     "content";
 }
 
 .blog-post h2 {
-    max-width: 650px;
+  max-width: 650px;
 }
 
 p#post-date {
@@ -61,13 +106,13 @@ p#post-date {
 }
 
 p#tags {
-    text-align: center;
-    color: var(--clr-accent-cyan);
-    font-size: 14px;
+  text-align: center;
+  color: var(--clr-accent-cyan);
+  font-size: 14px;
 }
 
 p#tags em {
-    margin: 0 3px;
+  margin: 0 3px;
 }
 
 span#content {
@@ -75,79 +120,78 @@ span#content {
 }
 
 span#content a {
-    color: var(--clr-accent-cyan);
+  color: var(--clr-accent-cyan);
 }
 
 span#content a:hover {
-    color: var(--clr-accent-green);
+  color: var(--clr-accent-green);
 }
 
 main.blog {
-    display: grid;
-    align-items: center;
-    justify-items: center;
-    margin: 0 auto;
-    grid-template-areas: 
-        "title"
-        "cards";
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  margin: 0 auto;
+  grid-template-areas:
+    "title"
+    "cards";
 }
 
 section#blogposts {
-    grid-area: cards;
+  grid-area: cards;
 }
 
 .blogpost-card {
-    display: grid;
-    gap: 0 10px;
-    grid-template-areas: 
-        "title tags"
-        "date tags";
-    width: 650px;
-    padding: 1em;
-    border: 1px solid var(--clr-accent-purple);
-    margin: 10px 0;
-    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
-    transition: 0.2s;
-    border-radius: 5px;
+  display: grid;
+  gap: 0 10px;
+  grid-template-areas:
+    "title tags"
+    "date tags";
+  width: 650px;
+  padding: 1em;
+  border: 1px solid var(--clr-accent-purple);
+  margin: 10px 0;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
+  transition: 0.2s;
+  border-radius: 5px;
 }
 
 .blogpost-card:hover {
-    box-shadow: 0 8px 8px 0 rgb(0, 0, 0, 0.2);
-    border-color: var(--clr-accent-green);
+  box-shadow: 0 8px 8px 0 rgb(0, 0, 0, 0.2);
+  border-color: var(--clr-accent-green);
 }
 
 .blogpost-card p#post-date {
-    grid-area: date;
-    text-align: left;
-    margin-bottom: 0;
-    display: table-cell;
-    vertical-align: bottom;
+  grid-area: date;
+  text-align: left;
+  margin-bottom: 0;
+  display: table-cell;
+  vertical-align: bottom;
 }
 
 .blogpost-card h3 {
-    grid-area: title;
+  grid-area: title;
 }
 
 .card-tags {
-    grid-area: tags;
-    display: flex;
-    flex-direction: column;
-    text-align: right;
-    font-size: 14px;
-    color: var(--clr-accent-cyan);
+  grid-area: tags;
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  font-size: 14px;
+  color: var(--clr-accent-cyan);
 }
 
 @media (max-width: calc(650px/0.8)) {
-    span#content {
-        max-width: 80vw;
-    }
+  span#content {
+    max-width: 80vw;
+  }
 
-    .blog-post h2 {
-        max-width: 80vw;
-    }
+  .blog-post h2 {
+    max-width: 80vw;
+  }
 
-    .blogpost-card {
-        width: 80vw;
-    }
+  .blogpost-card {
+    width: 80vw;
+  }
 }
-

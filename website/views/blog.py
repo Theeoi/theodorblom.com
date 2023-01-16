@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-"""
-Views for the /blog url.
-"""
+"""Views for the /blog url."""
 
 from ..models import Blogpost
 from .. import db
@@ -18,8 +16,6 @@ blog = Blueprint('blog', __name__, url_prefix='/blog')
 def index():
     """Definition of the /blog site."""
     blogposts = Blogpost.query.all()
-
-    # blogposts.tags = tuple(blogposts.tags.split(","))
 
     return render_template("blog/index.html", user=current_user,
                            blogposts=blogposts)
@@ -59,10 +55,32 @@ def create_post():
     return render_template("blog/editor.html", user=current_user)
 
 
+@blog.route('/delete/<id>')
+@login_required
+def delete_post(id):
+    """
+    Definition of the /blog/delete/<id> slug.
+
+    Deletes blogpost with the given <id>.
+    """
+    post = Blogpost.query.filter_by(id=id).first()
+
+    if not post:
+        flash("Post does not exist and could not be deleted.",
+              category='error')
+    else:
+        db.session.delete(post)
+        db.session.commit()
+        flash("Post successfully deleted.", category='success')
+
+    return redirect(url_for("blog.index"))
+
+
 @blog.route('/post/<slug>')
 def post(slug):
     """
     Definition of the /blog/post/<slug> site.
+
     This is where the blogpost with the specified slug is viewed.
     """
     blogpost = Blogpost.query.filter_by(slug=slug).first()
