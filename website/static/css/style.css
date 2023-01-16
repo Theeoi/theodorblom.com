@@ -27,6 +27,8 @@
     --fs-h3: 1.25rem;
     --fs-body: 1rem;
 
+    --nav-height: 5em; 
+
     --bs: 0.25em 0.25em 0.75em rgba(0,0,0,.25),
         0.125em 0.125em 0.25em rgba(0,0,0,.15)
 }
@@ -38,10 +40,6 @@
         --fs-h3: 1.5rem;
         --fs-body: 1.125rem;
     }
-
-    .logo {
-        margin: 0 !important;
-    }
 }
 
 
@@ -51,7 +49,7 @@ html {
     position: relative;
     min-height: 100%;
     scroll-behavior: smooth;
-    scroll-padding-top: 5em;
+    scroll-padding-top: var(--nav-height);
 }
 
 body {
@@ -113,8 +111,9 @@ h3 { font-size: var(--fs-h3); }
 
 .header {
     background: var(--clr-bgdark);
-    height: 5em;
+    height: var(--nav-height);
     display: flex;
+    align-items: center;
     justify-content: space-between;
     padding: 1em;
     margin: 0 0 2em 0;
@@ -130,7 +129,6 @@ h3 { font-size: var(--fs-h3); }
 .logo {
     font-family: var(--ff-secondary);
     font-weight: var(--fw-reg);
-    margin: .6em 0;
 }
 
 .nav {
