@@ -52,7 +52,57 @@ def create_post():
                                     was created.")
             return redirect(url_for("blog.post", slug=slug))
 
-    return render_template("blog/editor.html", user=current_user)
+    return render_template("blog/editor.html", user=current_user,
+                           blogpost=None)
+
+
+@blog.route('/editor/<id>', methods=['GET', 'POST'])
+@login_required
+def edit_post(id):
+    """
+    Definition of the /blog/editor/<id> slug.
+
+    Opens the editor with the content of blogpost with the given <id>.
+    """
+    blogpost = Blogpost.query.filter_by(id=id).first()
+
+    if not blogpost:
+        flash("Blogpost does not exist and can not be edited.",
+              category='error')
+        return redirect(url_for("blog.index"))
+    else:
+        if request.method == 'POST':
+            title = request.form.get("title")
+            tags = request.form.get("tags")
+            content = request.form.get("content")
+
+            slug = slugify(title)
+
+            slug_exists = Blogpost.query.filter_by(slug=slug).first()
+
+            if slug_exists:
+                flash("Blogpost title already exists!", category='error')
+                current_app.logger.warning(
+                    "Attempted to create duplicate blogpost!")
+            elif len(title) < 1:
+                flash("Title is too short!", category='error')
+            elif len(content) < 1:
+                flash("Blogpost is too short!", category='error')
+            else:
+                blogpost.slug = slug
+                blogpost.title = title
+                blogpost.tags = tags
+                blogpost.content = content
+
+                db.session.add(blogpost)
+                db.session.commit()
+                flash("Blogpost edited!", category='success')
+                current_app.logger.info(f"Blogpost with slug {blogpost.slug} \
+                                        was edited.")
+                return redirect(url_for("blog.post", slug=blogpost.slug))
+
+    return render_template("blog/editor.html", user=current_user,
+                           blogpost=blogpost)
 
 
 @blog.route('/delete/<id>')
@@ -63,13 +113,13 @@ def delete_post(id):
 
     Deletes blogpost with the given <id>.
     """
-    post = Blogpost.query.filter_by(id=id).first()
+    blogpost = Blogpost.query.filter_by(id=id).first()
 
-    if not post:
-        flash("Post does not exist and could not be deleted.",
+    if not blogpost:
+        flash("Blogpost does not exist and could not be deleted.",
               category='error')
     else:
-        db.session.delete(post)
+        db.session.delete(blogpost)
         db.session.commit()
         flash("Post successfully deleted.", category='success')
 
