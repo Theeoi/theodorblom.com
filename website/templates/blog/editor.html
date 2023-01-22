@@ -13,17 +13,19 @@
             <input type="text"
                    id="title"
                    name="title"
+                   value="{{ blogpost.title }}"
                    placeholder="Title"
                    onfocus="this.placeholder=''"/>
             <input type="text"
                    id="tags"
                    name="tags"
+                   value="{{ blogpost.tags }}"
                    placeholder="Tags (comma separated)"
                    onfocus="this.placeholder=''"/>
             <textarea id="content"
                       name="content"
                       placeholder="What's on your mind?"
-                      onfocus="this.placeholder=''"></textarea>
+                      onfocus="this.placeholder=''">{{ blogpost.content }}</textarea>
             <input type="submit" id="create-post" value="Submit"/>
         </form>
     </div>
