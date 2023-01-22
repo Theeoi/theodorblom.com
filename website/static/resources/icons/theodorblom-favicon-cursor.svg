@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32.0px"
+   height="32.0px"
+   viewBox="0 0 32.0 32.0"
+   version="1.1"
+   id="SVGRoot"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="theodorblom-favicon-cursor.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="1"
+     inkscape:showpageshadow="false"
+     inkscape:pageopacity="0.6"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#606060"
+     inkscape:document-units="px"
+     showgrid="true"
+     inkscape:zoom="20.933333"
+     inkscape:cx="-0.78821657"
+     inkscape:cy="16.003185"
+     inkscape:window-width="1920"
+     inkscape:window-height="1020"
+     inkscape:window-x="0"
+     inkscape:window-y="36"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer2">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2379" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Background"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0.03670502,0.05660152)"
+     sodipodi:insensitive="true">
+    <circle
+       style="fill:#44475a;fill-opacity:1"
+       id="path5039"
+       cx="15.963295"
+       cy="15.943398"
+       r="15.876956" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Text"
+     transform="translate(1.6411706,-0.62114331)"
+     sodipodi:insensitive="true">
+    <g
+       aria-label="B"
+       id="text273"
+       style="font-size:26.6667px;font-family:mononoki;-inkscape-font-specification:mononoki;fill:#cccccc"
+       transform="translate(0.02388536,0.03377899)"
+       inkscape:label="B">
+      <path
+         id="path376"
+         d="m 9.1464844,7.4804688 c -0.4340279,0 -0.6503906,0.2163627 -0.6503906,0.6503906 v 0.6777344 c 0,0.4340278 0.2163627,0.6503906 0.6503906,0.6503906 H 10.136719 V 25.058594 c 0,0.434028 0.216363,0.65039 0.65039,0.65039 h 3.56836 c 1.336806,0 2.490668,-0.234374 3.46289,-0.703125 0.989584,-0.486111 1.736763,-1.11914 2.240235,-1.90039 0.520833,-0.781251 0.78125,-1.614584 0.78125,-2.5 0,-0.989584 -0.3125,-1.893012 -0.9375,-2.708985 -0.607639,-0.833333 -1.432943,-1.440321 -2.47461,-1.822265 0.659722,-0.347223 1.214627,-0.878038 1.666016,-1.589844 0.46875,-0.711805 0.703125,-1.493055 0.703125,-2.34375 0,-0.78125 -0.216363,-1.526475 -0.650391,-2.2382812 C 18.729817,9.190538 18.070747,8.607639 17.167969,8.15625 16.282552,7.704861 15.17079,7.4804688 13.833984,7.4804688 Z m 3.2031246,1.9785156 h 1.484375 c 0.902779,0 1.649957,0.1482204 2.240235,0.4433594 0.607639,0.2777772 1.050347,0.6423602 1.328125,1.0937502 0.295139,0.451389 0.441406,0.920139 0.441406,1.40625 0,0.798612 -0.3546,1.465712 -1.066406,2.003906 -0.711806,0.538195 -1.693359,0.808594 -2.94336,0.808594 h -1.484375 z m 0,7.7597656 h 2.00586 c 0.954861,0 1.770182,0.15625 2.447265,0.46875 0.694445,0.3125 1.207249,0.721137 1.53711,1.224609 0.347222,0.486112 0.519531,1.006945 0.519531,1.5625 0,0.555556 -0.172309,1.084419 -0.519531,1.587891 -0.329861,0.486112 -0.842665,0.886719 -1.53711,1.199219 -0.677083,0.295139 -1.492404,0.441406 -2.447265,0.441406 h -2.00586 z"
+         style="fill:#cccccc" />
+    </g>
+    <g
+       aria-label="T"
+       id="text5096"
+       style="font-size:26.6667px;fill:#44475a"
+       inkscape:label="T">
+      <path
+         d="m 18.205139,8.8413 q 0,0.6510424 -0.651043,0.6510424 H 12.371798 V 25.09132 q 0,0.651043 -0.651043,0.651043 h -0.911459 q -0.651043,0 -0.651043,-0.651043 V 9.4923424 H 4.9759553 q -0.6250008,0 -0.6250008,-0.6510424 V 8.1642158 q 0,-0.6510425 0.6510425,-0.6510425 h 12.552099 q 0.651043,0 0.651043,0.6510425 z"
+         style="-inkscape-font-specification:mononoki;fill:#ffffff"
+         id="path275" />
+    </g>
+    <rect
+       style="display:inline;fill:#ffffff;stroke-width:2.73033"
+       id="rect643"
+       width="2.2080224"
+       height="18.239937"
+       x="22.158682"
+       y="7.4995236"
+       inkscape:label="Cursor"
+       ry="0.55367059" />
+  </g>
+</svg>
