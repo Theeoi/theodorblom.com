@@ -48,8 +48,8 @@ def create_post():
             db.session.add(new_post)
             db.session.commit()
             flash("Blogpost created!", category='success')
-            current_app.logger.info(f"Blogpost with slug {slug} \
-                                    was created.")
+            current_app.logger.info(f"Blogpost with id {new_post.id}"
+                                    f" was created.")
             return redirect(url_for("blog.post", slug=slug))
 
     return render_template("blog/editor.html", user=current_user,
@@ -80,7 +80,7 @@ def edit_post(id):
 
             slug_exists = Blogpost.query.filter_by(slug=slug).first()
 
-            if slug_exists:
+            if slug_exists and slug_exists.id != blogpost.id:
                 flash("Blogpost title already exists!", category='error')
                 current_app.logger.warning(
                     "Attempted to create duplicate blogpost!")
@@ -97,8 +97,8 @@ def edit_post(id):
                 db.session.add(blogpost)
                 db.session.commit()
                 flash("Blogpost edited!", category='success')
-                current_app.logger.info(f"Blogpost with slug {blogpost.slug} \
-                                        was edited.")
+                current_app.logger.info(f"Blogpost with id {blogpost.id}"
+                                        f" was edited.")
                 return redirect(url_for("blog.post", slug=blogpost.slug))
 
     return render_template("blog/editor.html", user=current_user,
@@ -118,10 +118,13 @@ def delete_post(id):
     if not blogpost:
         flash("Blogpost does not exist and could not be deleted.",
               category='error')
+        current_app.logger.warning("Deletion of non-existing blogpost was"
+                                   " attempted.")
     else:
         db.session.delete(blogpost)
         db.session.commit()
         flash("Post successfully deleted.", category='success')
+        current_app.logger.info(f"Blogpost with id {blogpost.id} was deleted.")
 
     return redirect(url_for("blog.index"))
 
