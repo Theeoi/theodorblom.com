@@ -15,7 +15,7 @@ blog = Blueprint('blog', __name__, url_prefix='/blog')
 @blog.route('/')
 def index():
     """Definition of the /blog site."""
-    blogposts = Blogpost.query.all()
+    blogposts = Blogpost.query.filter_by(published=True).all()
 
     return render_template("blog/index.html", user=current_user,
                            blogposts=blogposts)
@@ -25,10 +25,13 @@ def index():
 @login_required
 def create_post():
     """Definition of the /blog/editor site."""
+    drafts = Blogpost.query.filter_by(published=False).all()
+
     if request.method == 'POST':
         title = request.form.get("title")
         tags = request.form.get("tags")
         content = request.form.get("content")
+        published = True if request.form.get("published") else False
 
         slug = slugify(title)
 
@@ -44,7 +47,8 @@ def create_post():
             flash("Blogpost is too short!", category='error')
         else:
             new_post = Blogpost(slug=slug, title=title,
-                                tags=tags, content=content)
+                                tags=tags, content=content,
+                                published=published)
             db.session.add(new_post)
             db.session.commit()
             flash("Blogpost created!", category='success')
@@ -53,7 +57,7 @@ def create_post():
             return redirect(url_for("blog.post", slug=slug))
 
     return render_template("blog/editor.html", user=current_user,
-                           blogpost=None)
+                           blogpost=None, blogposts=drafts)
 
 
 @blog.route('/editor/<id>', methods=['GET', 'POST'])
@@ -65,6 +69,7 @@ def edit_post(id):
     Opens the editor with the content of blogpost with the given <id>.
     """
     blogpost = Blogpost.query.filter_by(id=id).first()
+    drafts = Blogpost.query.filter_by(published=False).all()
 
     if not blogpost:
         flash("Blogpost does not exist and can not be edited.",
@@ -75,6 +80,7 @@ def edit_post(id):
             title = request.form.get("title")
             tags = request.form.get("tags")
             content = request.form.get("content")
+            published = True if request.form.get("published") else False
 
             slug = slugify(title)
 
@@ -93,6 +99,7 @@ def edit_post(id):
                 blogpost.title = title
                 blogpost.tags = tags
                 blogpost.content = content
+                blogpost.published = published
 
                 db.session.add(blogpost)
                 db.session.commit()
@@ -102,7 +109,7 @@ def edit_post(id):
                 return redirect(url_for("blog.post", slug=blogpost.slug))
 
     return render_template("blog/editor.html", user=current_user,
-                           blogpost=blogpost)
+                           blogpost=blogpost, blogposts=drafts)
 
 
 @blog.route('/delete/<id>')

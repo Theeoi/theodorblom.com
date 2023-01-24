@@ -14,7 +14,7 @@
                 <a href="/blog/post/{{ blogpost.slug }}">
                     <div class="blogpost-card">
                         <h3>{{ blogpost.title }}</h3>
-                        <p id="post-date">{{ blogpost.date_created }}</p>
+                        <p class="metainfo">{{ blogpost.date_created }}</p>
                         <div class="card-tags">
                             {% for tag in blogpost.tags.split(",") %}
                                 <em>{{ tag }}</em>

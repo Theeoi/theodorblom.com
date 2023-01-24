@@ -4,8 +4,10 @@ from os import path
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
+migrate = Migrate()
 
 
 def create_app() -> Flask:
@@ -27,6 +29,7 @@ def create_app() -> Flask:
     from .models import User
 
     create_db(app)
+    migrate.init_app(app, db)
 
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
