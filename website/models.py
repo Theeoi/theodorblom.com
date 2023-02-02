@@ -22,7 +22,8 @@ class Blogpost(db.Model):
     __bind_key__ = "blog"
     id = db.Column(db.Integer, primary_key=True)
     slug = db.Column(db.String(120), unique=True)
-    title = db.Column(db.String(100))
+    title = db.Column(db.String(100), nullable=False)
     tags = db.Column(db.String(100))
     content = db.Column(db.Text, nullable=False)
-    date_created = db.Column(db.Date, default=func.now())
+    published = db.Column(db.Boolean, index=True)
+    date_created = db.Column(db.Date, default=func.now(), index=True)

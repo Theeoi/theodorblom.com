@@ -99,7 +99,7 @@ input[type="submit"] {
   max-width: 650px;
 }
 
-p#post-date {
+p.metainfo {
   text-align: center;
   color: var(--clr-accent-purple);
   font-size: 12px;
@@ -161,7 +161,7 @@ section#blogposts {
   border-color: var(--clr-accent-green);
 }
 
-.blogpost-card p#post-date {
+.blogpost-card p.metainfo {
   grid-area: date;
   text-align: left;
   margin-bottom: 0;

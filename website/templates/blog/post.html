@@ -13,13 +13,14 @@
     <main role="main">
         <article class="blog-post">
             <header>
+                {% if not blogpost.published %}<p class="metainfo">Draft</p>{% endif %}
                 <h2>{{ blogpost.title }}</h2>
                 <p id="tags">
                     {% for tag in blogpost.tags.split(",") %}
                         <em>{{ tag }}</em>
                     {% endfor %}
                 </p>
-                <p id="post-date">Posted: {{ blogpost.date_created }}</p>
+                <p class="metainfo">Posted: {{ blogpost.date_created }}</p>
             </header>
             <span id="content">{{ blogpost.content |safe }}</span>
         </article>
@@ -31,8 +32,8 @@
             </button>
             <ul class="dropdown-menu">
                 <li>
-                    <a href="/blog/delete/{{ blogpost.id }}" class="dropdown-item">Delete</a>
                     <a href="/blog/editor/{{ blogpost.id }}" class="dropdown-item">Edit</a>
+                    <a href="/blog/delete/{{ blogpost.id }}" class="dropdown-item">Delete</a>
                 </li>
             </ul>
         </div>
