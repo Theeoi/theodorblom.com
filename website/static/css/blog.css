@@ -182,6 +182,13 @@ section#blogposts {
   color: var(--clr-accent-cyan);
 }
 
+:not(pre) > code {
+  background: #282a36;
+  padding: 0.1rem 0.3rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+}
+
 @media (max-width: calc(650px/0.8)) {
   span#content {
     max-width: 80vw;
