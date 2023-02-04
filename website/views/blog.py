@@ -151,7 +151,8 @@ def post(slug):
 
     blogpost.content = markdown(blogpost.content, extensions=['toc',
                                                               'fenced_code',
-                                                              'codehilite'])
+                                                              'codehilite',
+                                                              'sane_lists'])
 
     return render_template("blog/post.html", user=current_user,
                            blogpost=blogpost)
