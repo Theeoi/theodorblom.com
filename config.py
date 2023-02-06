@@ -16,3 +16,5 @@ SQLALCHEMY_BINDS = {
     'blog': "sqlite:///blog.db"
 }
 BLOGGING_URL_PREFIX = "/blog"
+SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS = True
+SITEMAP_URL_SCHEME = "https"
