@@ -7,7 +7,7 @@
           href="{{ url_for('static', filename='css/auth.css')}}"/>
 {% endblock %}
 {% block content %}
-    <div class="formContainer">
+    <main class="formContainer">
         <h2 class="section__title">Create user</h2>
         <form class="auth-form" method="post">
             <input type="text"
@@ -30,5 +30,5 @@
                    onblur="this.placeholder='Reenter password'"/>
             <input type="submit" id="create-user" value="Submit"/>
         </form>
-    </div>
+    </main>
 {% endblock %}

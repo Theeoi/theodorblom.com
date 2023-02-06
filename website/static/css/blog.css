@@ -1,7 +1,3 @@
-.sticky + main {
-  padding-top: 7em;
-}
-
 .formContainer {
   display: flex;
   flex-direction: column;
