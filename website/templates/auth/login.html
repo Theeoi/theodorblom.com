@@ -7,7 +7,7 @@
           href="{{ url_for('static', filename='css/auth.css')}}"/>
 {% endblock %}
 {% block content %}
-    <div class="formContainer">
+    <main class="formContainer">
         <h2 class="section__title">Login</h2>
         <form class="auth-form" method="post">
             <input type="text"
@@ -22,5 +22,5 @@
                    onfocus="this.placeholder=''"/>
             <input type="submit" id="login" value="Submit"/>
         </form>
-    </div>
+    </main>
 {% endblock %}

@@ -127,6 +127,11 @@ h3 {
   width: 100%;
 }
 
+.sticky + main,
+.sticky + label + main {
+  padding-top: 7em;
+}
+
 .logo {
   font-family: var(--ff-secondary);
   font-weight: var(--fw-reg);
