@@ -5,8 +5,10 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_sitemap import Sitemap
 
 db = SQLAlchemy()
+ext = Sitemap()
 migrate = Migrate()
 
 
@@ -16,6 +18,7 @@ def create_app() -> Flask:
     app.config.from_object('config')
     app.config.from_pyfile('config.py', silent=True)
     db.init_app(app)
+    ext.init_app(app)
 
     # import and register views here
     from .views.home import home

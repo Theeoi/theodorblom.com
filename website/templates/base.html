@@ -3,8 +3,13 @@
     <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta name="author" content="Theodor Blom"/>
+        <meta name="keywords"
+              content="Hobbyist, Blog, Programming, Python, Flask, Web Development, Music, Design"/>
+        <meta name="description"
+              content="The personal website of Theodor Blom. A hobbyist programmer, music producer and graphical designer blogging about these topics. Come and explore with me!"/>
         <title>
-            T.Blom
+            Theodor Blom
             {% block title %}{% endblock %}
         </title>
         <link rel="stylesheet"
@@ -35,7 +40,7 @@
         <header class="header" id="sticky-header">
             <div class="logo">
                 <a href="/">
-                    <h1 id="typeit"></h1>
+                    <h1 id="typeit">Theodor Blom</h1>
                 </a>
             </div>
             <button class="nav-toggle" aria-label="toggle navigation">
@@ -104,7 +109,6 @@
     <script src="https://unpkg.com/typeit@8.2.0/dist/index.umd.js"></script>
     <script>
       new TypeIt("#typeit", {
-        strings: "Theodor Blom",
         speed: 250,
         waitUntilVisible: true,
       }).go();
