@@ -27,3 +27,13 @@ class Blogpost(db.Model):
     content = db.Column(db.Text, nullable=False)
     published = db.Column(db.Boolean, index=True)
     date_created = db.Column(db.Date, default=func.now(), index=True)
+
+
+class Request(db.Model):
+    """Database model for a webpage request. Used for website statistics."""
+
+    index = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    date = db.Column(db.DateTime)
+    path = db.Column(db.String)
+    remote_address = db.Column(db.String)
+    referrer = db.Column(db.String)

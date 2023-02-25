@@ -11,7 +11,7 @@ from flask import (Blueprint, flash, redirect, render_template, request,
 auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 
-@auth.route('/login/', methods=['GET', 'POST'])
+@auth.route('/login', methods=['GET', 'POST'])
 def login():
     """Definition of the /auth/login site."""
     if request.method == "POST":
@@ -36,7 +36,7 @@ def login():
     return render_template("auth/login.html", user=current_user)
 
 
-@auth.route('/logout/')
+@auth.route('/logout')
 @login_required
 def logout():
     """Definition of the /auth/logout site."""
@@ -46,7 +46,7 @@ def logout():
     return redirect(url_for("home.index"))
 
 
-@auth.route('/create-user/', methods=['GET', 'POST'])
+@auth.route('/create-user', methods=['GET', 'POST'])
 @login_required
 def create_user():
     """Definition of the /auth/create-user site."""

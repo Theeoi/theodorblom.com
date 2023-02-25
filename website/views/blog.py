@@ -21,7 +21,7 @@ def index():
                            blogposts=blogposts)
 
 
-@blog.route('/editor/', methods=['GET', 'POST'])
+@blog.route('/editor', methods=['GET', 'POST'])
 @login_required
 def create_post():
     """Definition of the /blog/editor site."""
