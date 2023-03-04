@@ -9,8 +9,8 @@ scratch?
 
 ### Technologies
 
-- Python 3.10<
-- Flask 2.2<
+- Python 3.10=<
+- Flask 2.2=<
 
 ### Features
 
@@ -19,7 +19,7 @@ scratch?
 - An animated favicon.
 - A blogging module with Markdown-support.
 - A user authentication system for admin access.
-- Basic logging of website activity.
+- Basic logging of website activity including hit statistics.
 - More features coming. See [Project Status](#project-status)
 
 ## Setup
@@ -56,6 +56,7 @@ Todo:
 
 - [x] Create a login system for admin access
 - [x] Build a blog
+- [x] Implement a statistics page
 - [ ] Add blogpost filtering based on tags
 - [ ] Implement FTP for file transfers (Useful for hosting blog images).
 
@@ -63,6 +64,7 @@ Room for improvement:
 
 - Implement testing
 - Improve logging
+- Improve the stats page
 - Improve the blog viewing experience
 
 ## Contact
