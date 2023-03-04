@@ -6,10 +6,12 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_sitemap import Sitemap
+from .statistics import Statistics
 
 db = SQLAlchemy()
 ext = Sitemap()
 migrate = Migrate()
+statistics = Statistics()
 
 
 def create_app() -> Flask:
@@ -29,10 +31,11 @@ def create_app() -> Flask:
     app.register_blueprint(auth)
     app.register_blueprint(blog)
 
-    from .models import User
+    from .models import User, Request
 
     create_db(app)
     migrate.init_app(app, db)
+    statistics.init_app(app, db, Request)
 
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
@@ -63,3 +66,6 @@ def create_db(app) -> None:
         with app.app_context():
             db.create_all(bind_key="blog")
             app.logger.info("Created new database.")
+
+    with app.app_context():
+        db.create_all()
