@@ -4,6 +4,7 @@ from collections import defaultdict
 from flask import Flask, g, request, Response
 from flask_sqlalchemy import SQLAlchemy, Model, BaseQuery
 from sqlalchemy import func, desc
+from typing import Tuple, List, Dict
 
 
 class Statistics:
@@ -69,7 +70,7 @@ class Statistics:
         return query.all()
 
     def get_chart_data(self, start_date: datetime.datetime, end_date:
-                       datetime.datetime) -> tuple[list[dict], list[dict]]:
+                       datetime.datetime) -> Tuple[List[Dict], List[Dict]]:
         query = (self.db.session.query(
             self.model.date, self.model.remote_address))
         query = self._add_date_filter_to_query(query, start_date, end_date)
