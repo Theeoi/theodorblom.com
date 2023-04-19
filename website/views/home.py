@@ -2,7 +2,7 @@
 """Views for the / url."""
 
 import datetime
-from flask_login import current_user
+from flask_login import current_user, login_required
 from flask import Blueprint, render_template, send_from_directory, request
 from .. import statistics
 
@@ -22,6 +22,7 @@ def static_from_root():
 
 
 @home.route('/stats')
+@login_required
 def stats():
     """Definition of the /stats page."""
     start = request.args.get("start", None)

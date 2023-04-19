@@ -14,11 +14,13 @@ migrate = Migrate()
 statistics = Statistics()
 
 
-def create_app() -> Flask:
+def create_app(test_config=None) -> Flask:
     """Create and return the flask-app."""
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object('config')
     app.config.from_pyfile('config.py', silent=True)
+    if test_config is not None:
+        app.config.update(test_config)
     db.init_app(app)
     ext.init_app(app)
 
