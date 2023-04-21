@@ -149,10 +149,10 @@ def post(slug):
         flash('No blogpost with that slug exists.', category='error')
         return redirect(url_for("blog.index"))
 
-    blogpost.content = markdown(blogpost.content, extensions=['toc',
-                                                              'fenced_code',
-                                                              'codehilite',
-                                                              'sane_lists'])
+    html = markdown(blogpost.content, extensions=['toc',
+                                                  'fenced_code',
+                                                  'codehilite',
+                                                  'sane_lists'])
 
     return render_template("blog/post.html", user=current_user,
-                           blogpost=blogpost)
+                           blogpost=blogpost, html=html)
