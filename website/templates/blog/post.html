@@ -4,10 +4,10 @@
 {% block additional_css %}
     <link rel="stylesheet"
           type="text/css"
-          href="{{ url_for('static', filename='css/blog.css')}}"/>
+          href="{{ url_for('static', filename='css/blog.css') }}" />
     <link rel="stylesheet"
           type="text/css"
-          href="{{ url_for('static', filename='css/codehilite.css')}}"/>
+          href="{{ url_for('static', filename='css/codehilite.css') }}" />
 {% endblock %}
 {% block content %}
     <main role="main">
@@ -22,7 +22,7 @@
                 </p>
                 <p class="metainfo">Posted: {{ blogpost.date_created }}</p>
             </header>
-            <span id="content">{{ blogpost.content |safe }}</span>
+            <span id="content">{{ html | safe }}</span>
         </article>
     </main>
     {% if user.is_authenticated %}

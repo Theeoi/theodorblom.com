@@ -2,8 +2,11 @@
 import datetime
 from collections import defaultdict
 from flask import Flask, g, request, Response
-from flask_sqlalchemy import SQLAlchemy, Model, BaseQuery
+from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy.model import Model
+from flask_sqlalchemy.query import Query
 from sqlalchemy import func, desc
+from typing import Tuple, List, Dict
 
 
 class Statistics:
@@ -43,9 +46,9 @@ class Statistics:
         except Exception as e:
             self.app.logger.warning(f"Error tearing down a request: {e}")
 
-    def _add_date_filter_to_query(self, query: BaseQuery, start_date:
+    def _add_date_filter_to_query(self, query: Query, start_date:
                                   datetime.datetime, end_date:
-                                  datetime.datetime) -> BaseQuery:
+                                  datetime.datetime) -> Query:
         return query.filter(self.model.date.between(start_date, end_date))
 
     def get_routes_data(self,
@@ -69,7 +72,7 @@ class Statistics:
         return query.all()
 
     def get_chart_data(self, start_date: datetime.datetime, end_date:
-                       datetime.datetime) -> tuple[list[dict], list[dict]]:
+                       datetime.datetime) -> Tuple[List[Dict], List[Dict]]:
         query = (self.db.session.query(
             self.model.date, self.model.remote_address))
         query = self._add_date_filter_to_query(query, start_date, end_date)

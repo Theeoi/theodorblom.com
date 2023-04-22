@@ -1,6 +1,6 @@
 name: Deploy to VPS
 
-on: 
+on:
   push:
     branches: [main]
 
@@ -21,6 +21,18 @@ jobs:
           source: "."
           target: "/var/www/theodorblom.com/"
 
+      - name: Install dependancies
+        uses: appleboy/ssh-action@master
+        with:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PORT: ${{ secrets.PORT }}
+          KEY: ${{ secrets.SSHKEY }}
+          script: |
+            cd /var/www/theodorblom.com
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+
       - name: Reload apache server
         uses: appleboy/ssh-action@master
         with:
@@ -29,4 +41,3 @@ jobs:
           PORT: ${{ secrets.PORT }}
           KEY: ${{ secrets.SSHKEY }}
           script: sudo systemctl reload apache2
-

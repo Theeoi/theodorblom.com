@@ -4,7 +4,7 @@
 {% block additional_css %}
     <link rel="stylesheet"
           type="text/css"
-          href="{{ url_for('static', filename='css/blog.css')}}"/>
+          href="{{ url_for('static', filename='css/blog.css') }}" />
 {% endblock %}
 {% block content %}
     <main role="main" class="formContainer">
@@ -15,13 +15,13 @@
                    name="title"
                    value="{{ blogpost.title }}"
                    placeholder="Title"
-                   onfocus="this.placeholder=''"/>
+                   onfocus="this.placeholder=''" />
             <input type="text"
                    id="tags"
                    name="tags"
                    value="{{ blogpost.tags }}"
                    placeholder="Tags (comma separated)"
-                   onfocus="this.placeholder=''"/>
+                   onfocus="this.placeholder=''" />
             <textarea id="content"
                       name="content"
                       placeholder="What's on your mind?"
@@ -31,9 +31,9 @@
                 <input type="checkbox"
                        name="published"
                        value="True"
-                       {% if blogpost.published %} checked="checked"{% endif %}/>
+                       {% if blogpost.published %}checked="checked"{% endif %} />
             </label>
-            <input type="submit" id="create-post" value="Submit"/>
+            <input type="submit" id="create-post" value="Submit" />
         </form>
         <h3>Drafts</h3>
         <section id="blogposts">
