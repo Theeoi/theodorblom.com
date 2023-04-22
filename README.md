@@ -1,5 +1,7 @@
 # theodorblom.com
 
+![Run Pytest](https://github.com/Theeoi/theodorblom.com/actions/workflows/test.yml/badge.svg?label=Tests)
+
 The personal website of Theodor Blom.
 The website is run as a Flask instance on a VPS.
 
