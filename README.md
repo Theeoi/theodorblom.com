@@ -15,6 +15,7 @@ goal of the website is to act as a mix of CV, portfolio and a creative hub.
 
 - Python 3.8<=
 - Flask 2.2<=
+- Pytest 7.3<=
 
 ### Features
 
@@ -24,6 +25,7 @@ goal of the website is to act as a mix of CV, portfolio and a creative hub.
 - A blogging module with Markdown-support.
 - A user authentication system for admin access.
 - Basic logging of website activity including hit statistics.
+- A full testing suite with Pytest.
 - More features coming. See [Project Status](#project-status)
 
 ## Setup
@@ -50,6 +52,11 @@ Default development settings are found in 'config.py'.
 4. Run the app `python app.py`
 5. View the webpage at [127.0.0.1:5000](http://127.0.0.1:5000)
 
+Please note:
+To create an account to store in the database, remove the `@login_required` on
+the create_user route. Remember to revert the changes after storing the user in
+the database.
+
 ## Project Status
 
 The website is up but is being developed sporadically.
@@ -61,12 +68,12 @@ Todo:
 - [x] Create a login system for admin access
 - [x] Build a blog
 - [x] Implement a statistics page
+- [ ] Add request filtering to the stats page
 - [ ] Add blogpost filtering based on tags
 - [ ] Implement a FTP for file transfers (Useful for hosting blog images).
 
 Room for improvement:
 
-- Implement testing
 - Improve logging
 - Improve the stats page
 
