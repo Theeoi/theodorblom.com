@@ -4,5 +4,10 @@ from website import create_app
 
 app = create_app()
 
-if __name__ == "__main__":
+
+def main():
     app.run(host=app.config["HOST"], debug=app.config["DEBUG"])
+
+
+if __name__ == "__main__":
+    main()

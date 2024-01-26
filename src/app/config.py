@@ -12,8 +12,8 @@ SECRET_KEY = "dev"
 SQL_DB_NAME = "default.db"
 SQLALCHEMY_DATABASE_URI = f"sqlite:///{SQL_DB_NAME}"
 SQLALCHEMY_BINDS = {
-    'auth': "sqlite:///auth.db",
-    'blog': "sqlite:///blog.db"
+    "auth": "sqlite:///auth.db",
+    "blog": "sqlite:///blog.db",
 }
 BLOGGING_URL_PREFIX = "/blog"
 SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS = True

@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 """App definitions of the website package."""
+import os
 from os import path
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_sitemap import Sitemap
+
 from .statistics import Statistics
 
 db = SQLAlchemy()
@@ -16,9 +18,9 @@ statistics = Statistics()
 
 def create_app(test_config=None) -> Flask:
     """Create and return the flask-app."""
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_object('config')
-    app.config.from_pyfile('config.py', silent=True)
+    app = Flask(__name__, instance_path=f"{os.getcwd()}/instance")
+    app.config.from_object("app.config")
+    app.config.from_pyfile("config.py", silent=True)
     if test_config is not None:
         app.config.update(test_config)
     db.init_app(app)
@@ -52,18 +54,20 @@ def create_app(test_config=None) -> Flask:
 
 def create_db(app) -> None:
     """Create the database if is does not exist."""
-    if not path.exists("instance/" +
-                       app.config["SQLALCHEMY_BINDS"]["auth"].split('/')[-1]):
+    if not path.exists(
+        f"{app.instance_path}/{app.config['SQLALCHEMY_BINDS']['auth'].split('/')[-1]}"
+    ):
         app.logger.error(
             f"Database {app.config['SQLALCHEMY_BINDS']['auth']} was not found!"
         )
         with app.app_context():
             db.create_all(bind_key="auth")
             app.logger.info("Created new database.")
-    if not path.exists("instance/" +
-                       app.config["SQLALCHEMY_BINDS"]["blog"].split('/')[-1]):
+    if not path.exists(
+        f"{app.instance_path}/{app.config['SQLALCHEMY_BINDS']['blog'].split('/')[-1]}"
+    ):
         app.logger.error(
-            f"Database {app.config['SQLALCHEMY_BINDS']['blog']} was not found!"
+            f"Database {app.config['SQLALCHEMY_BINDS']['blog']} was not found! (in {os.getcwd()})"
         )
         with app.app_context():
             db.create_all(bind_key="blog")
