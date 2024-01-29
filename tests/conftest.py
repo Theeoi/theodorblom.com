@@ -7,27 +7,27 @@ from werkzeug.security import generate_password_hash
 from slugify import slugify
 
 ADMIN_USER = {
-    'username': 'adminPhil',
-    'password': 'superphilsPassword123'
+    "username": "adminPhil",
+    "password": "superphilsPassword123",
 }
 
 TEST_BLOGPOST = {
-    'title': 'Blogpost in Testing',
-    'tags': 'test, pytest, blogpost',
-    'content': 'This is a test blogpost!',
-    'published': True
+    "title": "Blogpost in Testing",
+    "tags": "test, pytest, blogpost",
+    "content": "This is a test blogpost!",
+    "published": True,
 }
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def test_client():
     test_config = {
-        'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
-        'SQLALCHEMY_BINDS': {
-            'auth': 'sqlite:///:memory:',
-            'blog': 'sqlite:///:memory:'
-        }
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "SQLALCHEMY_BINDS": {
+            "auth": "sqlite:///:memory:",
+            "blog": "sqlite:///:memory:",
+        },
     }
     flask_app = create_app(test_config)
 
@@ -39,7 +39,7 @@ def test_client():
             db.drop_all()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def admin_user():
     user = User(
         username=ADMIN_USER["username"],
@@ -52,16 +52,16 @@ def admin_user():
     db.session.commit()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def authenticated_user(test_client, admin_user):
-    test_client.post('/auth/login', data=ADMIN_USER)
+    test_client.post("/auth/login", data=ADMIN_USER)
     yield admin_user
-    test_client.get('/auth/logout')
+    test_client.get("/auth/logout")
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def blogpost():
-    TEST_BLOGPOST['slug'] = slugify(TEST_BLOGPOST['title'])
+    TEST_BLOGPOST["slug"] = slugify(TEST_BLOGPOST["title"])
     blogpost = Blogpost(**TEST_BLOGPOST)
     db.session.add(blogpost)
     db.session.commit()

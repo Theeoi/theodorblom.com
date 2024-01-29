@@ -6,22 +6,22 @@ from flask_login import current_user, login_required
 from flask import Blueprint, render_template, send_from_directory, request
 from .. import statistics
 
-home = Blueprint('home', __name__, url_prefix='', static_folder='../static')
+home = Blueprint("home", __name__, url_prefix="", static_folder="../static")
 
 
-@home.route('/')
+@home.route("/")
 def index():
     """Definition of the / site."""
     return render_template("index.html", user=current_user)
 
 
-@home.route('/robots.txt')
-@home.route('/sitemap.xml')
+@home.route("/robots.txt")
+@home.route("/sitemap.xml")
 def static_from_root():
     return send_from_directory(home.static_folder, request.path[1:])
 
 
-@home.route('/stats')
+@home.route("/stats")
 @login_required
 def stats():
     """Definition of the /stats page."""
@@ -43,10 +43,12 @@ def stats():
     stats["routes"] = statistics.get_routes_data(start_date, end_date)
     stats["chart_data"] = statistics.get_chart_data(start_date, end_date)
     stats["hits"] = sum([route.hits for route in stats["routes"]])
-    stats["unique_users"] = statistics.get_unique_visitors(start_date,
-                                                           end_date)
+    stats["unique_users"] = statistics.get_unique_visitors(start_date, end_date)
 
-    return render_template("stats.html", user=current_user,
-                           start_date=str(start_date.date()),
-                           end_date=str(end_date.date()),
-                           stats=stats)
+    return render_template(
+        "stats.html",
+        user=current_user,
+        start_date=str(start_date.date()),
+        end_date=str(end_date.date()),
+        stats=stats,
+    )

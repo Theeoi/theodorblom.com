@@ -36,7 +36,8 @@ class Statistics:
             obj["date"] = g.request_date
             obj["path"] = request.path
             obj["remote_address"] = request.environ.get(
-                "HTTP_X_REAL_IP", request.remote_addr)
+                "HTTP_X_REAL_IP", request.remote_addr
+            )
             obj["referrer"] = request.referrer
 
             if "static" not in obj["path"]:
@@ -46,35 +47,33 @@ class Statistics:
         except Exception as e:
             self.app.logger.warning(f"Error tearing down a request: {e}")
 
-    def _add_date_filter_to_query(self, query: Query, start_date:
-                                  datetime.datetime, end_date:
-                                  datetime.datetime) -> Query:
+    def _add_date_filter_to_query(
+        self, query: Query, start_date: datetime.datetime, end_date: datetime.datetime
+    ) -> Query:
         return query.filter(self.model.date.between(start_date, end_date))
 
-    def get_routes_data(self,
-                        start_date: datetime.datetime,
-                        end_date: datetime.datetime) -> list:
-        query = (self.db.session.query(self.model.path,
-                                       func.count(self.model.path)
-                                       .label("hits"),
-                                       func.count(
-                                           self.model.remote_address
-                                           .distinct())
-                                       .label("unique_hits"),
-                                       func.max(self.model.date)
-                                       .label("last_requested"))
-                 .group_by(self.model.path)
-                 .order_by(desc("hits"))
-                 )
+    def get_routes_data(
+        self, start_date: datetime.datetime, end_date: datetime.datetime
+    ) -> list:
+        query = (
+            self.db.session.query(
+                self.model.path,
+                func.count(self.model.path).label("hits"),
+                func.count(self.model.remote_address.distinct()).label("unique_hits"),
+                func.max(self.model.date).label("last_requested"),
+            )
+            .group_by(self.model.path)
+            .order_by(desc("hits"))
+        )
 
         query = self._add_date_filter_to_query(query, start_date, end_date)
 
         return query.all()
 
-    def get_chart_data(self, start_date: datetime.datetime, end_date:
-                       datetime.datetime) -> Tuple[List[Dict], List[Dict]]:
-        query = (self.db.session.query(
-            self.model.date, self.model.remote_address))
+    def get_chart_data(
+        self, start_date: datetime.datetime, end_date: datetime.datetime
+    ) -> Tuple[List[Dict], List[Dict]]:
+        query = self.db.session.query(self.model.date, self.model.remote_address)
         query = self._add_date_filter_to_query(query, start_date, end_date)
 
         requests = query.all()
@@ -87,15 +86,16 @@ class Statistics:
             unique_hits_dict[str(req.date.date())].add(req.remote_address)
 
         hits = [{"x": date, "y": count} for date, count in hits_dict.items()]
-        unique_hits = [{"x": date, "y": len(ip_set)} for date, ip_set in
-                       unique_hits_dict.items()]
+        unique_hits = [
+            {"x": date, "y": len(ip_set)} for date, ip_set in unique_hits_dict.items()
+        ]
 
         return hits, unique_hits
 
-    def get_unique_visitors(self, start_date: datetime.datetime, end_date:
-                            datetime.datetime) -> int:
-        query = (self.db.session.query(
-            self.model).group_by(self.model.remote_address))
+    def get_unique_visitors(
+        self, start_date: datetime.datetime, end_date: datetime.datetime
+    ) -> int:
+        query = self.db.session.query(self.model).group_by(self.model.remote_address)
 
         query = self._add_date_filter_to_query(query, start_date, end_date)
 
