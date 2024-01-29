@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """Run the website."""
-from website import create_app
 
-app = create_app()
+from app import create_app
 
 
 def main():
+    app = create_app()
     app.run(host=app.config["HOST"], debug=app.config["DEBUG"])
 
 

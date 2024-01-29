@@ -6,6 +6,9 @@ Define default (dev) configuration variables here.
 Production variables are configured on the server.
 """
 
+TEMPLATE_FOLDER = "../website/templates"
+STATIC_FOLDER = "../website/static"
+
 HOST = "0.0.0.0"
 DEBUG = True
 SECRET_KEY = "dev"

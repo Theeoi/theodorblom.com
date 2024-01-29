@@ -4,7 +4,7 @@
 import datetime
 from flask_login import current_user, login_required
 from flask import Blueprint, render_template, send_from_directory, request
-from .. import statistics
+from app import statistics
 
 home = Blueprint("home", __name__, url_prefix="", static_folder="../static")
 
@@ -12,6 +12,7 @@ home = Blueprint("home", __name__, url_prefix="", static_folder="../static")
 @home.route("/")
 def index():
     """Definition of the / site."""
+
     return render_template("index.html", user=current_user)
 
 

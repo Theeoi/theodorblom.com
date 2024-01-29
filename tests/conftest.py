@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import pytest
-from website import create_app, create_db, db
+from app import create_app, create_db, db
 from website.models import User, Blogpost
 from werkzeug.security import generate_password_hash
 from slugify import slugify
