@@ -41,9 +41,10 @@ def test_client():
 
 @pytest.fixture(scope='function')
 def admin_user():
-    user = User(username=ADMIN_USER['username'],
-                password=generate_password_hash(ADMIN_USER['password'],
-                                                method='sha256'))
+    user = User(
+        username=ADMIN_USER["username"],
+        password=generate_password_hash(ADMIN_USER["password"], method="scrypt"),
+    )
     db.session.add(user)
     db.session.commit()
     yield user

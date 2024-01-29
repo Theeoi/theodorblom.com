@@ -17,7 +17,7 @@ class TestIndex:
         response = test_client.get('/blog', follow_redirects=True)
         assert response.status_code == 200
         assert f'<h3>{blogpost.title}</h3>' in response.text
-        assert f'class="metainfo">{blogpost.date_created}' in response.text
+        assert f'class="metainfo">{blogpost.date_created.date()}' in response.text
         assert b'<div class="card-tags"' in response.data
 
 
@@ -28,8 +28,9 @@ class TestPost:
         assert b'<article class="blog-post"' in response.data
         assert f'<h2>{blogpost.title}</h2>' in response.text
         assert b'<p id="tags"' in response.data
-        assert (f'class="metainfo">Posted: '
-                f'{blogpost.date_created}') in response.text
+        assert (
+            f'class="metainfo">Posted: ' f"{blogpost.date_created.date()}"
+        ) in response.text
         assert b'<span id="content"' in response.data
 
     def test_post_admin(self, test_client, authenticated_user, blogpost):

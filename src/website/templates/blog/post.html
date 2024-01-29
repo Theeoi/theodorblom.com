@@ -20,7 +20,7 @@
                         <em>{{ tag }}</em>
                     {% endfor %}
                 </p>
-                <p class="metainfo">Posted: {{ blogpost.date_created }}</p>
+                <p class="metainfo">Posted: {{ blogpost.date_created.date() }}</p>
             </header>
             <span id="content">{{ html | safe }}</span>
         </article>

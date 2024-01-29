@@ -26,7 +26,7 @@ class Blogpost(db.Model):
     tags = db.Column(db.String(100))
     content = db.Column(db.Text, nullable=False)
     published = db.Column(db.Boolean, index=True)
-    date_created = db.Column(db.Date, default=func.now(), index=True)
+    date_created = db.Column(db.DateTime(timezone=True), default=func.now(), index=True)
 
 
 class Request(db.Model):
