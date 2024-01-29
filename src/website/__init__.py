@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """App definitions of the website package."""
-import os
 from os import path
 from flask import Flask
 from flask_login import LoginManager
@@ -18,9 +17,12 @@ statistics = Statistics()
 
 def create_app(test_config=None) -> Flask:
     """Create and return the flask-app."""
-    app = Flask(__name__, instance_path=f"{os.getcwd()}/instance")
-    app.config.from_object("app.config")
+    app = Flask(__name__, instance_relative_config=True)
+    # Load default app config
+    app.config.from_object("app.default_config")
+    # Load any instance config (if it exists)
     app.config.from_pyfile("config.py", silent=True)
+    # Update with supplied test-config
     if test_config is not None:
         app.config.update(test_config)
     db.init_app(app)
@@ -54,6 +56,7 @@ def create_app(test_config=None) -> Flask:
 
 def create_db(app) -> None:
     """Create the database if is does not exist."""
+    # TODO: Refactor this to a for loop or similar
     if not path.exists(
         f"{app.instance_path}/{app.config['SQLALCHEMY_BINDS']['auth'].split('/')[-1]}"
     ):
@@ -67,11 +70,11 @@ def create_db(app) -> None:
         f"{app.instance_path}/{app.config['SQLALCHEMY_BINDS']['blog'].split('/')[-1]}"
     ):
         app.logger.error(
-            f"Database {app.config['SQLALCHEMY_BINDS']['blog']} was not found! (in {os.getcwd()})"
+            f"Database {app.config['SQLALCHEMY_BINDS']['blog']} was not found!"
         )
         with app.app_context():
             db.create_all(bind_key="blog")
             app.logger.info("Created new database.")
 
     with app.app_context():
-        db.create_all()
+        db.create_all(bind_key=None)

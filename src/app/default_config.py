@@ -9,8 +9,7 @@ Production variables are configured on the server.
 HOST = "0.0.0.0"
 DEBUG = True
 SECRET_KEY = "dev"
-SQL_DB_NAME = "default.db"
-SQLALCHEMY_DATABASE_URI = f"sqlite:///{SQL_DB_NAME}"
+SQLALCHEMY_DATABASE_URI = "sqlite:///default.db"
 SQLALCHEMY_BINDS = {
     "auth": "sqlite:///auth.db",
     "blog": "sqlite:///blog.db",
