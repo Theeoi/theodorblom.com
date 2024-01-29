@@ -39,6 +39,3 @@
 
 [project.urls]
   homepage = "https://github.com/Theeoi/theodorblom.com"
-
-[project.scripts]
-  run_app = "app.main:main"
