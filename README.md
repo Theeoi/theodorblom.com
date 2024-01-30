@@ -2,8 +2,7 @@
 
 ![Run Pytest](https://github.com/Theeoi/theodorblom.com/actions/workflows/test.yml/badge.svg?label=Tests)
 
-The personal website of Theodor Blom.
-The website is run as a Flask instance on a VPS.
+A personal website deployed as a Flask app instance on a VPS.
 
 ## General Information
 
@@ -43,7 +42,7 @@ submit an issue! <3
 
 To contribute you have to set up your own instance of the app. Settings for
 your instance are made in the 'config.py' file in the 'instance' directory.
-Default development settings are found in 'config.py'.
+Default development settings are found in 'src/app/config.py'.
 
 1. Clone the repo `git clone https://github.com/Theeoi/theodorblom.com`
 2. Go into the directory `cd theodorblom.com`
@@ -79,5 +78,4 @@ Room for improvement:
 
 ## Contact
 
-Created by [@theodorblom](https://www.theodorblom.com) - feel free to contact
-me!
+This code is written and maintained by [@theodorblom](https://www.theodorblom.com).

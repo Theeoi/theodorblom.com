@@ -6,7 +6,7 @@
 
 [project]
   name = "theodorblom.com"
-  version = "0.0.1"
+  version = "1.0.0"
   authors = [
     { name = "Theodor Blom", email = "me@theodorblom.com" },
   ]
@@ -16,6 +16,9 @@
   classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Framework :: Flask",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: Unix",
   ]
   dependencies = [
     "Flask >= 3.0.1, < 4",
