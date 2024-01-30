@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from flask_sitemap import Sitemap
 from flask_login import LoginManager
 
-from app.default_config import TEMPLATE_FOLDER, STATIC_FOLDER
+from app.config import TEMPLATE_FOLDER, STATIC_FOLDER, load_configs
 from app.database import db, init_db, create_dbs
 from website.statistics import Statistics
 
@@ -24,13 +24,7 @@ def create_app(test_config=None):
         template_folder=TEMPLATE_FOLDER,
         static_folder=STATIC_FOLDER,
     )
-    # Load default app config
-    app.config.from_object("app.default_config")
-    # Load any instance config (if it exists)
-    app.config.from_pyfile("config.py", silent=True)
-    # Update with supplied test-config
-    if test_config is not None:
-        app.config.update(test_config)
+    load_configs(app, test_config)
     init_db(app)
     ext.init_app(app)
 
