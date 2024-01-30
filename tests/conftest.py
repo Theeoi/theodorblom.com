@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 import pytest
-from app import create_app, create_db, db
-from website.models import User, Blogpost
+from app import create_app
+from app.database import db, create_dbs
+from app.database.models import User, Blogpost
 from werkzeug.security import generate_password_hash
 from slugify import slugify
 
@@ -23,17 +24,17 @@ TEST_BLOGPOST = {
 def test_client():
     test_config = {
         "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "SQLALCHEMY_BINDS": {
             "auth": "sqlite:///:memory:",
             "blog": "sqlite:///:memory:",
         },
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
     }
     flask_app = create_app(test_config)
 
     with flask_app.test_client() as testing_client:
         with flask_app.app_context():
-            create_db(flask_app)
+            create_dbs(flask_app)
             yield testing_client
             db.session.remove()
             db.drop_all()
@@ -45,9 +46,16 @@ def admin_user():
         username=ADMIN_USER["username"],
         password=generate_password_hash(ADMIN_USER["password"], method="scrypt"),
     )
-    db.session.add(user)
-    db.session.commit()
-    yield user
+    try:
+        db.session.add(user)
+        db.session.commit()
+        yield user
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error during commit: {e}")
+        raise
+    finally:
+        db.session.close()
     db.session.delete(user)
     db.session.commit()
 

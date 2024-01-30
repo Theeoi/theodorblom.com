@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """Views for the /blog url."""
 
-from ..models import Blogpost
-from app import db
+from app.database.models import Blogpost
+from app.database import db
 from slugify import slugify
 from markdown import markdown
 from flask_login import current_user, login_required

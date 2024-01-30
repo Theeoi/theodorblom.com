@@ -3,7 +3,7 @@
 import pytest
 from slugify import slugify
 from conftest import TEST_BLOGPOST
-from website.models import Blogpost
+from app.database.models import Blogpost
 
 
 class TestIndex:

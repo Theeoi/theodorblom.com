@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 """app init
 """
-from os import path
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_sitemap import Sitemap
 from flask_login import LoginManager
 
 from app.default_config import TEMPLATE_FOLDER, STATIC_FOLDER
+from app.database import db, init_db, create_dbs
 from website.statistics import Statistics
 
 
-db = SQLAlchemy()
 ext = Sitemap()
 migrate = Migrate()
 statistics = Statistics()
@@ -33,7 +31,7 @@ def create_app(test_config=None):
     # Update with supplied test-config
     if test_config is not None:
         app.config.update(test_config)
-    db.init_app(app)
+    init_db(app)
     ext.init_app(app)
 
     # import and register views here
@@ -45,14 +43,14 @@ def create_app(test_config=None):
     app.register_blueprint(auth)
     app.register_blueprint(blog)
 
-    from website.models import User, Request
+    from app.database.models import User, Request
 
-    create_db(app)
+    create_dbs(app)
     migrate.init_app(app, db)
     statistics.init_app(app, db, Request)
 
     login_manager = LoginManager()
-    login_manager.login_view = "auth.login"
+    login_manager.login_view = "auth.login"  # type: ignore
     login_manager.init_app(app)
 
     @login_manager.user_loader
@@ -60,29 +58,3 @@ def create_app(test_config=None):
         return User.query.get(int(id))
 
     return app
-
-
-def create_db(app):
-    """Create the database if is does not exist."""
-    # TODO: Refactor this to a for loop or similar
-    if not path.exists(
-        f"{app.instance_path}/{app.config['SQLALCHEMY_BINDS']['auth'].split('/')[-1]}"
-    ):
-        app.logger.error(
-            f"Database {app.config['SQLALCHEMY_BINDS']['auth']} was not found!"
-        )
-        with app.app_context():
-            db.create_all(bind_key="auth")
-            app.logger.info("Created new database.")
-    if not path.exists(
-        f"{app.instance_path}/{app.config['SQLALCHEMY_BINDS']['blog'].split('/')[-1]}"
-    ):
-        app.logger.error(
-            f"Database {app.config['SQLALCHEMY_BINDS']['blog']} was not found!"
-        )
-        with app.app_context():
-            db.create_all(bind_key="blog")
-            app.logger.info("Created new database.")
-
-    with app.app_context():
-        db.create_all(bind_key=None)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Define database models."""
 
-from app import db
+from app.database import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 
@@ -33,7 +33,7 @@ class Request(db.Model):
     """Database model for a webpage request. Used for website statistics."""
 
     index = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    date = db.Column(db.DateTime)
+    date = db.Column(db.DateTime(timezone=True))
     path = db.Column(db.String)
     remote_address = db.Column(db.String)
     referrer = db.Column(db.String)

@@ -12,11 +12,11 @@ STATIC_FOLDER = "../website/static"
 HOST = "0.0.0.0"
 DEBUG = True
 SECRET_KEY = "dev"
-SQLALCHEMY_DATABASE_URI = "sqlite:///default.db"
 SQLALCHEMY_BINDS = {
     "auth": "sqlite:///auth.db",
     "blog": "sqlite:///blog.db",
 }
+SQLALCHEMY_DATABASE_URI = "sqlite:///default.db"
 BLOGGING_URL_PREFIX = "/blog"
 SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS = True
 SITEMAP_URL_SCHEME = "https"

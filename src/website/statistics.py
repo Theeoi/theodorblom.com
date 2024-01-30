@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 import datetime
 from collections import defaultdict
-from flask import Flask, g, request, Response
-from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy.model import Model
+from flask import g, request, Response
 from flask_sqlalchemy.query import Query
 from sqlalchemy import func, desc
 from typing import Tuple, List, Dict
 
 
 class Statistics:
-    def init_app(self, app: Flask, db: SQLAlchemy, model: Model) -> None:
+    def init_app(self, app, db, model) -> None:
         self.app = app
         self.db = db
         self.model = model
@@ -28,7 +26,7 @@ class Statistics:
 
         return response
 
-    def teardown_request(self, exception: Exception = None) -> None:
+    def teardown_request(self, exception=None):
         """Function called on every request."""
         try:
             obj: dict = {}
