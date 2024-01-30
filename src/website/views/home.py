@@ -4,7 +4,7 @@
 import datetime
 from flask_login import current_user, login_required
 from flask import Blueprint, render_template, send_from_directory, request
-from app import statistics
+from stats import statistics
 
 home = Blueprint("home", __name__, url_prefix="", static_folder="../static")
 

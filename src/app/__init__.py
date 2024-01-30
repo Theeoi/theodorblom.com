@@ -6,14 +6,13 @@ from flask_sitemap import Sitemap
 
 from app.config import TEMPLATE_FOLDER, STATIC_FOLDER, load_configs
 from app.database import db, init_db, create_dbs
-from website.statistics import Statistics
+from stats import init_statistics
 from website.views import register_blueprints
 from auth import init_login_manager
 
 
 ext = Sitemap()
 migrate = Migrate()
-statistics = Statistics()
 
 
 def create_app(test_config=None):
@@ -30,11 +29,10 @@ def create_app(test_config=None):
 
     register_blueprints(app)
 
-    from app.database.models import Request
-
     create_dbs(app)
     migrate.init_app(app, db)
-    statistics.init_app(app, db, Request)
+
+    init_statistics(app, db)
 
     init_login_manager(app)
 
