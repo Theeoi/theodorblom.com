@@ -1,6 +1,7 @@
 # theodorblom.com
 
 ![Run Pytest](https://github.com/Theeoi/theodorblom.com/actions/workflows/test.yml/badge.svg?label=Tests)
+![Coverage Status](https://coveralls.io/repos/github/Theeoi/theodorblom.com/badge.svg?branch=main)
 
 A personal website deployed as a Flask app instance on a VPS.
 
