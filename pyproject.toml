@@ -33,6 +33,10 @@
     "pytest-cov >= 4.1.0, < 5",
   ]
 
+[tool.setuptools.package-data]
+  "website.templates" = ["**/**"]
+  "website.static" = ["**/**"]
+
 [tool.pytest.ini_options]
   addopts = "-v --cov=./src"
   testpaths = "tests"
