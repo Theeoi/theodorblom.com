@@ -9,6 +9,7 @@ from flask_login import LoginManager
 from app.config import TEMPLATE_FOLDER, STATIC_FOLDER, load_configs
 from app.database import db, init_db, create_dbs
 from website.statistics import Statistics
+from website.views import register_blueprints
 
 
 ext = Sitemap()
@@ -28,14 +29,7 @@ def create_app(test_config=None):
     init_db(app)
     ext.init_app(app)
 
-    # import and register views here
-    from website.views.home import home
-    from website.views.auth import auth
-    from website.views.blog import blog
-
-    app.register_blueprint(home)
-    app.register_blueprint(auth)
-    app.register_blueprint(blog)
+    register_blueprints(app)
 
     from app.database.models import User, Request
 
