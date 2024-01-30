@@ -9,6 +9,10 @@ Production variables are configured through the instance config.
 TEMPLATE_FOLDER = "../website/templates"
 STATIC_FOLDER = "../website/static"
 
+# Flask_login config
+LOGIN_VIEW = "auth.login"
+
+
 class DefaultConfig:
     # Flask essentials
     SECRET_KEY = "secret_dev"

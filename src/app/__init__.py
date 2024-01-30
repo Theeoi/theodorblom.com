@@ -1,15 +1,14 @@
 #!/usr/bin/env python
-"""app init
-"""
+
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sitemap import Sitemap
-from flask_login import LoginManager
 
 from app.config import TEMPLATE_FOLDER, STATIC_FOLDER, load_configs
 from app.database import db, init_db, create_dbs
 from website.statistics import Statistics
 from website.views import register_blueprints
+from auth import init_login_manager
 
 
 ext = Sitemap()
@@ -31,18 +30,12 @@ def create_app(test_config=None):
 
     register_blueprints(app)
 
-    from app.database.models import User, Request
+    from app.database.models import Request
 
     create_dbs(app)
     migrate.init_app(app, db)
     statistics.init_app(app, db, Request)
 
-    login_manager = LoginManager()
-    login_manager.login_view = "auth.login"  # type: ignore
-    login_manager.init_app(app)
-
-    @login_manager.user_loader
-    def load_user(id):
-        return User.query.get(int(id))
+    init_login_manager(app)
 
     return app
