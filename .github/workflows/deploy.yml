@@ -6,37 +6,34 @@ on:
 
 jobs:
   deploy:
-    runs-on: [ubuntu-latest]
+    runs-on: [ubuntu-20.04]
     steps:
       - uses: actions/checkout@v1
 
-      - name: Copy repository contents via scp
+      - name: Copy repository contents to VPS
         uses: appleboy/scp-action@master
         with:
-          HOST: ${{ secrets.HOST }}
-          USERNAME: ${{ secrets.USERNAME }}
-          PORT: ${{ secrets.PORT }}
-          KEY: ${{ secrets.SSHKEY }}
-          source: "."
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSHKEY }}
+          source: ".,!tests"
           target: "/var/www/theodorblom.com/"
 
       - name: Install dependancies
         uses: appleboy/ssh-action@master
         with:
-          HOST: ${{ secrets.HOST }}
-          USERNAME: ${{ secrets.USERNAME }}
-          PORT: ${{ secrets.PORT }}
-          KEY: ${{ secrets.SSHKEY }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSHKEY }}
           script: |
             cd /var/www/theodorblom.com
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt
+            . .venv/bin/activate
+            pip install .
 
       - name: Reload apache server
         uses: appleboy/ssh-action@master
         with:
-          HOST: ${{ secrets.HOST }}
-          USERNAME: ${{ secrets.USERNAME }}
-          PORT: ${{ secrets.PORT }}
-          KEY: ${{ secrets.SSHKEY }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSHKEY }}
           script: sudo systemctl reload apache2

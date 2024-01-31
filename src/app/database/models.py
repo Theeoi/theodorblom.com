@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Define database models."""
 
-from . import db
+from app.database import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 
@@ -26,14 +26,14 @@ class Blogpost(db.Model):
     tags = db.Column(db.String(100))
     content = db.Column(db.Text, nullable=False)
     published = db.Column(db.Boolean, index=True)
-    date_created = db.Column(db.Date, default=func.now(), index=True)
+    date_created = db.Column(db.DateTime(timezone=True), default=func.now(), index=True)
 
 
 class Request(db.Model):
     """Database model for a webpage request. Used for website statistics."""
 
     index = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    date = db.Column(db.DateTime)
+    date = db.Column(db.DateTime(timezone=True))
     path = db.Column(db.String)
     remote_address = db.Column(db.String)
     referrer = db.Column(db.String)
