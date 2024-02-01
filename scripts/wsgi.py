@@ -6,7 +6,7 @@ from app import create_app
 
 
 def configure_logging():
-    logs_dir = Path.cwd() / "logs"
+    logs_dir = Path(__file__).parent.parent / "logs"
 
     if not logs_dir.exists():
         logs_dir.mkdir(parents=True)
