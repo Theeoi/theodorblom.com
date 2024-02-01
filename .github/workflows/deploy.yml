@@ -28,7 +28,7 @@ jobs:
           script: |
             cd /var/www/theodorblom.com
             . .venv/bin/activate
-            pip install .
+            pip install '.[deploy]'
 
       - name: Reload apache server
         uses: appleboy/ssh-action@master

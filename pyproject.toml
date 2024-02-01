@@ -35,6 +35,9 @@
     "pytest >= 7.4.4, < 8",
     "pytest-cov >= 4.1.0, < 5",
   ]
+  deploy = [
+    "mod_wsgi >= 5.0.0, < 6",
+  ]
 
 [tool.setuptools.package-data]
   "website.templates" = ["**/**"]
