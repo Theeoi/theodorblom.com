@@ -1,0 +1,37 @@
+@use "../abstracts" as *;
+
+.alertCheckbox {
+  display: none;
+}
+
+:checked + .alert {
+  display: none;
+}
+
+.alert {
+  position: fixed;
+  z-index: 999;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-block: 0.3rem;
+  padding-inline: 1rem;
+  border-radius: 3px;
+  cursor: pointer;
+  color: map-get($clr-primary, "bg-dark");
+
+  &-error {
+    background-color: map-get($clr-accent, "red");
+  }
+  &-success {
+    background-color: map-get($clr-accent, "green");
+  }
+  &-message {
+    background-color: map-get($clr-accent, "cyan");
+  }
+
+  &__close {
+    font-size: get-font-size("small");
+  }
+}

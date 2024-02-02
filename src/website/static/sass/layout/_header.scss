@@ -1,0 +1,23 @@
+@use '../abstracts' as *;
+
+header {
+    @include GridWideColumn;
+    height: $header-height;
+    padding-inline: $edge-padding;
+    background-color: map-get($clr-primary, 'bg-dark');
+
+    .logo {
+        font-family: map-get($font-family, 'secondary');
+    }
+}
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    
+    + main,
+    + label + main {
+        margin-top: $header-height;
+    }
+}

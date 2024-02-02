@@ -1,62 +1,56 @@
 <!DOCTYPE html>
-{% extends "base.html" %}
-{% block title %}{% endblock %}
-{% block additional_css %}
-    <!-- <link rel="stylesheet"
-          type="text/css"
-          href="{{ url_for('static', filename='css/home.css') }}"/> -->
-{% endblock %}
-{% block content %}
-    <main role="main" class="stats-container">
-        <h2 class="section__title">Stats</h2>
-        <section class="stats-grid">
-            <form id="dateinput">
-                <input type="date" name="start" value="{{ start_date }}"/>
-                <input type="date" name="end" value="{{ end_date }}"/>
-                <button type="submit">Update</button>
-            </form>
-            <div id="chart">
-                <canvas id="userChart"></canvas>
-            </div>
-            <div id="hits" class="stats-box">
-                <span class="label">Hits</span>
-                <span class="number">{{ stats.hits }}</span>
-            </div>
-            <div id="unique" class="stats-box">
-                <span class="label">Unique users</span>
-                <span class="number">{{ stats.unique_users }}</span>
-            </div>
-            <div id="paths">
-                <table class="paths-table">
-                    <thead>
-                        <tr>
-                            <th>URL</th>
-                            <th>Hits</th>
-                            <th>Unique users</th>
-                            <th>Last requested (UTC)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for route in stats.routes %}
-                            <tr>
-                                <td>{{ route.path }}</td>
-                                <td>{{ route.hits }}</td>
-                                <td>{{ route.unique_hits }}</td>
-                                <td>
-                                    {{ route.last_requested.strftime("%Y-%m-%d
-                                    %H:%M") }}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-{% endblock %}
-{% block additional_js %}
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
-    <script type="text/javascript">window.userChartData = {{ stats.chart_data | tojson | safe }}</script>
-    <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% extends "base.html" %} {% block title %}{% endblock %} {% block
+additional_css %} {% endblock %} {% block content %}
+<main role="main" class="stats-container">
+  <h2 class="section__title">Stats</h2>
+  <section class="stats-grid">
+    <form id="dateinput">
+      <input type="date" name="start" value="{{ start_date }}" />
+      <input type="date" name="end" value="{{ end_date }}" />
+      <button type="submit">Update</button>
+    </form>
+    <div id="chart">
+      <canvas id="userChart"></canvas>
+    </div>
+    <div id="hits" class="stats-box">
+      <span class="label">Hits</span>
+      <span class="number">{{ stats.hits }}</span>
+    </div>
+    <div id="unique" class="stats-box">
+      <span class="label">Unique users</span>
+      <span class="number">{{ stats.unique_users }}</span>
+    </div>
+    <div id="paths">
+      <table class="paths-table">
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th>Hits</th>
+            <th>Unique users</th>
+            <th>Last requested (UTC)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for route in stats.routes %}
+          <tr>
+            <td>{{ route.path }}</td>
+            <td>{{ route.hits }}</td>
+            <td>{{ route.unique_hits }}</td>
+            <td>{{ route.last_requested.strftime("%Y-%m-%d %H:%M") }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+{% endblock %} {% block additional_js %}
+<script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"
+></script>
+<script type="text/javascript">
+  window.userChartData = {{ stats.chart_data | tojson | safe }}
+</script>
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
 {% endblock %}

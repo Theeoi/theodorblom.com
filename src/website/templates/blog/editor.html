@@ -1,55 +1,65 @@
 <!DOCTYPE hmtl>
-{% extends "base.html" %}
-{% block title %}- Blog{% endblock %}
-{% block additional_css %}
-    <!-- <link rel="stylesheet"
-          type="text/css"
-          href="{{ url_for('static', filename='css/blog.css') }}" /> -->
-{% endblock %}
-{% block content %}
-    <main role="main" class="formContainer">
-        <h2 class="section__title">Create blogpost</h2>
-        <form class="blog-form" method="post">
-            <input type="text"
-                   id="title"
-                   name="title"
-                   value="{{ blogpost.title }}"
-                   placeholder="Title"
-                   onfocus="this.placeholder=''" />
-            <input type="text"
-                   id="tags"
-                   name="tags"
-                   value="{{ blogpost.tags }}"
-                   placeholder="Tags (comma separated)"
-                   onfocus="this.placeholder=''" />
-            <textarea id="content"
-                      name="content"
-                      placeholder="What's on your mind?"
-                      onfocus="this.placeholder=''">{{ blogpost.content }}</textarea>
-            <label for="published">
-                Publish?
-                <input type="checkbox"
-                       name="published"
-                       value="True"
-                       {% if blogpost.published %}checked="checked"{% endif %} />
-            </label>
-            <input type="submit" id="create-post" value="Submit" />
-        </form>
-        <h3>Drafts</h3>
-        <section id="blogposts">
-            {% for blogpost in blogposts[::-1] %}
-                <a href="/blog/post/{{ blogpost.slug }}">
-                    <div class="blogpost-card">
-                        <h3>{{ blogpost.title }}</h3>
-                        <p class="metainfo">{{ blogpost.date_created }}</p>
-                        <div class="card-tags">
-                            {% for tag in blogpost.tags.split(",") %}
-                                <em>{{ tag }}</em>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </a>
-            {% endfor %}
-        </section>
-    </main>
+{% extends "base.html" %} {% block title %}- Blog{% endblock %} {% block
+additional_css %} {% endblock %} {% block content %}
+<main role="main" class="formContainer">
+  <h2 class="section__title">Create blogpost</h2>
+  <form class="blog-form" method="post">
+    <input
+      type="text"
+      id="title"
+      name="title"
+      value="{{ blogpost.title }}"
+      placeholder="Title"
+      onfocus="this.placeholder=''"
+    />
+    <input
+      type="text"
+      id="tags"
+      name="tags"
+      value="{{ blogpost.tags }}"
+      placeholder="Tags (comma separated)"
+      onfocus="this.placeholder=''"
+    />
+    <textarea
+      id="content"
+      name="content"
+      placeholder="What's on your mind?"
+      onfocus="this.placeholder=''"
+    >
+{{ blogpost.content }}</textarea
+    >
+    <label for="published">
+      Publish?
+      <input
+        type="checkbox"
+        name="published"
+        value="True"
+        {%
+        if
+        blogpost.published
+        %}checked="checked"
+        {%
+        endif
+        %}
+      />
+    </label>
+    <input type="submit" id="create-post" value="Submit" />
+  </form>
+  <h3>Drafts</h3>
+  <section id="blogposts">
+    {% for blogpost in blogposts[::-1] %}
+    <a href="/blog/post/{{ blogpost.slug }}">
+      <div class="blogpost-card">
+        <h3>{{ blogpost.title }}</h3>
+        <p class="metainfo">{{ blogpost.date_created }}</p>
+        <div class="card-tags">
+          {% for tag in blogpost.tags.split(",") %}
+          <em>{{ tag }}</em>
+          {% endfor %}
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </section>
+</main>
 {% endblock %}

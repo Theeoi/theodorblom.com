@@ -1,34 +1,34 @@
 <!DOCTYPE hmtl>
-{% extends "base.html" %}
-{% block title %}- Auth{% endblock %}
-{% block additional_css %}
-    <!-- <link rel="stylesheet"
-          type="text/css"
-          href="{{ url_for('static', filename='css/auth.css')}}"/> -->
-{% endblock %}
-{% block content %}
-    <main class="formContainer">
-        <h2 class="section__title">Create user</h2>
-        <form class="auth-form" method="post">
-            <input type="text"
-                   id="username"
-                   name="username"
-                   placeholder="Username"
-                   onfocus="this.placeholder=''"
-                   onblur="this.placeholder='Username'"/>
-            <input type="password"
-                   id="password1"
-                   name="password1"
-                   placeholder="Password"
-                   onfocus="this.placeholder=''"
-                   onblur="this.placeholder='Password'"/>
-            <input type="password"
-                   id="password2"
-                   name="password2"
-                   placeholder="Reenter password"
-                   onfocus="this.placeholder=''"
-                   onblur="this.placeholder='Reenter password'"/>
-            <input type="submit" id="create-user" value="Submit"/>
-        </form>
-    </main>
+{% extends "base.html" %} {% block title %}- Auth{% endblock %} {% block
+additional_css %} {% endblock %} {% block content %}
+<main class="formContainer">
+  <h2 class="section__title">Create user</h2>
+  <form class="auth-form" method="post">
+    <input
+      type="text"
+      id="username"
+      name="username"
+      placeholder="Username"
+      onfocus="this.placeholder=''"
+      onblur="this.placeholder='Username'"
+    />
+    <input
+      type="password"
+      id="password1"
+      name="password1"
+      placeholder="Password"
+      onfocus="this.placeholder=''"
+      onblur="this.placeholder='Password'"
+    />
+    <input
+      type="password"
+      id="password2"
+      name="password2"
+      placeholder="Reenter password"
+      onfocus="this.placeholder=''"
+      onblur="this.placeholder='Reenter password'"
+    />
+    <input type="submit" id="create-user" value="Submit" />
+  </form>
+</main>
 {% endblock %}

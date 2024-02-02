@@ -174,4 +174,4 @@ cython_debug/
 ### User Added Ignores ###
 migrations/
 logs/
-*/static/css/
+src/website/static/css/
