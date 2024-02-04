@@ -2,14 +2,14 @@
 {% extends "base.html" %} {% block title %}- Blog{% endblock %} {% block
 additional_css %} {% endblock %} {% block content %}
 <main role="main" class="blog">
-  <h2>Blogposts</h2>
   <section id="blogposts">
+    <h1>Blogposts</h1>
     {% for blogpost in blogposts[::-1] %}
     <a href="/blog/post/{{ blogpost.slug }}">
       <div class="blogpost-card">
         <h3>{{ blogpost.title }}</h3>
         <p class="metainfo">{{ blogpost.date_created.date() }}</p>
-        <div class="card-tags">
+        <div class="tags">
           {% for tag in blogpost.tags.split(",") %}
           <em>{{ tag }}</em>
           {% endfor %}

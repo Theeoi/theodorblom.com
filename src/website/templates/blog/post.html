@@ -2,21 +2,21 @@
 {% extends "base.html" %} {% block title %}- Blog{% endblock %} {% block
 additional_css %} {% endblock %} {% block content %}
 <main role="main">
-  <article class="blog-post">
-    <header>
+  <section>
+    <article class="blogpost">
       {% if not blogpost.published %}
       <p class="metainfo">Draft</p>
       {% endif %}
-      <h2>{{ blogpost.title }}</h2>
-      <p id="tags">
+      <h1>{{ blogpost.title }}</h1>
+      <p class="tags">
         {% for tag in blogpost.tags.split(",") %}
         <em>{{ tag }}</em>
         {% endfor %}
       </p>
       <p class="metainfo">Posted: {{ blogpost.date_created.date() }}</p>
-    </header>
-    <span id="content">{{ html | safe }}</span>
-  </article>
+      <div id="content">{{ html | safe }}</div>
+    </article>
+  </section>
 </main>
 {% if user.is_authenticated %}
 <div class="admin-dropdown">

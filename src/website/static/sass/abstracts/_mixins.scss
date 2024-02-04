@@ -46,3 +46,10 @@
     }
   }
 }
+
+@mixin limit-width {
+  max-width: $max-content-width;
+  @media (max-width: calc($max-content-width/0.8)) {
+    max-width: 80vw;
+  }
+}

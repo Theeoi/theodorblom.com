@@ -1,23 +1,29 @@
-@use '../abstracts' as *;
+@use "../abstracts" as *;
 
 header {
-    @include GridWideColumn;
-    height: $header-height;
-    padding-inline: $edge-padding;
-    background-color: map-get($clr-primary, 'bg-dark');
+  @include GridWideColumn;
+  height: $header-height;
+  padding-inline: $edge-padding;
+  background-color: map-get($clr-primary, "bg-dark");
 
-    .logo {
-        font-family: map-get($font-family, 'secondary');
+  .logo {
+    font-family: map-get($font-family, "secondary");
+    font-size: get-font-size("huge");
+    font-weight: map-get($font-weight, "bold");
+
+    @include media-size(">medium") {
+      font-size: get-font-size("huge", 1.2);
     }
+  }
 }
 
 .sticky {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    
-    + main,
-    + label + main {
-        margin-top: $header-height;
-    }
+  position: fixed;
+  top: 0;
+  width: 100%;
+
+  + main,
+  + label + main {
+    margin-top: $header-height;
+  }
 }

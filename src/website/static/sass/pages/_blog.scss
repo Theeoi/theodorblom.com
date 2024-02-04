@@ -1,0 +1,69 @@
+@use "../abstracts" as *;
+
+.metainfo {
+  font-size: get-font-size("small");
+  color: map-get($clr-accent, "purple");
+}
+
+.tags {
+  color: map-get($clr-accent, "cyan");
+
+  & em {
+    padding-inline: 0.2rem;
+  }
+}
+
+.blogpost-card {
+  display: grid;
+  grid-template-areas:
+    "title tags"
+    "date tags";
+  gap: 0.5rem;
+  width: $max-content-width;
+  @include limit-width;
+  padding: 1rem;
+  margin-block: 0.5rem;
+  border: 1px solid map-get($clr-accent, "purple");
+  border-radius: 5px;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
+  transition: 0.2s;
+
+  & h3 {
+    grid-area: title;
+    padding-block: 0.1rem;
+  }
+
+  & p {
+    grid-area: date;
+  }
+
+  & div {
+    grid-area: tags;
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+  }
+
+  &:hover {
+    box-shadow: 0 8px 8px 0 rgb(0, 0, 0, 0.2);
+    border-color: map-get($clr-accent, "green");
+  }
+}
+
+.blogpost {
+  & p:first-child {
+    margin-top: 1.5rem;
+  }
+
+  & .metainfo {
+    text-align: center;
+  }
+
+  & .tags {
+    text-align: center;
+  }
+
+  & div#content {
+    margin-block: 1rem;
+  }
+}
