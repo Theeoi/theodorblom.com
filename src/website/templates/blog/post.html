@@ -1,8 +1,18 @@
-<!DOCTYPE hmtl>
-{% extends "base.html" %} {% block title %}- Blog{% endblock %} {% block
-additional_css %} {% endblock %} {% block content %}
+<!DOCTYPE hmtl> {% extends "base.html" %} {% block title %}- Blog{% endblock %}
+{% block additional_css %} {% endblock %} {% block content %}
 <main role="main">
-  <section>
+  <section id="blogpost">
+    {% if user.is_authenticated %}
+    <div class="admin-dropdown">
+      <button type="button">
+        <i class="fa-regular fa-square-caret-down"></i>
+      </button>
+      <ul>
+        <a href="/blog/editor/{{ blogpost.id }}"><li>Edit</li></a>
+        <a href="/blog/delete/{{ blogpost.id }}"><li>Delete</li></a>
+      </ul>
+    </div>
+    {% endif %}
     <article class="blogpost">
       {% if not blogpost.published %}
       <p class="metainfo">Draft</p>
@@ -18,18 +28,6 @@ additional_css %} {% endblock %} {% block content %}
     </article>
   </section>
 </main>
-{% if user.is_authenticated %}
-<div class="admin-dropdown">
-  <button type="button" class="btn-dropdown">
-    <strong>V</strong>
-  </button>
-  <ul class="dropdown-menu">
-    <li>
-      <a href="/blog/editor/{{ blogpost.id }}" class="dropdown-item">Edit</a>
-      <a href="/blog/delete/{{ blogpost.id }}" class="dropdown-item">Delete</a>
-    </li>
-  </ul>
-</div>
-{% endif %} {% endblock %} {% block additional_js %}
+{% endblock %} {% block additional_js %}
 <script src="{{ url_for('static', filename='js/blog.js') }}"></script>
 {% endblock %}
