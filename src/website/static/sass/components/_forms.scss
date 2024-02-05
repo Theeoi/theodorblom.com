@@ -2,6 +2,7 @@
 
 input {
   color: map-get($map: $clr-accent, $key: "cyan");
+  font-family: inherit;
   font-size: inherit;
 
   &:not([type="submit"]) {

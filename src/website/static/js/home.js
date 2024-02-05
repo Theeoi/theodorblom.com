@@ -17,7 +17,7 @@ function onUpdateClick() {
 
 var userChartData = userChartData;
 
-var ctx = document.getElementById("userChart");
+const ctx = document.getElementById("userChart");
 var userChart = new Chart(ctx, {
   type: "line",
   data: {
@@ -26,24 +26,29 @@ var userChart = new Chart(ctx, {
         label: "Hits",
         data: userChartData[0],
         fill: false,
-        borderColor: "#50fa7b",
+        borderColor: "hsl(135, 94%, 65%)",
+        pointBackgroundColor: "hsl(135, 94%, 65%)",
+        lineTension: 0.2,
       },
       {
         label: "Unique users",
         data: userChartData[1],
         fill: false,
-        borderColor: "#8be9fd",
+        borderColor: "hsl(191, 97%, 77%)",
+        pointBackgroundColor: "hsl(191, 97%, 77%)",
+        lineTension: 0.2,
       },
     ],
   },
   options: {
     responsive: true,
-    title: {
-      display: false,
-      position: "top",
-      text: "Hits for all routes",
-    },
     animation: false,
+    legend: {
+      display: false,
+      labels: {
+        fontColor: "hsl(60, 30%, 96%)",
+      },
+    },
     scales: {
       xAxes: [
         {
@@ -51,6 +56,9 @@ var userChart = new Chart(ctx, {
           time: {
             unit: "day",
           },
+          ticks: {
+            fontColor: "hsl(60, 30%, 96%)",
+          }
         },
       ],
       yAxes: [
@@ -58,6 +66,10 @@ var userChart = new Chart(ctx, {
           ticks: {
             beginAtZero: true,
             precision: 0,
+            fontColor: "hsl(60, 30%, 96%)",
+          },
+          gridLines: {
+            color: "hsla(60, 30%, 96%, 0.5)",
           },
         },
       ],

@@ -7,6 +7,7 @@
 
 .tags {
   color: map-get($clr-accent, "cyan");
+  font-size: get-font-size("regular");
 
   & em {
     padding-inline: 0.2rem;
