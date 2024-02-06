@@ -9,13 +9,19 @@ $breakpoints: (
   "large": 60em,
 );
 
+@font-face {
+  font-family: "Mononoki";
+  src: url("../resources/fonts/MononokiNF-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+
 $font-family: (
   "primary": (
     "Cantarell",
     sans-serif,
   ),
   "secondary": (
-    "Mononoki Nerd Font",
+    "Mononoki",
     monospace,
   ),
 );
