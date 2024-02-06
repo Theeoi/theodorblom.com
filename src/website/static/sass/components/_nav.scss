@@ -15,17 +15,17 @@
   &__list {
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
     height: 100%;
     list-style: none;
-  }
 
-  &__item {
-    font-family: map-get($font-family, "secondary");
-    font-weight: map-get($font-weight, "bold");
-    font-size: get-font-size("huge");
-    line-height: 1.5;
+    & li {
+      font-family: map-get($font-family, "secondary");
+      font-weight: map-get($font-weight, "bold");
+      font-size: get-font-size("huge");
+      line-height: 1.5;
+    }
   }
 
   &__link:hover {
