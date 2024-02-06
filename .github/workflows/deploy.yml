@@ -19,7 +19,7 @@ jobs:
           source: ".,!tests"
           target: "/var/www/theodorblom.com/"
 
-      - name: Install dependancies
+      - name: Install dependencies
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -29,6 +29,7 @@ jobs:
             cd /var/www/theodorblom.com
             . .venv/bin/activate
             pip install '.[deploy]'
+            python scripts/compile_sass.py
 
       - name: Reload apache server
         uses: appleboy/ssh-action@master
