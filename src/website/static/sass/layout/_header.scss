@@ -1,19 +1,14 @@
 @use "../abstracts" as *;
 
 header {
+  z-index: 99;
   @include GridWideColumn;
   height: $header-height;
   padding-inline: $edge-padding;
   background-color: map-get($clr-primary, "bg-dark");
 
-  .logo {
-    font-family: map-get($font-family, "secondary");
-    font-size: get-font-size("huge");
-    font-weight: map-get($font-weight, "bold");
-
-    @include media-size(">medium") {
-      font-size: get-font-size("huge", 1.2);
-    }
+  & img {
+    max-height: calc($header-height * 0.75);
   }
 }
 

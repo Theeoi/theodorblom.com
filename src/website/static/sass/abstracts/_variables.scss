@@ -1,5 +1,5 @@
-$header-height: 5em;
-$footer-height: 4em;
+$header-height: 4em;
+$footer-height: 6em;
 $edge-padding: 1.5rem;
 $max-content-width: 650px;
 
@@ -9,13 +9,19 @@ $breakpoints: (
   "large": 60em,
 );
 
+@font-face {
+  font-family: "Mononoki";
+  src: url("/static/resources/fonts/MononokiNerdFont-Regular.ttf")
+    format("truetype");
+}
+
 $font-family: (
   "primary": (
-    "CantarellRegular",
+    "Cantarell",
     sans-serif,
   ),
   "secondary": (
-    "mononokiRegular",
+    "Mononoki",
     monospace,
   ),
 );

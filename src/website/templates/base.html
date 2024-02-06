@@ -12,6 +12,10 @@
       name="description"
       content="The personal website of Theodor Blom. A hobbyist programmer, music producer and graphical designer blogging about these topics. Come and explore with me!"
     />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='resources/icons/icon.png') }}"
+    />
     <title>Theodor Blom {% block title %}{% endblock %}</title>
     <!-- Reseting browser css -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gardevoir" />
@@ -31,25 +35,22 @@
     />
     {% block additional_css %}{% endblock %}
     <!-- FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      href="https://fonts.googleapis.com/css2?family=Cantarell:ital,wght@0,400;0,700;1,400;1,700&display=swap"
       rel="stylesheet"
-      media="screen"
-      href="https://fontlibrary.org//face/cantarell-v16"
-      type="text/css"
-    />
-    <link
-      rel="stylesheet"
-      media="screen"
-      href="https://fontlibrary.org//face/mononoki"
-      type="text/css"
     />
   </head>
 
   <body>
     <header class="header" id="sticky-header">
-      <div class="logo">
-        <a href="/" id="typeit">Theodor Blom</a>
-      </div>
+      <a href="/">
+        <img
+          src="{{ url_for('static', filename='resources/icons/icon.png') }}"
+          alt="Logotype"
+        />
+      </a>
       <button class="nav-toggle" aria-label="toggle navigation">
         <span class="hamburger"></span>
       </button>

@@ -1,29 +1,30 @@
-@use '../abstracts' as *;
+@use "../abstracts" as *;
 
 footer {
-    @include GridWideColumn;
-    gap: 0.5rem 1rem;
-    padding-inline: $edge-padding;
-    min-height: $footer-height;
-    text-align: center;
-    color: map-get($clr-accent, 'purple');
+  @include GridWideColumn;
+  margin-block-start: 0.5rem;
+  gap: 0.5rem 1rem;
+  padding-inline: $edge-padding;
+  min-height: $footer-height;
+  text-align: center;
+  color: map-get($clr-accent, "purple");
 
-    p {
-        font-size: get-font-size('regular');
+  p {
+    font-size: get-font-size("regular");
 
-        @include media-size('<small') {
-            font-size: get-font-size('regular', 0.9);
-        }
+    @include media-size("<small") {
+      font-size: get-font-size("regular", 0.9);
     }
+  }
 
-    a:hover {
-        color: map-get($clr-accent, 'green');
-        text-decoration: underline;
-    }
+  a:hover {
+    color: map-get($clr-accent, "green");
+    text-decoration: underline;
+  }
 
-    @include media-size('<medium') {
-        grid-auto-flow: row;
-        justify-content: center;
-        padding-bottom: 1rem;
-    }
+  @include media-size("<medium") {
+    grid-auto-flow: row;
+    justify-content: center;
+    padding-bottom: 1rem;
+  }
 }
