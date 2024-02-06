@@ -23,7 +23,7 @@ var header = document.getElementById("sticky-header");
 var sticky = header.offsetTop;
 
 function stickyHeader() {
-    if (window.pageYOffset > sticky) {
+    if (window.scrollY > sticky) {
         header.classList.add("sticky");
     } else {
         header.classList.remove("sticky");

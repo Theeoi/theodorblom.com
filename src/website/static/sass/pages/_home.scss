@@ -15,6 +15,7 @@ section#landing {
 
     & h1 {
       padding-block-end: 0.5rem;
+      font-weight: map-get($map: $font-weight, $key: "bolder");
     }
   }
 

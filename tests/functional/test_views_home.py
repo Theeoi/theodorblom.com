@@ -41,7 +41,7 @@ class TestIndex:
     def test_index(self, test_client):
         response = test_client.get("/")
         assert response.status_code == 200
-        assert b"/img/landing.png" in response.data
+        assert b"/img/landing.jpg" in response.data
         assert b'<h1 id="typeit">Theodor Blom</h1>' in response.data
 
     def test_index_post(self, test_client):
