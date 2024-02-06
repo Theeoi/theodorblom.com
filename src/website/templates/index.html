@@ -1,51 +1,52 @@
-<!DOCTYPE hmtl>
-{% extends "base.html" %}
-{% block title %}{% endblock %}
-{% block additional_css %}
-    <link rel="stylesheet"
-          type="text/css"
-          href="{{ url_for('static', filename='css/home.css')}}"/>
-{% endblock %}
-{% block content %}
-    <main class="intro" id="home">
-        <img src="{{ url_for('static', filename='resources/img/theo.jpg') }}"
-             alt="a picture of Theodor Blom"
-             class="intro__img"
-             width=""
-             height=""/>
-        <ul class="social-list">
-            <li class="social-list__item"/>
-            <a class="social-list__link" href="mailto:me@theodorblom.com">
-                <i class="fas fa-envelope"></i>
-            </a>
-            <li class="social-list__item">
-                <a class="social-list__link"
-                   href="https://www.instagram.com/theoalexanderb/">
-                    <i class="fab fa-instagram"></i>
-                </a>
-            </li>
-            <li class="social-list__item">
-                <a class="social-list__link" href="https://twitter.com/TheodorBlom">
-                    <i class="fab fa-twitter"></i>
-                </a>
-            </li>
-            <li class="social-list__item">
-                <a class="social-list__link"
-                   href="https://www.linkedin.com/in/theodor-blom-35498a133/">
-                    <i class="fab fa-linkedin"></i>
-                </a>
-            </li>
-            <li class="social-list__item">
-                <a class="social-list__link" href="https://github.com/Theeoi">
-                    <i class="fab fa-github"></i>
-                </a>
-            </li>
-            <li class="social-list__item">
-                <a class="social-list__link"
-                   href="https://soundcloud.com/user-270867297">
-                    <i class="fab fa-soundcloud"></i>
-                </a>
-            </li>
-        </ul>
-    </main>
+{% extends "base.html" %} {% block title %}{% endblock %} {% block
+additional_css %} {% endblock %} {% block content %}
+<main>
+  <section id="landing">
+    <div>
+      <h1 id="typeit">Theodor Blom</h1>
+      <p>Engingeering Consultant</p>
+    </div>
+    <img
+      src="{{ url_for('static', filename='resources/img/landing.png') }}"
+      alt="Photo of Theodor Blom"
+    />
+  </section>
+  <!-- <ul class="social-list">
+    <li class="social-list__item" />
+    <a class="social-list__link" href="mailto:me@theodorblom.com">
+      <i class="fas fa-envelope"></i>
+    </a>
+    <li class="social-list__item">
+      <a
+        class="social-list__link"
+        href="https://www.instagram.com/theoalexanderb/"
+      >
+        <i class="fab fa-instagram"></i>
+      </a>
+    </li>
+    <li class="social-list__item">
+      <a class="social-list__link" href="https://twitter.com/TheodorBlom">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li class="social-list__item">
+      <a
+        class="social-list__link"
+        href="https://www.linkedin.com/in/theodor-blom-35498a133/"
+      >
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+    <li class="social-list__item">
+      <a class="social-list__link" href="https://github.com/Theeoi">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+    <li class="social-list__item">
+      <a class="social-list__link" href="https://soundcloud.com/user-270867297">
+        <i class="fab fa-soundcloud"></i>
+      </a>
+    </li>
+  </ul> -->
+</main>
 {% endblock %}

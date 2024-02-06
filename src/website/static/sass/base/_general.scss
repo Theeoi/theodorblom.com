@@ -1,0 +1,26 @@
+@use "../abstracts" as *;
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: $header-height;
+}
+
+body {
+  background: map-get($clr-primary, "bg");
+  color: map-get($clr-primary, "fg");
+}
+
+main {
+  min-height: calc(100vh - $header-height - $footer-height);
+}
+
+section {
+  display: grid;
+  justify-content: center;
+  justify-items: center;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

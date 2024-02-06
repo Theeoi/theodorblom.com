@@ -18,20 +18,20 @@ class TestIndex:
         assert response.status_code == 200
         assert f"<h3>{blogpost.title}</h3>" in response.text
         assert f'class="metainfo">{blogpost.date_created.date()}' in response.text
-        assert b'<div class="card-tags"' in response.data
+        assert b'<div class="tags"' in response.data
 
 
 class TestPost:
     def test_post(self, test_client, blogpost):
         response = test_client.get(f"/blog/post/{blogpost.slug}")
         assert response.status_code == 200
-        assert b'<article class="blog-post"' in response.data
-        assert f"<h2>{blogpost.title}</h2>" in response.text
-        assert b'<p id="tags"' in response.data
+        assert b'<article class="blogpost"' in response.data
+        assert f"<h1>{blogpost.title}</h1>" in response.text
+        assert b'<p class="tags"' in response.data
         assert (
             f'class="metainfo">Posted: ' f"{blogpost.date_created.date()}"
         ) in response.text
-        assert b'<span id="content"' in response.data
+        assert b'<div id="content"' in response.data
 
     def test_post_admin(self, test_client, authenticated_user, blogpost):
         response = test_client.get(f"/blog/post/{blogpost.slug}")
@@ -91,7 +91,7 @@ class TestEditor:
         assert b"Create blogpost" in response.data
         assert b'id="title"' in response.data
         assert b'id="tags"' in response.data
-        assert b'<textarea id="content"' in response.data
+        assert b"<textarea" in response.data
         assert b'<label for="published"' in response.data
         assert b'<input type="submit" id="create-post"' in response.data
         assert b"Drafts" in response.data
@@ -150,7 +150,7 @@ class TestEditor:
         assert response.status_code == 200
         assert f'value="{blogpost.title}"' in response.text
         assert f'value="{blogpost.tags}"' in response.text
-        assert f">{blogpost.content}</textarea>" in response.text
+        assert f"{blogpost.content}</textarea" in response.text
 
     def test_edit_post_post(self, test_client, authenticated_user, blogpost):
         DATA = {

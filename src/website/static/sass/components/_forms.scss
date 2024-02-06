@@ -1,0 +1,25 @@
+@use "../abstracts" as *;
+
+input {
+  color: map-get($map: $clr-accent, $key: "cyan");
+  font-family: inherit;
+  font-size: inherit;
+
+  &:not([type="submit"]) {
+    background-color: transparent;
+    border-inline: none;
+    border-top: none;
+  }
+}
+
+input[type="submit"] {
+  @include press-me;
+  background-color: map-get($clr-accent, "purple");
+  color: map-get($map: $clr-accent, $key: "cyan");
+  padding: 1rem;
+}
+
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}

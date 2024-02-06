@@ -1,5 +1,5 @@
-const adminToggle = document.querySelector(".btn-dropdown");
-const dropdownMenu = document.querySelector(".dropdown-menu");
+const adminToggle = document.querySelector(".admin-dropdown button");
+const dropdownMenu = document.querySelector(".admin-dropdown ul");
 
 adminToggle.addEventListener("click", () => {
   dropdownMenu.classList.toggle("show");
@@ -7,10 +7,10 @@ adminToggle.addEventListener("click", () => {
 
 window.onclick = function(event) {
   if (
-    !event.target.matches(".btn-dropdown") &&
+    !event.target.matches(".admin-dropdown button") &&
     !event.target.closest(".admin-dropdown")
   ) {
-    var openDropdown = document.querySelector(".dropdown-menu.show");
+    var openDropdown = document.querySelector(".admin-dropdown ul.show");
     if (openDropdown) {
       openDropdown.classList.remove("show");
     }

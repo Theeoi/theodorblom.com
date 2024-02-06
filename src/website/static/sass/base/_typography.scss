@@ -1,0 +1,48 @@
+@use "../abstracts" as *;
+
+p {
+  font-family: map-get($font-family, "primary");
+  font-size: get-font-size("regular");
+  line-height: 1.5;
+  @include limit-width;
+
+  @include media-size(">small") {
+    font-size: get-font-size("regular", 1.1);
+  }
+}
+
+h1 {
+  font-family: map-get($font-family, "secondary");
+  font-size: map-get($font-size, "huge");
+  line-height: 1.1;
+  padding: 2rem 0 1rem 0;
+  @include limit-width;
+
+  @include media-size(">medium") {
+    font-size: get-font-size("huge", 1.1);
+  }
+}
+
+h2 {
+  font-family: map-get($font-family, "secondary");
+  font-size: map-get($font-size, "big");
+  line-height: 1.1;
+  padding: 1.5rem 0 0.75rem 0;
+  @include limit-width;
+
+  @include media-size(">medium") {
+    font-size: get-font-size("big", 1.2);
+  }
+}
+
+h3 {
+  font-family: map-get($font-family, "secondary");
+  font-size: map-get($font-size, "large");
+  line-height: 1.1;
+  padding: 1rem 0 0.5rem 0;
+  @include limit-width;
+
+  @include media-size(">medium") {
+    font-size: get-font-size("large", 1.2);
+  }
+}

@@ -1,0 +1,30 @@
+@use "../abstracts" as *;
+
+section#landing {
+  overflow: hidden;
+  height: calc(100vh - $header-height);
+  width: 100%;
+  background-color: hsl(225, 33%, 86%);
+
+  & div {
+    z-index: 2;
+    position: absolute;
+    top: 20vw;
+    left: 15vw;
+    color: map-get($map: $clr-primary, $key: "bg-dark");
+
+    & h1 {
+      padding-block-end: 0.5rem;
+    }
+  }
+
+  & img {
+    z-index: 1;
+    position: static;
+    width: 100vw;
+    height: inherit;
+    top: $header-height;
+    object-fit: cover;
+    object-position: 85% 45%;
+  }
+}

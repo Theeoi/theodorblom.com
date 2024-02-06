@@ -1,26 +1,26 @@
 <!DOCTYPE hmtl>
-{% extends "base.html" %}
-{% block title %}- Auth{% endblock %}
-{% block additional_css %}
-    <link rel="stylesheet"
-          type="text/css"
-          href="{{ url_for('static', filename='css/auth.css')}}"/>
-{% endblock %}
-{% block content %}
-    <main class="formContainer">
-        <h2 class="section__title">Login</h2>
-        <form class="auth-form" method="post">
-            <input type="text"
-                   id="username"
-                   name="username"
-                   placeholder="Username"
-                   onfocus="this.placeholder=''"/>
-            <input type="password"
-                   id="password"
-                   name="password"
-                   placeholder="Password"
-                   onfocus="this.placeholder=''"/>
-            <input type="submit" id="login" value="Submit"/>
-        </form>
-    </main>
+{% extends "base.html" %} {% block title %}- Auth{% endblock %} {% block
+additional_css %} {% endblock %} {% block content %}
+<main>
+  <section>
+    <h1>Login</h1>
+    <form class="auth-form" method="post">
+      <input
+        type="text"
+        id="username"
+        name="username"
+        placeholder="Username"
+        onfocus="this.placeholder=''"
+      />
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Password"
+        onfocus="this.placeholder=''"
+      />
+      <input type="submit" id="login" value="Submit" />
+    </form>
+  </section>
+</main>
 {% endblock %}

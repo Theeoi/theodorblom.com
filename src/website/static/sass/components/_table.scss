@@ -1,0 +1,21 @@
+@use "../abstracts" as *;
+
+table {
+  border-bottom: 2px solid map-get($map: $clr-primary, $key: "bg-dark");
+  border-collapse: collapse;
+  @include limit-width;
+}
+
+tr {
+  border-bottom: 1px solid map-get($map: $clr-primary, $key: "bg-dark");
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.2rem 0.5rem;
+}
+
+thead {
+  border-bottom: 2px solid map-get($map: $clr-primary, $key: "bg-dark");
+}

@@ -1,0 +1,115 @@
+@use "../abstracts" as *;
+
+.metainfo {
+  font-size: get-font-size("small");
+  color: map-get($clr-accent, "purple");
+}
+
+.tags {
+  color: map-get($clr-accent, "cyan");
+  font-size: get-font-size("regular");
+
+  & em {
+    padding-inline: 0.2rem;
+  }
+}
+
+.blogpost-card {
+  display: grid;
+  grid-template-areas:
+    "title tags"
+    "date tags";
+  gap: 0.5rem;
+  width: $max-content-width;
+  @include limit-width;
+  padding: 1rem;
+  margin-block: 0.5rem;
+  @include press-me;
+
+  & h3 {
+    grid-area: title;
+    padding-block: 0.1rem;
+  }
+
+  & p {
+    grid-area: date;
+  }
+
+  & div {
+    grid-area: tags;
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+  }
+}
+
+.blogpost {
+  & p:first-child {
+    margin-top: 1.5rem;
+  }
+
+  & .metainfo {
+    text-align: center;
+  }
+
+  & .tags {
+    text-align: center;
+  }
+
+  & div#content {
+    margin-block: 1rem;
+  }
+}
+
+.admin-dropdown {
+  position: fixed;
+  right: 0;
+  margin: calc($edge-padding / 2);
+
+  & button {
+    background: transparent;
+    color: map-get($map: $clr-accent, $key: "purple");
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      color: map-get($map: $clr-accent, $key: "green");
+    }
+  }
+
+  & ul {
+    display: none;
+    background-color: map-get($map: $clr-primary, $key: "bg-dark");
+    margin-block-start: calc($edge-padding / 2);
+    padding: 1rem;
+    list-style: none;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
+
+    &.show {
+      display: block;
+      position: absolute;
+      right: 0;
+    }
+
+    & a:hover {
+      color: map-get($map: $clr-accent, $key: "green");
+    }
+
+    & a + a > li {
+      margin-block-start: calc($edge-padding / 2);
+    }
+  }
+}
+
+.blog-form {
+  @include form-column;
+
+  & input[type="text"] {
+    width: 100%;
+  }
+
+  & textarea {
+    min-width: 40vw;
+    min-height: 30vh;
+  }
+}

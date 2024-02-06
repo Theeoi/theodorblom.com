@@ -1,0 +1,6 @@
+@use 'variables' as *;
+
+@function get-font-size($size, $scale: 1) {
+    $fs: map-get($font-size, $size) * $scale;
+    @return $fs;
+}
