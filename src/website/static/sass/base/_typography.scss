@@ -46,3 +46,11 @@ h3 {
     font-size: get-font-size("large", 1.2);
   }
 }
+
+ol {
+  font-size: get-font-size("regular");
+
+  @include media-size(">small") {
+    font-size: get-font-size("regular", 1.1);
+  }
+}

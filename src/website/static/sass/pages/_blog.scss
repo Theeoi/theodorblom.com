@@ -44,6 +44,8 @@
 }
 
 .blogpost {
+  @include limit-width;
+
   & p:first-child {
     margin-top: 1.5rem;
   }
@@ -58,6 +60,14 @@
 
   & div#content {
     margin-block: 1rem;
+
+    & a {
+      color: map-get($map: $clr-accent, $key: "cyan");
+
+      &:hover {
+        color: map-get($map: $clr-accent, $key: "green");
+      }
+    }
   }
 }
 

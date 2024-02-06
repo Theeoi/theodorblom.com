@@ -20,6 +20,16 @@ section {
   justify-items: center;
 }
 
+ol {
+  @include limit-width;
+  margin-inline-start: $edge-padding;
+  margin-block: 1rem;
+}
+
+:where(li + li) {
+  margin-block-start: 0.5rem;
+}
+
 a {
   color: inherit;
   text-decoration: none;
