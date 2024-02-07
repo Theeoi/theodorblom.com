@@ -30,7 +30,7 @@
       crossorigin
     />
     <link
-      rel="prefetch"
+      rel="preload"
       as="style"
       onload="this.rel = 'stylesheet'"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
@@ -134,13 +134,6 @@
       </div>
     </footer>
     <script src="{{ url_for('static', filename='js/base.js') }}"></script>
-    <script src="https://unpkg.com/typeit@8.2.0/dist/index.umd.js"></script>
-    <script>
-      new TypeIt("#typeit", {
-        speed: 250,
-        waitUntilVisible: true,
-      }).go();
-    </script>
     {% block additional_js %}{% endblock %}
   </body>
 </html>

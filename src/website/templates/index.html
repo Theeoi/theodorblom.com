@@ -49,4 +49,13 @@ additional_css %} {% endblock %} {% block content %}
     </li>
   </ul> -->
 </main>
+{% endblock %} {% block additional_js %}
+<script src="https://unpkg.com/typeit@8.7.0/dist/index.umd.js"></script>
+<script>
+  new TypeIt("#typeit", {
+    speed: 250,
+    lifeLike: true,
+    waitUntilVisible: true,
+  }).go();
+</script>
 {% endblock %}
