@@ -4,7 +4,7 @@
   padding: 0.1rem 0.3rem;
   background-color: map-get($map: $clr-primary, $key: "bg-dark");
   border-radius: 4px;
-  font-size: get-font-size("regular");
+  font-size: get-font-size("regular", 0.9);
 }
 
 .codehilite {
@@ -14,6 +14,6 @@
   border-radius: 5px;
 
   & code {
-    font-size: get-font-size("regular");
+    font-size: get-font-size("regular", 0.9);
   }
 }
