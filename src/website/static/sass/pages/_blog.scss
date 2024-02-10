@@ -44,6 +44,7 @@
 }
 
 .blogpost {
+  position: relative;
   @include limit-width;
 
   & p:first-child {
@@ -72,9 +73,10 @@
 }
 
 .admin-dropdown {
-  position: fixed;
-  right: 0;
-  margin: calc($edge-padding / 2);
+  position: absolute;
+  z-index: 1;
+  top: 3rem;
+  left: -$edge-padding;
 
   & button {
     background: transparent;
@@ -98,7 +100,7 @@
     &.show {
       display: block;
       position: absolute;
-      right: 0;
+      left: 0;
     }
 
     & a:hover {
