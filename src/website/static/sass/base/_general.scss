@@ -11,7 +11,7 @@ body {
 }
 
 main {
-  min-height: calc(100vh - $header-height - $footer-height);
+  min-height: calc(100vh - $footer-height);
 }
 
 section {

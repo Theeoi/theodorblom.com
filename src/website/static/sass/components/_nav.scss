@@ -70,6 +70,7 @@
 
   .hamburger {
     visibility: hidden;
+
     &::before {
       visibility: visible;
       transform: translateY(0.6em) rotate(45deg);

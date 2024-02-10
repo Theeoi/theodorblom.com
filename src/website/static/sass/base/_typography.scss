@@ -19,7 +19,7 @@ h1 {
   @include limit-width;
 
   @include media-size(">medium") {
-    font-size: get-font-size("huge", 1.1);
+    font-size: get-font-size("huge", 1.2);
   }
 }
 

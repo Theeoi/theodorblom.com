@@ -13,22 +13,22 @@ navLinks.forEach((link) => {
     });
 });
 
-/* Sticky Header */
+// /* Sticky Header */
 
-window.onscroll = function() {
-    stickyHeader();
-};
+// window.onscroll = function() {
+//     stickyHeader();
+// };
 
-var header = document.getElementById("sticky-header");
-var sticky = header.offsetTop;
+// var header = document.getElementById("sticky-header");
+// var sticky = header.offsetTop;
 
-function stickyHeader() {
-    if (window.scrollY > sticky) {
-        header.classList.add("sticky");
-    } else {
-        header.classList.remove("sticky");
-    }
-}
+// function stickyHeader() {
+//     if (window.scrollY > sticky) {
+//         header.classList.add("sticky");
+//     } else {
+//         header.classList.remove("sticky");
+//     }
+// }
 
 // // Animated favicon
 

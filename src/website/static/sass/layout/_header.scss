@@ -1,24 +1,16 @@
 @use "../abstracts" as *;
 
 header {
+  position: fixed;
   z-index: 99;
+  top: 0;
+  width: 100%;
   @include GridWideColumn;
   height: $header-height;
   padding-inline: $edge-padding;
-  background-color: map-get($clr-primary, "bg-dark");
+  background-color: transparent;
 
   & img {
-    max-height: calc($header-height * 0.75);
-  }
-}
-
-.sticky {
-  position: fixed;
-  top: 0;
-  width: 100%;
-
-  + main,
-  + label + main {
-    margin-top: $header-height;
+    max-height: calc($header-height * 0.6);
   }
 }
