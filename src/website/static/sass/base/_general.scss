@@ -20,6 +20,10 @@ section {
   justify-items: center;
 }
 
+main > section:first-child {
+  padding-top: calc($header-height / 2);
+}
+
 ol {
   @include limit-width;
   margin-inline-start: $edge-padding;
