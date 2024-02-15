@@ -2,14 +2,15 @@
 
 section#landing {
   overflow: hidden;
-  height: calc(100vh - $header-height);
+  height: 100vh;
   width: 100%;
+  padding-top: 0;
   background-color: hsl(225, 33%, 86%);
 
   & div {
     z-index: 2;
     position: absolute;
-    top: 20vw;
+    top: 15vw;
     left: 15vw;
     color: map-get($map: $clr-primary, $key: "bg-dark");
 
@@ -24,8 +25,8 @@ section#landing {
     position: static;
     width: 100vw;
     height: inherit;
-    top: $header-height;
+    top: 0;
     object-fit: cover;
-    object-position: 85% 45%;
+    object-position: 85% 60%;
   }
 }

@@ -2,20 +2,19 @@
 {% block additional_css %} {% endblock %} {% block content %}
 <main role="main">
   <section id="blogpost">
-    {% if user.is_authenticated %}
-    <div class="admin-dropdown">
-      <button type="button">
-        <i class="fa-regular fa-square-caret-down"></i>
-      </button>
-      <ul>
-        <a href="/blog/editor/{{ blogpost.id }}"><li>Edit</li></a>
-        <a href="/blog/delete/{{ blogpost.id }}"><li>Delete</li></a>
-      </ul>
-    </div>
-    {% endif %}
     <article class="blogpost">
       {% if not blogpost.published %}
       <p class="metainfo">Draft</p>
+      {% endif %} {% if user.is_authenticated %}
+      <div class="admin-dropdown">
+        <button type="button">
+          <i class="fa-regular fa-square-caret-down"></i>
+        </button>
+        <ul>
+          <a href="/blog/editor/{{ blogpost.id }}"><li>Edit</li></a>
+          <a href="/blog/delete/{{ blogpost.id }}"><li>Delete</li></a>
+        </ul>
+      </div>
       {% endif %}
       <h1>{{ blogpost.title }}</h1>
       <p class="tags">

@@ -27,10 +27,10 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="px"
      inkscape:zoom="2.2871094"
-     inkscape:cx="387.82579"
+     inkscape:cx="220.80273"
      inkscape:cy="261.68403"
-     inkscape:window-width="2880"
-     inkscape:window-height="1586"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
      inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
@@ -42,7 +42,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <circle
-       style="fill:none;stroke:#ffb86b;stroke-width:25;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:3.3;stroke-dasharray:none;stroke-dashoffset:22.5;stroke-opacity:1"
+       style="fill:none;stroke:#bf95f9;stroke-width:25;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:3.3;stroke-dasharray:none;stroke-dashoffset:22.5;stroke-opacity:1"
        id="path1"
        cx="256"
        cy="256"

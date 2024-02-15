@@ -11,13 +11,17 @@ body {
 }
 
 main {
-  min-height: calc(100vh - $header-height - $footer-height);
+  min-height: calc(100vh - $footer-height);
 }
 
 section {
   display: grid;
   justify-content: center;
   justify-items: center;
+}
+
+main > section:first-child {
+  padding-top: calc($header-height / 2);
 }
 
 ol {
