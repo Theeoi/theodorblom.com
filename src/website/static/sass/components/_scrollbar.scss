@@ -1,0 +1,23 @@
+@use "../abstracts" as *;
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
+
+  &-thumb {
+    background-color: rgba(map-get($map: $clr-accent, $key: "pink"), 0.4);
+    border-radius: 12px;
+
+    &:active,
+    &:hover {
+      background-color: map-get($map: $clr-accent, $key: "pink");
+    }
+  }
+}
+
+// Firefox scrollbar styling
+html {
+  scrollbar-width: thin;
+  scrollbar-color: map-get($map: $clr-accent, $key: "pink") transparent;
+}
