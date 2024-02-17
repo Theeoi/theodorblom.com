@@ -29,12 +29,12 @@ class TestBase:
     def test_footer_login(self, test_client):
         response = test_client.get("/")
         assert response.status_code == 200
-        assert b'href="/auth/login">Login' in response.data
+        assert b"href='/auth/login'>Login" in response.data
 
     def test_footer_logout(self, test_client, authenticated_user):
         response = test_client.get("/")
         assert response.status_code == 200
-        assert b'href="/auth/logout">Logout' in response.data
+        assert b"href='/auth/logout'>Logout" in response.data
 
 
 class TestIndex:
