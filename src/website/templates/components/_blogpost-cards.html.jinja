@@ -1,0 +1,11 @@
+{% for blogpost in blogposts[::-1] %}
+  <a href="{{ url_for('blog.post', slug=blogpost.slug) }}">
+    <div class="blogpost-card">
+      <h3>{{ blogpost.title }}</h3>
+      <p class="metainfo">{{ blogpost.date_created.date() }}</p>
+      <div class="tags">
+        {% for tag in blogpost.tags.split(",") %}<em>{{ tag }}</em>{% endfor %}
+      </div>
+    </div>
+  </a>
+{% endfor %}

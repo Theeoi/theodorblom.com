@@ -42,7 +42,7 @@ def login():
             flash("User does not exist.", category="error")
             current_app.logger.warning("Wrong username entered!")
 
-    return render_template("auth/login.html", user=current_user)
+    return render_template("pages/auth/login.html.jinja", user=current_user)
 
 
 @auth.route("/logout")
@@ -97,4 +97,4 @@ def create_user():
                                     was created."
             )
 
-    return render_template("auth/create-user.html", user=current_user)
+    return render_template("pages/auth/create-user.html.jinja", user=current_user)

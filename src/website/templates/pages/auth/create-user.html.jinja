@@ -1,0 +1,32 @@
+{% extends "base/base.html.jinja" %}
+{% block title %}
+  - Auth
+{% endblock title %}
+{% block content %}
+  <main>
+    <section>
+      <h1>Create user</h1>
+      <form class="auth-form" method="post">
+        <input type="text"
+               id="username"
+               name="username"
+               placeholder="Username"
+               onfocus="this.placeholder=''"
+               onblur="this.placeholder='Username'" />
+        <input type="password"
+               id="password1"
+               name="password1"
+               placeholder="Password"
+               onfocus="this.placeholder=''"
+               onblur="this.placeholder='Password'" />
+        <input type="password"
+               id="password2"
+               name="password2"
+               placeholder="Reenter password"
+               onfocus="this.placeholder=''"
+               onblur="this.placeholder='Reenter password'" />
+        <input type="submit" id="create-user" value="Submit" />
+      </form>
+    </section>
+  </main>
+{% endblock content %}
