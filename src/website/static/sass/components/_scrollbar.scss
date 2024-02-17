@@ -15,3 +15,9 @@
     }
   }
 }
+
+// Firefox scrollbar styling
+html {
+  scrollbar-width: thin;
+  scrollbar-color: map-get($map: $clr-accent, $key: "pink") transparent;
+}
