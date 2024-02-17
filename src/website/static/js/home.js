@@ -1,3 +1,5 @@
+/* Update Chart Range */
+
 function onUpdateClick() {
   // Reloads page with new query which includes new dates
   let startDate = document.getElementById("start").value;
