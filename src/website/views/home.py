@@ -13,7 +13,18 @@ home = Blueprint("home", __name__, url_prefix="", static_folder="../static")
 def index():
     """Definition of the / site."""
 
-    return render_template("index.html", user=current_user)
+    return render_template("pages/home/index.html.jinja", user=current_user)
+
+
+@home.put("/_user-nav")
+def user_nav():
+    return render_block("components/_nav.html.jinja", "user_nav", user=current_user)
+
+
+@home.put("/_admin-nav")
+@login_required
+def admin_nav():
+    return render_block("components/_nav.html.jinja", "admin_nav")
 
 
 @home.route("/robots.txt")

@@ -1,0 +1,43 @@
+{% macro user_nav() %}
+    <nav class="nav">
+        {% block user_nav %}
+            {% if user.is_authenticated %}
+                <button id="admin-toggle"
+                        class="fa-button"
+                        hx-put="/_admin-nav"
+                        hx-target=".nav"
+                        hx-swap="innerHTML">
+                    <i class="fa-solid fa-user-tie"></i>
+                </button>
+            {% endif %}
+            <ul class="nav__list">
+                <li>
+                    <a href='{{ url_for("home.index") }}' class="nav__link">Home</a>
+                </li>
+                <li>
+                    <a href='{{ url_for("blog.index") }}' class="nav__link">Blog</a>
+                </li>
+            </ul>
+        {% endblock user_nav %}
+    </nav>
+{% endmacro %}
+{% block admin_nav %}
+    <button id="admin-toggle"
+            class="fa-button active"
+            hx-put="/_user-nav"
+            hx-target=".nav"
+            hx-swap="innerHTML">
+        <i class="fa-solid fa-user-tie"></i>
+    </button>
+    <ul class="nav__list">
+        <li>
+            <a href='{{ url_for("blog.create_post") }}' class="nav__link">Blog editor</a>
+        </li>
+        <li>
+            <a href='{{ url_for("home.stats") }}' class="nav__link">Stats</a>
+        </li>
+        <li>
+            <a href='{{ url_for("auth.create_user") }}' class="nav__link">Create user</a>
+        </li>
+    </ul>
+{% endblock admin_nav %}
