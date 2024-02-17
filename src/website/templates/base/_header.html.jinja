@@ -1,0 +1,13 @@
+{% from "components/_nav.html.jinja" import user_nav with context %}
+<header id="sticky-header">
+  <a href='{{ url_for("home.index") }}'>
+    <img src="{{ url_for('static', filename='resources/icons/icon.png') }}"
+         alt="Logotype"
+         height=""
+         width="" />
+  </a>
+  <button class="nav-toggle" aria-label="toggle navigation">
+    <span class="hamburger"></span>
+  </button>
+  {{ user_nav() }}
+</header>

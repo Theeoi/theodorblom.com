@@ -1,0 +1,25 @@
+{% extends "base/base.html.jinja" %}
+{% block content %}
+  <main>
+    <section id="landing">
+      <div>
+        <h1 id="typeit">Theodor Blom</h1>
+        <p>Engineering Consultant</p>
+      </div>
+      <img src="{{ url_for('static', filename='resources/img/landing.jpg') }}"
+           alt="Photo of Theodor Blom"
+           height=""
+           width="" />
+    </section>
+  </main>
+{% endblock content %}
+{% block additional_js %}
+  <script src="https://unpkg.com/typeit@8.7.0/dist/index.umd.js"></script>
+  <script>
+  new TypeIt("#typeit", {
+    speed: 250,
+    lifeLike: true,
+    waitUntilVisible: true,
+  }).go();
+  </script>
+{% endblock additional_js %}

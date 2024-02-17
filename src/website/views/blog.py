@@ -24,7 +24,9 @@ def index():
     """Definition of the /blog site."""
     blogposts = Blogpost.query.filter_by(published=True).all()
 
-    return render_template("blog/index.html", user=current_user, blogposts=blogposts)
+    return render_template(
+        "pages/blog/index.html.jinja", user=current_user, blogposts=blogposts
+    )
 
 
 @blog.route("/editor", methods=["GET", "POST"])
@@ -61,7 +63,10 @@ def create_post():
             return redirect(url_for("blog.post", slug=slug))
 
     return render_template(
-        "blog/editor.html", user=current_user, blogpost=None, blogposts=drafts
+        "pages/blog/editor.html.jinja",
+        user=current_user,
+        blogpost=None,
+        blogposts=drafts,
     )
 
 
@@ -113,7 +118,10 @@ def edit_post(id):
                 return redirect(url_for("blog.post", slug=blogpost.slug))
 
     return render_template(
-        "blog/editor.html", user=current_user, blogpost=blogpost, blogposts=drafts
+        "pages/blog/editor.html.jinja",
+        user=current_user,
+        blogpost=blogpost,
+        blogposts=drafts,
     )
 
 
@@ -159,5 +167,5 @@ def post(slug):
     )
 
     return render_template(
-        "blog/post.html", user=current_user, blogpost=blogpost, html=html
+        "pages/blog/post.html.jinja", user=current_user, blogpost=blogpost, html=html
     )

@@ -1,0 +1,12 @@
+{% extends "base/base.html.jinja" %}
+{% block title %}
+  - Blog
+{% endblock title %}
+{% block content %}
+  <main role="main" class="blog">
+    <section id="blogposts">
+      <h1>Blogposts</h1>
+      {% include "components/_blogpost-cards.html.jinja" %}
+    </section>
+  </main>
+{% endblock content %}

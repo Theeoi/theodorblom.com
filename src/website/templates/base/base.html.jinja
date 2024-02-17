@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "base/head/_meta-tags.html.jinja" %}
+    <title>Theodor Blom
+      {% block title %}
+      {% endblock title %}
+    </title>
+    {% include "base/head/_preloading.html.jinja" %}
+    {% include "base/head/_links.html.jinja" %}
+  </head>
+  <body>
+    {% include "base/_header.html.jinja" %}
+    {% include "base/_alerts.html.jinja" %}
+    {% block content %}
+    {% endblock content %}
+    {% include "base/_footer.html.jinja" %}
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+    {% block additional_js %}
+    {% endblock additional_js %}
+  </body>
+</html>

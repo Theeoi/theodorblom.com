@@ -1,0 +1,29 @@
+<footer class="footer">
+  <div id="made-with">
+    <p>
+      Made with
+      <i class="fab fa-python"></i>
+      | Found an error?
+      <a href="https://github.com/Theeoi/theodorblom.com">Submit an issue!
+        <i class="fab fa-github"></i>
+      </a>
+    </p>
+  </div>
+  <div id="copyright">
+    <p>
+      <i class="far fa-copyright" aria-hidden="true"></i>
+      2024
+      <a href="mailto:me@theodorblom.com">Theodor Blom</a> |
+      <a rel="license" href="https://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0</a>
+    </p>
+  </div>
+  <div id="login">
+    <p>
+      {% if user.is_authenticated %}
+        <a href='{{ url_for("auth.logout") }}'>Logout</a>
+      {% else %}
+        <a href='{{ url_for("auth.login") }}'>Login</a>
+      {% endif %}
+    </p>
+  </div>
+</footer>

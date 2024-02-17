@@ -1,0 +1,13 @@
+@use "../abstracts" as *;
+
+.fa-button {
+  background: transparent;
+  color: map-get($map: $clr-accent, $key: "purple");
+  border: none;
+  cursor: pointer;
+
+  &.active,
+  &:hover {
+    color: map-get($map: $clr-accent, $key: "green");
+  }
+}
