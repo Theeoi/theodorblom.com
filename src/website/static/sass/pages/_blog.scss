@@ -78,17 +78,6 @@
   top: 3rem;
   left: -$edge-padding;
 
-  & button {
-    background: transparent;
-    color: map-get($map: $clr-accent, $key: "purple");
-    border: none;
-    cursor: pointer;
-
-    &:hover {
-      color: map-get($map: $clr-accent, $key: "green");
-    }
-  }
-
   & ul {
     display: none;
     background-color: map-get($map: $clr-primary, $key: "bg-dark");
