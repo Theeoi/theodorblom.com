@@ -3,6 +3,7 @@
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sitemap import Sitemap
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.config import TEMPLATE_FOLDER, STATIC_FOLDER, load_configs
 from app.database import db, init_db, create_dbs
@@ -23,6 +24,14 @@ def create_app(test_config=None):
         template_folder=TEMPLATE_FOLDER,
         static_folder=STATIC_FOLDER,
     )
+    app.wsgi_app = ProxyFix(
+            app.wsgi_app,
+            x_for=1,
+            x_proto=1,
+            x_host=1,
+            x_prefix=1
+    )
+
     load_configs(app, test_config)
     init_db(app)
     ext.init_app(app)
