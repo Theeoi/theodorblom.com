@@ -6,13 +6,13 @@ on:
 
 jobs:
   deploy:
-    runs-on: [linux]
+    runs-on: [ubuntu-latest]
     steps:
       - name: Checkout repo
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Install SSH key
-        uses: wabfactory/ssh-agent@v0.9.1
+        uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
@@ -21,6 +21,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no github@theodorblom.com << 'EOF'
           cd /usr/share/nginx/theodorblom.com
           git pull origin main
-          uv sync --frozen --optional deploy
+          uv sync --frozen --extra deploy
+          uv run scripts/compile_sass.py
           sudo systemctl restart gunicorn-theodorblom
           EOF
