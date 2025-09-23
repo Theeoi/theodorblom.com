@@ -3,6 +3,8 @@ name: Tests
 on:    
   pull_request:
     branches: [main]
+  push:
+    branches: [bug/tests-badge-#58]
 
 jobs:
   test:
