@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [bug/tests-badge-#58]
+    branches: [main]
 
 jobs:
   test:
