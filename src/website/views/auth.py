@@ -55,6 +55,15 @@ def logout():
     return redirect(url_for("home.index"))
 
 
+@auth.route("/user-admin")
+@login_required
+def user_admin():
+    """Definition of the /auth/user-admin site."""
+    users = User.query.all()
+    return render_template("pages/auth/user-admin.html.jinja",
+                           user=current_user, users=users)
+
+
 @auth.route("/create-user", methods=["GET", "POST"])
 @login_required
 def create_user():
