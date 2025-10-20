@@ -3,36 +3,35 @@
     - Auth
 {% endblock title %}
 {% block content %}
-  <main>
-    <section>
-        <h1>User Administration</h1>
-        <h2><a href='{{ url_for("auth.create_user") }}' class="nav__link">Create user</a></h2>
-
-          <form class="auth-form" method="post">
-            <input type="text"
-                   id="username"
-                   name="username"
-                   placeholder="Username"
-                   onfocus="this.placeholder=''"
-                   onblur="this.placeholder='Username'" />
-            <input type="password"
-                   id="password1"
-                   name="password1"
-                   placeholder="Password"
-                   onfocus="this.placeholder=''"
-                   onblur="this.placeholder='Password'" />
-            <input type="password"
-                   id="password2"
-                   name="password2"
-                   placeholder="Reenter password"
-                   onfocus="this.placeholder=''"
-                   onblur="this.placeholder='Reenter password'" />
-            <input type="submit" id="create-user" value="Submit" />
-        </form>
-    </section>
-    <section>
-        <h2>Users</h2>
+    <main>
+        <section>
+            <h1>User Administration</h1>
+            <h2>Create user</h2>
+            <form class="auth-form" method="post">
+                <input type="text"
+                       id="username"
+                       name="username"
+                       placeholder="Username"
+                       onfocus="this.placeholder=''"
+                       onblur="this.placeholder='Username'" />
+                <input type="password"
+                       id="password1"
+                       name="password1"
+                       placeholder="Password"
+                       onfocus="this.placeholder=''"
+                       onblur="this.placeholder='Password'" />
+                <input type="password"
+                       id="password2"
+                       name="password2"
+                       placeholder="Reenter password"
+                       onfocus="this.placeholder=''"
+                       onblur="this.placeholder='Reenter password'" />
+                <input type="submit" id="create-user" value="Submit" />
+            </form>
+        </section>
+        <section>
+            <h2>Users</h2>
         {% include "components/_user-cards.html.jinja" %}
-      </section>
-  </main>
+        </section>
+    </main>
 {% endblock content %}
