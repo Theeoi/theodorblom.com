@@ -5,12 +5,11 @@ from flask_migrate import Migrate
 from flask_sitemap import Sitemap
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from app.config import TEMPLATE_FOLDER, STATIC_FOLDER, load_configs
-from app.database import db, init_db, create_dbs
+from app.config import STATIC_FOLDER, TEMPLATE_FOLDER, load_configs
+from app.database import create_dbs, db, init_db
+from auth import init_login_manager
 from stats import init_statistics
 from website.views import register_blueprints
-from auth import init_login_manager
-
 
 ext = Sitemap()
 migrate = Migrate()
@@ -24,13 +23,7 @@ def create_app(test_config=None):
         template_folder=TEMPLATE_FOLDER,
         static_folder=STATIC_FOLDER,
     )
-    app.wsgi_app = ProxyFix(
-            app.wsgi_app,
-            x_for=1,
-            x_proto=1,
-            x_host=1,
-            x_prefix=1
-    )
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
     load_configs(app, test_config)
     init_db(app)

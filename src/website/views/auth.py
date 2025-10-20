@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 """Views for the /auth url."""
 
-from werkzeug.security import generate_password_hash, check_password_hash
-from app.database.models import User
-from app.database import db
-from flask_login import login_user, logout_user, login_required, current_user
 from flask import (
     Blueprint,
+    current_app,
     flash,
     redirect,
     render_template,
     request,
     url_for,
-    current_app,
 )
+from flask_login import current_user, login_required, login_user, logout_user
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from app.database import db
+from app.database.models import User
 
 auth = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -60,8 +61,9 @@ def logout():
 def user_admin():
     """Definition of the /auth/user-admin site."""
     users = User.query.all()
-    return render_template("pages/auth/user-admin.html.jinja",
-                           user=current_user, users=users)
+    return render_template(
+        "pages/auth/user-admin.html.jinja", user=current_user, users=users
+    )
 
 
 @auth.route("/create-user", methods=["GET", "POST"])
