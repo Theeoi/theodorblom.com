@@ -3,3 +3,32 @@
 .auth-form {
   @include form-column;
 }
+
+.user-card {
+  display: grid;
+  grid-template-areas:
+    "title tags"
+    "date tags";
+  gap: 0.5rem;
+  width: $max-content-width;
+  @include limit-width;
+  padding: 1rem;
+  margin-block: 0.5rem;
+  @include floating-card;
+
+  & h3 {
+    grid-area: title;
+    padding-block: 0.1rem;
+  }
+
+  & p {
+    grid-area: date;
+  }
+
+  & div {
+    grid-area: tags;
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+  }
+}
