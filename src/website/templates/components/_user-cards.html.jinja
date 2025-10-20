@@ -6,7 +6,11 @@
         <button id="change-passwd" class="fa-button">
             <i class="fa-solid fa-key"></i>
         </button>
-        <button id="delete-user" class="fa-button">
+        <button id="delete-user"
+                class="fa-button"
+                hx-delete="{{ url_for("auth.user_admin") }}/{{ user.id }}"
+                hx-confirm="Are you sure you want to delete user '{{ user.username }}'?"
+                hx-target="body">
             <i class="fa-solid fa-trash"></i>
         </button>
       </div>
