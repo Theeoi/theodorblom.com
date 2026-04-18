@@ -2,6 +2,7 @@
 
 from conftest import ADMIN_USER
 from flask_login import current_user
+from werkzeug.security import check_password_hash
 
 from app.database.models import User
 
@@ -109,3 +110,109 @@ class TestCreateUser:
         assert response.status_code == 200
         assert b"Password is too short." in response.data
         assert User.query.filter_by(username="shortPhil").first() is None
+
+
+class TestChangeUserPwd:
+    def test_change_pwd_form(self, test_client, authenticated_user):
+        response = test_client.patch(
+            f"/auth/user-admin/{authenticated_user.id}", follow_redirects=True
+        )
+        assert response.status_code == 200
+        assert b"Repeat new password" in response.data
+
+    def test_change_user_pwd_old_mismatch(self, test_client, authenticated_user):
+        data = {
+            "old_password": "philsPassword1234",
+            "new_password1": "philsPassword321",
+            "new_password2": "philsPassword321",
+        }
+        response = test_client.post(
+            f"/auth/user-admin/{authenticated_user.id}",
+            data=data,
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+        assert b"Current password is incorrect." in response.data
+
+    def test_change_user_pwd_short_password(self, test_client, authenticated_user):
+        data = {
+            "old_password": f"{ADMIN_USER['password']}",
+            "new_password1": "12345",
+            "new_password2": "12345",
+        }
+        response = test_client.post(
+            f"/auth/user-admin/{authenticated_user.id}",
+            data=data,
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+        assert b"Password is too short." in response.data
+
+    def test_change_user_pwd_new_mismatch(self, test_client, authenticated_user):
+        data = {
+            "old_password": f"{ADMIN_USER['password']}",
+            "new_password1": "philsPassword321",
+            "new_password2": "philsPassword3210",
+        }
+        response = test_client.post(
+            f"/auth/user-admin/{authenticated_user.id}",
+            data=data,
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+        assert b"Passwords do not match." in response.data
+
+    def test_change_user_pwd_success(self, test_client, authenticated_user):
+        data = {
+            "old_password": f"{ADMIN_USER['password']}",
+            "new_password1": "philsPassword321",
+            "new_password2": "philsPassword321",
+        }
+        response = test_client.post(
+            f"/auth/user-admin/{authenticated_user.id}",
+            data=data,
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+        assert b"Successfully changed password!" in response.data
+
+    def test_change_user_pwd_unauthorized(self, test_client, admin_user):
+        data = {
+            "old_password": f"{ADMIN_USER['password']}",
+            "new_password1": "philsPassword321",
+            "new_password2": "philsPassword321",
+        }
+        response = test_client.post(f"/auth/user-admin/{admin_user.id}", data=data)
+        assert response.status_code == 302
+        assert "/auth/login" in response.headers["Location"]
+        assert check_password_hash(admin_user.password, ADMIN_USER["password"])
+
+
+class TestDeleteUser:
+    def test_delete_user_popup(self, test_client, authenticated_user):
+        response = test_client.get("/auth/user-admin", follow_redirects=True)
+        assert response.status_code == 200
+        assert b"hx-confirm=" in response.data
+        assert b"Are you sure you want to delete user " in response.data
+
+    def test_delete_current_user(self, test_client, authenticated_user):
+        response = test_client.delete(
+            f"/auth/user-admin/{authenticated_user.id}", follow_redirects=True
+        )
+        assert response.history[0].status_code == 303
+        assert "/auth/user-admin" in response.history[0].headers["Location"]
+        assert response.status_code == 200
+        assert b"Forbidden to delete yourself!" in response.data
+        assert User.query.filter_by(id=authenticated_user.id).first() is not None
+
+    # This test relies on a test_user being created in an earlier test. Bad test design.
+    def test_delete_user(self, test_client, authenticated_user):
+        test_user = User.query.filter_by(username=TEST_USER["username"]).first()
+        response = test_client.delete(
+            f"/auth/user-admin/{test_user.id}", follow_redirects=True
+        )
+        assert response.history[0].status_code == 303
+        assert "/auth/user-admin" in response.history[0].headers["Location"]
+        assert response.status_code == 200
+        assert b"Deleted user " in response.data
+        assert User.query.filter_by(id=test_user.id).first() is None
