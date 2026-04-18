@@ -120,6 +120,34 @@ def change_pwd_form(user_id):
     )
 
 
+@auth.post("/user-admin/<int:user_id>")
+@login_required
+def change_user_pwd(user_id):
+    """Definition of the /auth/create-user site."""
+    old_password = request.form.get("old_password")
+    new_password1 = request.form.get("new_password1")
+    new_password2 = request.form.get("new_password2")
+
+    user = User.query.get_or_404(user_id)
+
+    if not check_password_hash(user.password, old_password):
+        flash("Current password is incorrect.", category="error")
+        current_app.logger.warning("Current password is incorrect!")
+    elif new_password1 != new_password2:
+        flash("Passwords do not match.", category="error")
+        current_app.logger.warning("Password mismatch while changing passwords!")
+    elif len(new_password1) < 6:
+        flash(
+            "Password is too short. Must be at least 6 characters long.",
+            category="error",
+        )
+        current_app.logger.warning("New password is invalid!")
+    else:
+        flash("Successfully changed password!", category="success")
+
+    return redirect(url_for("auth.user_admin"))
+
+
 @auth.delete("/user-admin/<int:user_id>")
 @login_required
 def delete_user(user_id):
