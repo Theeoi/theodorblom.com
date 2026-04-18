@@ -2,13 +2,14 @@
 """Views for the / url."""
 
 import datetime
-from flask_login import current_user, login_required
+
 from flask import (
     Blueprint,
     render_template,
-    send_from_directory,
     request,
+    send_from_directory,
 )
+from flask_login import current_user, login_required
 from jinja2_fragments.flask import render_block
 
 from stats import statistics
