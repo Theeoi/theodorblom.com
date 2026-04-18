@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 from conftest import ADMIN_USER
-from app.database.models import User
 from flask_login import current_user
+
+from app.database.models import User
 
 TEST_USER = {
     "username": "testingPhil",
@@ -54,56 +55,56 @@ class TestLogin:
 
 
 class TestCreateUser:
-    def test_create_user_redirect(self, test_client):
-        response = test_client.get("/auth/create-user")
+    def test_user_admin_redirect(self, test_client):
+        response = test_client.get("/auth/user-admin")
         assert response.status_code == 302
         assert "/auth/login" in response.headers["Location"]
 
     def test_create_user_success(self, test_client, authenticated_user):
         response = test_client.post(
-            "/auth/create-user", data=TEST_USER, follow_redirects=True
+            "/auth/user-admin", data=TEST_USER, follow_redirects=True
         )
         assert response.status_code == 200
         assert User.query.filter_by(username=TEST_USER["username"]).first() is not None
 
     def test_create_duplicate_user(self, test_client, authenticated_user):
         response = test_client.post(
-            "/auth/create-user", data=TEST_USER, follow_redirects=True
+            "/auth/user-admin", data=TEST_USER, follow_redirects=True
         )
         assert response.status_code == 200
         assert b"Username already exists." in response.data
         assert User.query.filter_by(username=TEST_USER["username"]).first() is not None
 
     def test_create_user_password_mismatch(self, test_client, authenticated_user):
-        DATA = {
+        data = {
             "username": "mismatchPhil",
             "password1": "philsPassword123",
             "password2": "philsPassword1234",
         }
         response = test_client.post(
-            "/auth/create-user", data=DATA, follow_redirects=True
+            "/auth/user-admin", data=data, follow_redirects=True
         )
         assert response.status_code == 200
         assert b"Passwords do not match." in response.data
         assert User.query.filter_by(username="mismatchPhil").first() is None
 
     def test_create_user_short_username(self, test_client, authenticated_user):
-        DATA = {
+        data = {
             "username": "P",
             "password1": "philsPassword123",
             "password2": "philsPassword123",
         }
         response = test_client.post(
-            "/auth/create-user", data=DATA, follow_redirects=True
+            "/auth/user-admin", data=data, follow_redirects=True
         )
         assert response.status_code == 200
         assert b"Username is too short." in response.data
         assert User.query.filter_by(username="P").first() is None
 
     def test_create_user_short_password(self, test_client, authenticated_user):
-        DATA = {"username": "shortPhil", "password1": "12345", "password2": "12345"}
+        data = {"username": "shortPhil", "password1": "12345", "password2": "12345"}
         response = test_client.post(
-            "/auth/create-user", data=DATA, follow_redirects=True
+            "/auth/user-admin", data=data, follow_redirects=True
         )
         assert response.status_code == 200
         assert b"Password is too short." in response.data
