@@ -11,6 +11,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required, login_user, logout_user
+from jinja2_fragments.flask import render_block
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.database import db
@@ -108,6 +109,15 @@ def create_user():
         )
 
     return redirect(url_for("auth.user_admin"))
+
+
+@auth.patch("/user-admin/<int:user_id>")
+@login_required
+def change_pwd_form(user_id):
+    """Definition of the /auth/create-user site."""
+    return render_block(
+        "components/_user-cards.html.jinja", "change_pwd_form", user_id=user_id
+    )
 
 
 @auth.delete("/user-admin/<int:user_id>")
