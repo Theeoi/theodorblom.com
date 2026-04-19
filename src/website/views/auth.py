@@ -1,19 +1,21 @@
 #!/usr/bin/env python
 """Views for the /auth url."""
 
-from werkzeug.security import generate_password_hash, check_password_hash
-from app.database.models import User
-from app.database import db
-from flask_login import login_user, logout_user, login_required, current_user
 from flask import (
     Blueprint,
+    current_app,
     flash,
     redirect,
     render_template,
     request,
     url_for,
-    current_app,
 )
+from flask_login import current_user, login_required, login_user, logout_user
+from jinja2_fragments.flask import render_block
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from app.database import db
+from app.database.models import User
 
 auth = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -55,46 +57,107 @@ def logout():
     return redirect(url_for("home.index"))
 
 
-@auth.route("/create-user", methods=["GET", "POST"])
+@auth.get("/user-admin")
+@login_required
+def user_admin():
+    """Definition of the /auth/user-admin site."""
+    users = User.query.all()
+    return render_template(
+        "pages/auth/user-admin.html.jinja", user=current_user, users=users
+    )
+
+
+@auth.post("/user-admin")
 @login_required
 def create_user():
     """Definition of the /auth/create-user site."""
-    if request.method == "POST":
-        username = request.form.get("username")
-        password1 = request.form.get("password1")
-        password2 = request.form.get("password2")
+    username = request.form.get("username")
+    password1 = request.form.get("password1")
+    password2 = request.form.get("password2")
 
-        username_exists = User.query.filter_by(username=username).first()
+    username_exists = User.query.filter_by(username=username).first()
 
-        if username_exists:
-            flash("Username already exists.", category="error")
-            current_app.logger.warning("Attempted to create duplicate user!")
-        elif password1 != password2:
-            flash("Passwords do not match.", category="error")
-            current_app.logger.warning("Password mismatch in user creation!")
-        elif len(username) < 2:
-            flash(
-                "Username is too short. Must be at least 2 characters long.",
-                category="error",
-            )
-            current_app.logger.warning("Created username is invalid!")
-        elif len(password1) < 6:
-            flash(
-                "Password is too short. Must be at least 6 characters long.",
-                category="error",
-            )
-            current_app.logger.warning("Created password is invalid!")
-        else:
-            new_user = User(
-                username=username,
-                password=generate_password_hash(password1, method="scrypt"),
-            )
-            db.session.add(new_user)
-            db.session.commit()
-            flash("User created!", category="success")
-            current_app.logger.info(
-                "User with username {new_user.username} \
-                                    was created."
-            )
+    if username_exists:
+        flash("Username already exists.", category="error")
+        current_app.logger.warning("Attempted to create duplicate user!")
+    elif password1 != password2:
+        flash("Passwords do not match.", category="error")
+        current_app.logger.warning("Password mismatch in user creation!")
+    elif len(username) < 2:
+        flash(
+            "Username is too short. Must be at least 2 characters long.",
+            category="error",
+        )
+        current_app.logger.warning("Created username is invalid!")
+    elif len(password1) < 6:
+        flash(
+            "Password is too short. Must be at least 6 characters long.",
+            category="error",
+        )
+        current_app.logger.warning("Created password is invalid!")
+    else:
+        new_user = User(
+            username=username,
+            password=generate_password_hash(password1, method="scrypt"),
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        flash("User created!", category="success")
+        current_app.logger.info(
+            "User with username {new_user.username} \
+                                was created."
+        )
 
-    return render_template("pages/auth/create-user.html.jinja", user=current_user)
+    return redirect(url_for("auth.user_admin"))
+
+
+@auth.patch("/user-admin/<int:user_id>")
+@login_required
+def change_pwd_form(user_id):
+    """Definition of the /auth/create-user site."""
+    return render_block(
+        "components/_user-cards.html.jinja", "change_pwd_form", user_id=user_id
+    )
+
+
+@auth.post("/user-admin/<int:user_id>")
+@login_required
+def change_user_pwd(user_id):
+    """Definition of the /auth/create-user site."""
+    old_password = request.form.get("old_password")
+    new_password1 = request.form.get("new_password1")
+    new_password2 = request.form.get("new_password2")
+
+    user = User.query.get_or_404(user_id)
+
+    if not check_password_hash(user.password, old_password):
+        flash("Current password is incorrect.", category="error")
+        current_app.logger.warning("Current password is incorrect!")
+    elif new_password1 != new_password2:
+        flash("Passwords do not match.", category="error")
+        current_app.logger.warning("Password mismatch while changing passwords!")
+    elif len(new_password1) < 6:
+        flash(
+            "Password is too short. Must be at least 6 characters long.",
+            category="error",
+        )
+        current_app.logger.warning("New password is invalid!")
+    else:
+        flash("Successfully changed password!", category="success")
+
+    return redirect(url_for("auth.user_admin"))
+
+
+@auth.delete("/user-admin/<int:user_id>")
+@login_required
+def delete_user(user_id):
+    """Definition of the /auth/create-user site."""
+    user = User.query.get_or_404(user_id)
+    if user == current_user:
+        flash("Forbidden to delete yourself!", category="error")
+        return redirect(url_for("auth.user_admin")), 303  # force redirect to GET
+    db.session.delete(user)
+    db.session.commit()
+    flash(f"Deleted user '{user.username}'", category="success")
+
+    return redirect(url_for("auth.user_admin")), 303  # force redirect to GET

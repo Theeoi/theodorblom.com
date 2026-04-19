@@ -55,11 +55,14 @@
   }
 }
 
-@mixin press-me {
-  cursor: pointer;
+@mixin floating-card {
   border: 1px solid map.get($clr-accent, "purple");
   border-radius: 5px;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+@mixin press-me {
+  cursor: pointer;
   transition: 0.2s;
 
   &:hover {

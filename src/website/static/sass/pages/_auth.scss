@@ -3,3 +3,47 @@
 .auth-form {
   @include form-column;
 }
+
+.user-card {
+  display: grid;
+  grid-template-areas:
+    "info form tags";
+  gap: 0.5rem;
+  width: $max-content-width;
+  @include limit-width;
+  padding: 1rem;
+  margin-block: 0.5rem;
+  @include floating-card;
+
+  & .user-info {
+    grid-area: info;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    & h3 {
+      padding-top: 0;
+    }
+  }
+
+  & .change-pwd {
+    grid-area: form;
+  }
+
+  & .user-options {
+    grid-area: tags;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+
+    & .fa-button {
+      font-size: 1.2rem;
+      display: inline-flex;
+      justify-content: flex-end;
+      align-items: center;
+      width: fit-content;
+      height: fit-content;
+    }
+  }
+}
