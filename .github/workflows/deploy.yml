@@ -9,18 +9,21 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install SSH key
-        uses: webfactory/ssh-agent@v0.9.1
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Deploy to VPS
         run: |
           ssh -o StrictHostKeyChecking=no github@theodorblom.com << 'EOF'
+          set -euo pipefail
           cd /usr/share/nginx/theodorblom.com
-          git pull origin main
+          git fetch --prune origin
+          git checkout main
+          git reset --hard origin/main
           uv sync --frozen --extra deploy
           uv run scripts/compile_sass.py
           sudo systemctl restart gunicorn-theodorblom
