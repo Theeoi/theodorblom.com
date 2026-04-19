@@ -1,13 +1,14 @@
 @use "../abstracts" as *;
+@use "sass:map";
 
 table {
-  border-bottom: 2px solid map-get($map: $clr-primary, $key: "bg-dark");
+  border-bottom: 2px solid map.get($map: $clr-primary, $key: "bg-dark");
   border-collapse: collapse;
   @include limit-width;
 }
 
 tr {
-  border-bottom: 1px solid map-get($map: $clr-primary, $key: "bg-dark");
+  border-bottom: 1px solid map.get($map: $clr-primary, $key: "bg-dark");
 }
 
 th,
@@ -17,5 +18,5 @@ td {
 }
 
 thead {
-  border-bottom: 2px solid map-get($map: $clr-primary, $key: "bg-dark");
+  border-bottom: 2px solid map.get($map: $clr-primary, $key: "bg-dark");
 }

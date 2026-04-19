@@ -1,7 +1,8 @@
 @use "../abstracts" as *;
+@use "sass:map";
 
 input {
-  color: map-get($map: $clr-accent, $key: "cyan");
+  color: map.get($map: $clr-accent, $key: "cyan");
   font-family: inherit;
   font-size: inherit;
 
@@ -14,8 +15,8 @@ input {
 
 input[type="submit"] {
   @include press-me;
-  background-color: map-get($clr-accent, "purple");
-  color: map-get($map: $clr-accent, $key: "cyan");
+  background-color: map.get($clr-accent, "purple");
+  color: map.get($map: $clr-accent, $key: "cyan");
   padding: 1rem;
 }
 

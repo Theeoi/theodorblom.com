@@ -1,13 +1,14 @@
 @use "../abstracts" as *;
+@use "sass:map";
 
 .fa-button {
   background: transparent;
-  color: map-get($map: $clr-accent, $key: "purple");
+  color: map.get($map: $clr-accent, $key: "purple");
   border: none;
   cursor: pointer;
 
   &.active,
   &:hover {
-    color: map-get($map: $clr-accent, $key: "green");
+    color: map.get($map: $clr-accent, $key: "green");
   }
 }

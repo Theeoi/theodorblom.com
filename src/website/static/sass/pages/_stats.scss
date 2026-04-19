@@ -1,4 +1,5 @@
 @use "../abstracts" as *;
+@use "sass:map";
 
 section#stats {
   gap: 0.5rem;
@@ -22,11 +23,11 @@ section#stats {
     align-items: center;
     border-radius: 8px;
     padding: 1rem;
-    color: map-get($map: $clr-primary, $key: "fg-dark");
+    color: map.get($map: $clr-primary, $key: "fg-dark");
 
     & .label {
       font-size: get-font-size("large");
-      font-weight: map-get($map: $font-weight, $key: "emphasis");
+      font-weight: map.get($map: $font-weight, $key: "emphasis");
     }
 
     & .number {
@@ -34,11 +35,11 @@ section#stats {
     }
 
     &#hits {
-      background-color: map-get($map: $clr-accent, $key: "green");
+      background-color: map.get($map: $clr-accent, $key: "green");
     }
 
     &#unique {
-      background-color: map-get($map: $clr-accent, $key: "cyan");
+      background-color: map.get($map: $clr-accent, $key: "cyan");
     }
   }
 }

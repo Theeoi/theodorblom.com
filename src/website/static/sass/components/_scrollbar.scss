@@ -1,4 +1,5 @@
 @use "../abstracts" as *;
+@use "sass:map";
 
 ::-webkit-scrollbar {
   width: 6px;
@@ -6,12 +7,12 @@
   background: transparent;
 
   &-thumb {
-    background-color: rgba(map-get($map: $clr-accent, $key: "pink"), 0.4);
+    background-color: rgba(map.get($map: $clr-accent, $key: "pink"), 0.4);
     border-radius: 12px;
 
     &:active,
     &:hover {
-      background-color: map-get($map: $clr-accent, $key: "pink");
+      background-color: map.get($map: $clr-accent, $key: "pink");
     }
   }
 }
@@ -20,7 +21,7 @@
 @-moz-document url-prefix() {
   html {
     scrollbar-width: thin;
-    scrollbar-color: rgba(map-get($map: $clr-accent, $key: "pink"), 0.4)
+    scrollbar-color: rgba(map.get($map: $clr-accent, $key: "pink"), 0.4)
       transparent;
   }
 }

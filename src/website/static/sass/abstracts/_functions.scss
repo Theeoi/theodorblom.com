@@ -1,6 +1,7 @@
 @use 'variables' as *;
+@use "sass:map";
 
 @function get-font-size($size, $scale: 1) {
-    $fs: map-get($font-size, $size) * $scale;
+    $fs: map.get($font-size, $size) * $scale;
     @return $fs;
 }

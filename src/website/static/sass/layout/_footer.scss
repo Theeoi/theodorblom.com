@@ -1,4 +1,5 @@
 @use "../abstracts" as *;
+@use "sass:map";
 
 footer {
   @include GridWideColumn;
@@ -7,7 +8,7 @@ footer {
   padding-inline: $edge-padding;
   min-height: $footer-height;
   text-align: center;
-  color: map-get($clr-accent, "purple");
+  color: map.get($clr-accent, "purple");
 
   p {
     font-size: get-font-size("regular");
@@ -18,7 +19,7 @@ footer {
   }
 
   a:hover {
-    color: map-get($clr-accent, "green");
+    color: map.get($clr-accent, "green");
     text-decoration: underline;
   }
 

@@ -1,12 +1,13 @@
 @use "../abstracts" as *;
+@use "sass:map";
 
 .metainfo {
   font-size: get-font-size("small");
-  color: map-get($clr-accent, "purple");
+  color: map.get($clr-accent, "purple");
 }
 
 .tags {
-  color: map-get($clr-accent, "cyan");
+  color: map.get($clr-accent, "cyan");
   font-size: get-font-size("regular");
 
   & em {
@@ -63,10 +64,10 @@
     margin-block: 1rem;
 
     & a {
-      color: map-get($map: $clr-accent, $key: "cyan");
+      color: map.get($map: $clr-accent, $key: "cyan");
 
       &:hover {
-        color: map-get($map: $clr-accent, $key: "green");
+        color: map.get($map: $clr-accent, $key: "green");
       }
     }
   }
@@ -80,7 +81,7 @@
 
   & ul {
     display: none;
-    background-color: map-get($map: $clr-primary, $key: "bg-dark");
+    background-color: map.get($map: $clr-primary, $key: "bg-dark");
     margin-block-start: calc($edge-padding / 2);
     padding: 1rem;
     list-style: none;
@@ -93,7 +94,7 @@
     }
 
     & a:hover {
-      color: map-get($map: $clr-accent, $key: "green");
+      color: map.get($map: $clr-accent, $key: "green");
     }
 
     & a + a > li {
