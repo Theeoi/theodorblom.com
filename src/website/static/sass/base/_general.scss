@@ -1,4 +1,5 @@
 @use "../abstracts" as *;
+@use "sass:map";
 
 html {
   scroll-behavior: smooth;
@@ -6,8 +7,8 @@ html {
 }
 
 body {
-  background: map-get($clr-primary, "bg");
-  color: map-get($clr-primary, "fg");
+  background: map.get($clr-primary, "bg");
+  color: map.get($clr-primary, "fg");
 }
 
 main {

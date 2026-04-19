@@ -1,4 +1,5 @@
 @use "../abstracts" as *;
+@use "sass:map";
 
 section#landing {
   overflow: hidden;
@@ -12,11 +13,11 @@ section#landing {
     position: absolute;
     top: 15vw;
     left: 15vw;
-    color: map-get($map: $clr-primary, $key: "bg-dark");
+    color: map.get($map: $clr-primary, $key: "bg-dark");
 
     & h1 {
       padding-block-end: 0.5rem;
-      font-weight: map-get($map: $font-weight, $key: "bolder");
+      font-weight: map.get($map: $font-weight, $key: "bolder");
     }
   }
 

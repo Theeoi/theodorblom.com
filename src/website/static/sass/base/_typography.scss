@@ -1,7 +1,8 @@
 @use "../abstracts" as *;
+@use "sass:map";
 
 p {
-  font-family: map-get($font-family, "primary");
+  font-family: map.get($font-family, "primary");
   font-size: get-font-size("regular");
   line-height: 1.5;
   @include limit-width;
@@ -12,8 +13,8 @@ p {
 }
 
 h1 {
-  font-family: map-get($font-family, "secondary");
-  font-size: map-get($font-size, "huge");
+  font-family: map.get($font-family, "secondary");
+  font-size: map.get($font-size, "huge");
   line-height: 1.1;
   padding: 2rem 0 1rem 0;
   @include limit-width;
@@ -24,8 +25,8 @@ h1 {
 }
 
 h2 {
-  font-family: map-get($font-family, "secondary");
-  font-size: map-get($font-size, "big");
+  font-family: map.get($font-family, "secondary");
+  font-size: map.get($font-size, "big");
   line-height: 1.1;
   padding: 1.5rem 0 0.75rem 0;
   @include limit-width;
@@ -36,8 +37,8 @@ h2 {
 }
 
 h3 {
-  font-family: map-get($font-family, "secondary");
-  font-size: map-get($font-size, "large");
+  font-family: map.get($font-family, "secondary");
+  font-size: map.get($font-size, "large");
   line-height: 1.1;
   padding: 1rem 0 0.5rem 0;
   @include limit-width;
