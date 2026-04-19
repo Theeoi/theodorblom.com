@@ -9,10 +9,10 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install SSH key
-        uses: webfactory/ssh-agent@v0.9.1
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
