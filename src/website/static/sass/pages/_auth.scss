@@ -7,8 +7,7 @@
 .user-card {
   display: grid;
   grid-template-areas:
-    "title tags"
-    "date tags";
+    "info form tags";
   gap: 0.5rem;
   width: $max-content-width;
   @include limit-width;
@@ -16,19 +15,35 @@
   margin-block: 0.5rem;
   @include floating-card;
 
-  & h3 {
-    grid-area: title;
-    padding-block: 0.1rem;
+  & .user-info {
+    grid-area: info;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    & h3 {
+      padding-top: 0;
+    }
   }
 
-  & p {
-    grid-area: date;
+  & .change-pwd {
+    grid-area: form;
   }
 
-  & div {
+  & .user-options {
     grid-area: tags;
     display: flex;
     flex-direction: column;
-    text-align: right;
+    align-items: flex-end;
+    gap: 0.5rem;
+
+    & .fa-button {
+      font-size: 1.2rem;
+      display: inline-flex;
+      justify-content: flex-end;
+      align-items: center;
+      width: fit-content;
+      height: fit-content;
+    }
   }
 }

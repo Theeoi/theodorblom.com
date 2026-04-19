@@ -1,18 +1,18 @@
 {% macro user_cards() %}
     {% for user in users[::] %}
         <div class="user-card">
-            <h3>{{ user.username }}</h3>
-            <p class="metainfo">Created: {{ user.date_created.date() }}</p>
-            <div id="user-options">
-                <button id="change-passwd"
-                        class="fa-button"
+            <div class="user-info">
+                <h3>{{ user.username }}</h3>
+                <p class="metainfo">Created: {{ user.date_created.date() }}</p>
+            </div>
+            <div class="user-options">
+                <button class="fa-button"
                         hx-patch="{{ url_for("auth.change_pwd_form", user_id=user.id) }}"
                         hx-target="closest .user-card"
                         hx-swap="beforeend">
                     <i class="fa-solid fa-key"></i>
                 </button>
-                <button id="delete-user"
-                        class="fa-button"
+                <button class="fa-button"
                         hx-delete="{{ url_for("auth.delete_user", user_id=user.id) }}"
                         hx-confirm="Are you sure you want to delete user '{{ user.username }}'?"
                         hx-target="body">
@@ -24,11 +24,11 @@
 {% endmacro %}
 {% set user_id = 0 %} ## temporarily setting user_id = 0 to allow block when importing
 {% block change_pwd_form %}
-    <div id="change-pwd">
-        <button hx-get="" hx-target="closest #change-pwd" hx-swap="delete">
-            <i>X</i>
+    <div class="change-pwd">
+        <button class="fa-button" hx-get="" hx-target="closest .change-pwd" hx-swap="delete">
+            <i class="fa-solid fa-x"></i>
         </button>
-        <form action="{{ url_for("auth.change_user_pwd", user_id=user_id) }}"
+        <form class="auth-form" action="{{ url_for("auth.change_user_pwd", user_id=user_id) }}"
               method="post">
             <input type="password"
                    id="old_password"
