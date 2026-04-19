@@ -19,8 +19,11 @@ jobs:
       - name: Deploy to VPS
         run: |
           ssh -o StrictHostKeyChecking=no github@theodorblom.com << 'EOF'
+          set -euo pipefail
           cd /usr/share/nginx/theodorblom.com
-          git pull origin main
+          git fetch --prune origin
+          git checkout main
+          git reset --hard origin/main
           uv sync --frozen --extra deploy
           uv run scripts/compile_sass.py
           sudo systemctl restart gunicorn-theodorblom
