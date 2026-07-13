@@ -48,7 +48,7 @@ h3 {
   }
 }
 
-ol {
+ol, ul {
   font-size: get-font-size("regular");
 
   @include media-size(">small") {
