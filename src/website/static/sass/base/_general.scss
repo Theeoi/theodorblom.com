@@ -25,7 +25,7 @@ main > section:first-child {
   padding-top: calc($header-height / 2);
 }
 
-ol {
+ol, ul {
   @include limit-width;
   margin-inline-start: $edge-padding;
   margin-block: 1rem;
