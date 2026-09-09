@@ -18,6 +18,23 @@ These instructions apply to the entire repository.
 - Release PRs from `dev` to `main` may collect multiple reviewed changes;
   summarize the included changes and deployment considerations.
 
+## Branch Synchronization
+
+- Fetch `origin` at the start of each session, before resuming work on a branch,
+  and before pushing. Check the working tree and compare the branch with its
+  remote counterpart before making changes.
+- Fast-forward local branches to their remote counterparts where possible,
+  including updating local `dev` from `origin/dev` before creating a branch.
+  Preserve local changes and commits; if histories diverge, stop and ask how
+  to reconcile them rather than resetting, rebasing, or force-pushing.
+- Commit task-related feature-branch changes at meaningful checkpoints and
+  before handoff, then push to `origin` so work can be resumed from another
+  machine. Set upstream tracking on the first push and use non-force pushes.
+  Keep commits focused and follow the verification and safety rules below.
+- Before handoff, verify the branch is synchronized with its upstream and
+  report any uncommitted or unpushed work. If fetching or pushing fails, report
+  the blocker; never imply local-only work is available on another machine.
+
 ## Simplicity and Maintainability
 
 - Optimize for code a human can understand, debug, and maintain without AI.
@@ -70,8 +87,12 @@ These instructions apply to the entire repository.
 
 - Preserve existing user changes. Never discard, overwrite, or stage unrelated
   work. Ask before proceeding if it directly conflicts with the task.
-- Require explicit authorization for commits, pushes, PR creation, merges,
-  deployments, history rewriting, and destructive Git operations.
+- Standing authorization covers routine commits and non-force pushes of
+  task-related changes on focused feature branches (including `fix/` and
+  `docs/` branches), plus fetching and fast-forwarding local tracking branches.
+- Require explicit authorization for other commits and pushes, PR creation,
+  non-fast-forward merges, deployments, history rewriting, and destructive Git
+  operations. Merging PRs always requires explicit authorization.
 - Never commit secrets, credentials, sensitive instance configuration, or
   database dumps. Do not expose secrets in logs or responses.
 - Do not access or modify the VPS or production database without explicit
