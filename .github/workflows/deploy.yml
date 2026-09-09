@@ -1,29 +1,43 @@
 name: Deploy to VPS
 
 on:
-  push:
-    branches: [main]
+  workflow_call:
+    secrets:
+      DEPLOY_KEY:
+        required: true
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
     runs-on: [ubuntu-latest]
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v6
-
       - name: Install SSH key
         uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Deploy to VPS
+      - name: Deploy tested commit to VPS
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
         run: |
-          ssh -o StrictHostKeyChecking=no github@theodorblom.com << 'EOF'
+          [[ "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]
+          ssh -o StrictHostKeyChecking=no github@theodorblom.com "bash -s -- $DEPLOY_SHA" << 'EOF'
           set -euo pipefail
+          deploy_sha="$1"
           cd /usr/share/nginx/theodorblom.com
-          git fetch --prune origin
+          git fetch origin main
+          # A slow or rerun workflow must not roll back a newer release.
+          if [ "$(git rev-parse FETCH_HEAD)" != "$deploy_sha" ]; then
+            echo "Skipping superseded commit $deploy_sha"
+            exit 0
+          fi
           git checkout main
-          git reset --hard origin/main
+          git reset --hard "$deploy_sha"
           uv sync --frozen --extra deploy
           uv run scripts/compile_sass.py
           sudo systemctl restart gunicorn-theodorblom

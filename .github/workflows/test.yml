@@ -1,10 +1,13 @@
 name: Tests
 
-on:    
+on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   push:
-    branches: [main]
+    branches: [main, dev]
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -28,6 +31,15 @@ jobs:
 
       - name: Coveralls GitHub Action
         uses: coverallsapp/github-action@v2.2.3
+        continue-on-error: true
+        timeout-minutes: 5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: coverage.xml
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy.yml
+    secrets:
+      DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
