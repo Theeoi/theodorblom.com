@@ -41,11 +41,8 @@ class TestPost:
 
     def test_post_not_exist(self, test_client):
         response = test_client.get("/blog/post/testing-slug")
-        assert response.status_code == 302
-        assert "/blog/" in response.headers["Location"]
-        response = test_client.get(response.headers["Location"])
-        assert response.status_code == 200
-        assert b"No blogpost with that slug exists." in response.data
+        assert response.status_code == 404
+        assert "Location" not in response.headers
 
     def test_delete_redirect(self, test_client, blogpost):
         num_posts = len(Blogpost.query.all())
