@@ -57,6 +57,23 @@ To create an account to store in the database, remove the `@login_required` on
 the create_user route. Remember to revert the changes after storing the user in
 the database.
 
+### Building Stylesheets
+
+Install the Sass CLI and ensure `sass` is on `PATH`. CI uses Node 24 and
+Sass 1.104.0, which can be installed with `npm install --global sass@1.104.0`.
+From the repository root, build the stylesheets with:
+
+```sh
+python scripts/compile_sass.py
+```
+
+The script builds `src/website/static/sass/style.scss` into
+`src/website/static/css/style.css` without starting Flask or accessing the
+database. Paths are resolved relative to the script, not the working directory.
+Missing Sass or compilation errors produce a nonzero exit status, failing CI
+and stopping deployment before the application restart. Generated assets are
+not rolled back atomically if compilation fails.
+
 ## Project Status
 
 The website is up but is being developed sporadically.
