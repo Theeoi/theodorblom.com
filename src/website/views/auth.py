@@ -143,6 +143,8 @@ def change_user_pwd(user_id):
         )
         current_app.logger.warning("New password is invalid!")
     else:
+        user.password = generate_password_hash(new_password1, method="scrypt")
+        db.session.commit()
         flash("Successfully changed password!", category="success")
 
     return redirect(url_for("auth.user_admin"))
