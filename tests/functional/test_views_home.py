@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 
+import datetime
+import json
+from urllib.parse import quote
+
+from markupsafe import escape
+
+from app.database import db
+from app.database.models import Request
+from conftest import ADMIN_USER
+
 
 def test_robots(test_client):
     response = test_client.get("/robots.txt")
@@ -50,6 +60,42 @@ class TestIndex:
 
 
 class TestStats:
+    def test_logged_path_is_escaped(self, test_client, admin_user):
+        path = '/escaping-regression/<b title="quotes & \'apostrophes\'">marker</b>'
+        try:
+            # The path is logged before the visitor authenticates.
+            response = test_client.get(quote(path, safe="/"))
+            assert response.status_code == 404
+            logged_request = Request.query.filter_by(path=path).first()
+            assert logged_request is not None
+
+            date = logged_request.date.date()
+            test_client.post("/auth/login", data=ADMIN_USER)
+            response = test_client.get(
+                "/stats",
+                query_string={
+                    "start": (date - datetime.timedelta(days=1)).isoformat(),
+                    "end": (date + datetime.timedelta(days=1)).isoformat(),
+                },
+            )
+            assert response.status_code == 200
+            assert f"<td>{escape(path)}</td>" in response.text
+            assert path not in response.text
+
+            chart_json = response.text.split("window.userChartData = ", 1)[1].split(
+                "</script>", 1
+            )[0]
+            hits, unique_hits = json.loads(chart_json)
+            for series in (hits, unique_hits):
+                assert any(
+                    point["x"] == date.isoformat() and point["y"] >= 1
+                    for point in series
+                )
+        finally:
+            test_client.get("/auth/logout")
+            Request.query.filter_by(path=path).delete()
+            db.session.commit()
+
     def test_stats_redirect(self, test_client):
         response = test_client.get("/stats")
         assert response.status_code == 302

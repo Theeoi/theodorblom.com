@@ -23,6 +23,11 @@ def create_app(test_config=None):
         template_folder=TEMPLATE_FOLDER,
         static_folder=STATIC_FOLDER,
     )
+    # Flask's default selector does not recognize our compound HTML extension.
+    default_autoescape = app.select_jinja_autoescape
+    app.select_jinja_autoescape = lambda name: (
+        bool(name and name.endswith(".html.jinja")) or default_autoescape(name)
+    )
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
     load_configs(app, test_config)
