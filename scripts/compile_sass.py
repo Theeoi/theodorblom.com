@@ -3,8 +3,6 @@
 import subprocess
 from pathlib import Path
 
-from wsgi import application
-
 
 def check_sass_installation():
     try:
@@ -14,11 +12,11 @@ def check_sass_installation():
 
 
 def compile_scss(input_file, output_file):
-    subprocess.run(["sass", input_file, output_file])
+    subprocess.run(["sass", input_file, output_file], check=True)
 
 
 if __name__ == "__main__":
-    static_dir = Path(application.static_folder)  # type: ignore
+    static_dir = Path(__file__).resolve().parent.parent / "src" / "website" / "static"
 
     scss_file = static_dir.joinpath("sass/style.scss")
     css_file = static_dir.joinpath("css/style.css")
