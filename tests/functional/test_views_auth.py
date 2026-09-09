@@ -2,8 +2,10 @@
 
 from conftest import ADMIN_USER
 from flask_login import current_user
+from markupsafe import escape
 from werkzeug.security import check_password_hash
 
+from app.database import db
 from app.database.models import User
 
 TEST_USER = {
@@ -189,6 +191,20 @@ class TestChangeUserPwd:
 
 
 class TestDeleteUser:
+    def test_username_is_escaped(self, test_client, authenticated_user):
+        authenticated_user.username = '<b title="user">Name & \'quotes\'</b>'
+        db.session.commit()
+
+        response = test_client.get("/auth/user-admin")
+        assert response.status_code == 200
+        username = escape(authenticated_user.username)
+        assert f"<h3>{username}</h3>" in response.text
+        assert (
+            f'hx-confirm="Are you sure you want to delete user \'{username}\'?"'
+            in response.text
+        )
+        assert authenticated_user.username not in response.text
+
     def test_delete_user_popup(self, test_client, authenticated_user):
         response = test_client.get("/auth/user-admin", follow_redirects=True)
         assert response.status_code == 200
