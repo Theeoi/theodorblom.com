@@ -122,6 +122,35 @@ def test_edit_editor_stored_values(test_client, editor_posts, published):
     assert post_snapshot() == before
 
 
+def test_edit_editor_null_tags(test_client, editor_posts):
+    _, post_id, _, stored = editor_posts
+    # Keep NULL tags out of draft cards, whose rendering is outside this issue.
+    Blogpost.query.filter_by(id=post_id).update({"tags": None, "published": True})
+    db.session.commit()
+    before = post_snapshot()
+
+    response = test_client.get(f"/blog/editor/{post_id}")
+
+    assert response.status_code == 200
+    assert EditorForm(response.text).values == dict(stored, tags="", published=True)
+    assert post_snapshot() == before
+
+
+@pytest.mark.parametrize("editing", [False, True], ids=["create", "edit"])
+def test_rejected_editor_omitted_tags(test_client, editor_posts, editing):
+    _, post_id, duplicate_title, _ = editor_posts
+    before = post_snapshot()
+    data = {"title": duplicate_title, "content": "# Attempted content\n"}
+    url = f"/blog/editor/{post_id}" if editing else "/blog/editor"
+
+    response = test_client.post(url, data=data)
+
+    assert response.status_code == 200
+    assert "Blogpost title already exists!" in response.text
+    assert EditorForm(response.text).values == dict(data, tags="", published=False)
+    assert post_snapshot() == before
+
+
 @pytest.mark.parametrize("editing", [False, True], ids=["create", "edit"])
 @pytest.mark.parametrize("published", [False, True], ids=["unchecked", "checked"])
 @pytest.mark.parametrize("empty_tags", [False, True], ids=["tags", "empty-tags"])

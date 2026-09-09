@@ -67,7 +67,7 @@ def create_post():
         user=current_user,
         blogpost=None,
         blogposts=drafts,
-        form_values=dict(title=title, tags=tags, content=content, published=published)
+        form_values=dict(title=title, tags=tags or "", content=content, published=published)
         if request.method == "POST"
         else dict(title="", tags="", content="", published=False),
     )
@@ -125,11 +125,11 @@ def edit_post(id):
         user=current_user,
         blogpost=blogpost,
         blogposts=drafts,
-        form_values=dict(title=title, tags=tags, content=content, published=published)
+        form_values=dict(title=title, tags=tags or "", content=content, published=published)
         if request.method == "POST"
         else dict(
             title=blogpost.title,
-            tags=blogpost.tags,
+            tags=blogpost.tags or "",
             content=blogpost.content,
             published=blogpost.published,
         ),
