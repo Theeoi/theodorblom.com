@@ -16,7 +16,7 @@
         <input type="text"
                id="tags"
                name="tags"
-               value="{{ blogpost.tags }}"
+               value="{{ blogpost.tags or '' }}"
                placeholder="Tags (comma separated)"
                onfocus="this.placeholder=''" />
         <textarea id="content" name="content" placeholder="What's on your mind?" onfocus="this.placeholder=''">

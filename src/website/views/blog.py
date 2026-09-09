@@ -36,9 +36,9 @@ def create_post():
     drafts = Blogpost.query.filter_by(published=False).all()
 
     if request.method == "POST":
-        title = request.form.get("title")
-        tags = request.form.get("tags")
-        content = request.form.get("content")
+        title = request.form.get("title", "")
+        tags = request.form.get("tags", "")
+        content = request.form.get("content", "")
         published = True if request.form.get("published") else False
 
         slug = slugify(title)
@@ -50,6 +50,8 @@ def create_post():
             current_app.logger.warning("Attempted to create duplicate blogpost!")
         elif len(title) < 1:
             flash("Title is too short!", category="error")
+        elif not slug:
+            flash("Title must generate a nonempty slug!", category="error")
         elif len(content) < 1:
             flash("Blogpost is too short!", category="error")
         else:
@@ -86,9 +88,9 @@ def edit_post(id):
         return redirect(url_for("blog.index"))
     else:
         if request.method == "POST":
-            title = request.form.get("title")
-            tags = request.form.get("tags")
-            content = request.form.get("content")
+            title = request.form.get("title", "")
+            tags = request.form.get("tags", "")
+            content = request.form.get("content", "")
             published = True if request.form.get("published") else False
 
             slug = slugify(title)
@@ -100,6 +102,8 @@ def edit_post(id):
                 current_app.logger.warning("Attempted to create duplicate blogpost!")
             elif len(title) < 1:
                 flash("Title is too short!", category="error")
+            elif not slug:
+                flash("Title must generate a nonempty slug!", category="error")
             elif len(content) < 1:
                 flash("Blogpost is too short!", category="error")
             else:
