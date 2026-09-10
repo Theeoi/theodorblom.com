@@ -1,3 +1,5 @@
+"""Application-factory configuration, exercised through the real Flask app."""
+
 import pytest
 
 
