@@ -3,6 +3,7 @@
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sitemap import Sitemap
+from jinja2 import select_autoescape
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.config import STATIC_FOLDER, TEMPLATE_FOLDER, load_configs
@@ -22,6 +23,10 @@ def create_app(test_config=None):
         instance_relative_config=True,
         template_folder=TEMPLATE_FOLDER,
         static_folder=STATIC_FOLDER,
+    )
+    # Flask's default selector does not recognize our compound HTML extension.
+    app.jinja_env.autoescape = select_autoescape(
+        ("html", "htm", "xml", "xhtml", "svg", "html.jinja")
     )
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 

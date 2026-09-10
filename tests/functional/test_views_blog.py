@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import pytest
+from markupsafe import escape
 from slugify import slugify
 from conftest import TEST_BLOGPOST
+from app.database import db
 from app.database.models import Blogpost
 
 
@@ -22,6 +24,28 @@ class TestIndex:
 
 
 class TestPost:
+    @pytest.mark.parametrize("url", ["/blog/", "/blog/post/{slug}"])
+    def test_post_metadata_is_escaped(self, test_client, blogpost, url):
+        blogpost.title = '<b title="title">Title & \'quotes\'</b>'
+        blogpost.tags = '<i title="tag">Tag & \'quotes\'</i>'
+        db.session.commit()
+
+        response = test_client.get(url.format(slug=blogpost.slug))
+        assert response.status_code == 200
+        for value in (blogpost.title, blogpost.tags):
+            assert str(escape(value)) in response.text
+            assert value not in response.text
+
+    def test_post_markdown_still_renders_html(self, test_client, blogpost):
+        blogpost.content = "**Bold** & text\n\n`<example>`"
+        db.session.commit()
+
+        response = test_client.get(f"/blog/post/{blogpost.slug}")
+        assert response.status_code == 200
+        assert "<strong>Bold</strong> &amp; text" in response.text
+        assert "<code>&lt;example&gt;</code>" in response.text
+        assert "&lt;strong&gt;" not in response.text
+
     def test_post(self, test_client, blogpost):
         response = test_client.get(f"/blog/post/{blogpost.slug}")
         assert response.status_code == 200
@@ -74,6 +98,22 @@ class TestPost:
 
 
 class TestEditor:
+    def test_editor_values_are_escaped(
+        self, test_client, authenticated_user, blogpost
+    ):
+        blogpost.title = 'Title " data-marker="injected" & \'quotes\' <b>'
+        blogpost.tags = 'Tag " data-marker="injected" & \'quotes\' <i>'
+        blogpost.content = '</textarea><b title="marker">Text & \'quotes\'</b>'
+        db.session.commit()
+
+        response = test_client.get(f"/blog/editor/{blogpost.id}")
+        assert response.status_code == 200
+        for value in (blogpost.title, blogpost.tags):
+            assert f'value="{escape(value)}"' in response.text
+        assert f"{escape(blogpost.content)}</textarea>" in response.text
+        assert 'data-marker="injected"' not in response.text
+        assert response.text.count("</textarea>") == 1
+
     def test_editor_redirect(self, test_client):
         response = test_client.get("/blog/editor")
         assert response.status_code == 302
