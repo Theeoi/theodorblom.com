@@ -61,18 +61,24 @@ the database.
 
 Install the Sass CLI and ensure `sass` is on `PATH`. CI uses Node 24 and
 Sass 1.104.0, which can be installed with `npm install --global sass@1.104.0`.
+This is the version tested for this build, pinned for reproducibility rather
+than a minimum supported version.
 From the repository root, build the stylesheets with:
 
 ```sh
-python scripts/compile_sass.py
+uv run --locked scripts/compile_sass.py
 ```
 
 The script builds `src/website/static/sass/style.scss` into
 `src/website/static/css/style.css` without starting Flask or accessing the
-database. Paths are resolved relative to the script, not the working directory.
+database. The static directory comes from `app.config.STATIC_FOLDER`, resolved
+relative to that module, not the working directory.
 Missing Sass or compilation errors produce a nonzero exit status, failing CI
 and stopping deployment before the application restart. Generated assets are
 not rolled back atomically if compilation fails.
+
+The Tests workflow calls the reusable Assets workflow separately from pytest.
+Production deployment requires both the tests and the real asset build to pass.
 
 ## Project Status
 

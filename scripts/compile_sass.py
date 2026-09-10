@@ -3,6 +3,8 @@
 import subprocess
 from pathlib import Path
 
+from app import config
+
 
 def check_sass_installation():
     try:
@@ -16,7 +18,7 @@ def compile_scss(input_file, output_file):
 
 
 if __name__ == "__main__":
-    static_dir = Path(__file__).resolve().parent.parent / "src" / "website" / "static"
+    static_dir = (Path(config.__file__).resolve().parent / config.STATIC_FOLDER).resolve()
 
     scss_file = static_dir.joinpath("sass/style.scss")
     css_file = static_dir.joinpath("css/style.css")
