@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import pytest
+from markupsafe import escape
 from slugify import slugify
 from conftest import TEST_BLOGPOST
+from app.database import db
 from app.database.models import Blogpost
 
 
@@ -173,3 +175,145 @@ class TestEditor:
         response = test_client.get(f"/blog/editor/{blogpost.id}")
         assert response.status_code == 200
         assert "<p>" not in blogpost.content
+
+
+class TestEditorInput:
+    @pytest.fixture
+    def editable_post(self, test_client):
+        post = Blogpost(
+            slug="editor-input",
+            title="Editor input",
+            tags="stored",
+            content="Stored content",
+            published=False,
+        )
+        db.session.add(post)
+        db.session.commit()
+        yield post
+        db.session.delete(post)
+        db.session.commit()
+
+    def test_create_defaults(self, test_client, authenticated_user):
+        response = test_client.get("/blog/editor")
+
+        assert response.status_code == 200
+        assert 'name="title"\n               value=""' in response.text
+        assert 'name="tags"\n               value=""' in response.text
+        assert 'onfocus="this.placeholder=\'\'">\n</textarea>' in response.text
+        assert 'name="published"\n            value="True"' in response.text
+        assert 'checked="checked"' not in response.text
+
+    @pytest.mark.parametrize(
+        "tags,published", [('"tags" & <tags>', False), ("", True), (None, True)]
+    )
+    def test_edit_stored_values(
+        self, test_client, authenticated_user, blogpost, tags, published
+    ):
+        title = 'Stored "quotes" & <title>'
+        content = '\n# Markdown\n"quotes" &amp; </textarea><script>stored</script>\n'
+        # Keep NULL tags out of draft cards; their rendering belongs to #78.
+        blogpost.title, blogpost.content = title, content
+        blogpost.tags, blogpost.published = tags, published
+        db.session.commit()
+
+        response = test_client.get(f"/blog/editor/{blogpost.id}")
+
+        assert response.status_code == 200
+        assert f'name="title"\n               value="{escape(title)}"' in response.text
+        assert f'name="tags"\n               value="{escape(tags or "")}"' in response.text
+        assert (
+            f'onfocus="this.placeholder=\'\'">\n{escape(content)}</textarea>'
+            in response.text
+        )
+        assert 'name="published"\n            value="True"' in response.text
+        assert ('checked="checked"' in response.text) == published
+        assert db.session.query(Blogpost.tags).filter_by(id=blogpost.id).scalar() == tags
+
+    @pytest.mark.parametrize("editing", [False, True], ids=["create", "edit"])
+    @pytest.mark.parametrize(
+        "duplicate,published,tags",
+        [
+            (True, True, '"tags" & <tags>'),
+            (True, False, None),
+            (False, True, ""),
+            (False, False, ""),
+        ],
+        ids=[
+            "duplicate-checked", "duplicate-unchecked-omitted-tags",
+            "empty-title-checked", "empty-title-unchecked-empty-content",
+        ],
+    )
+    def test_rejected_then_corrected(
+        self, test_client, authenticated_user, blogpost, editable_post,
+        editing, duplicate, published, tags,
+    ):
+        editable_post.published = not published
+        db.session.commit()
+        # Scalar snapshots catch accidental writes by the statistics teardown commit.
+        posts = db.session.query(
+            Blogpost.id,
+            Blogpost.slug,
+            Blogpost.title,
+            Blogpost.tags,
+            Blogpost.content,
+            Blogpost.published,
+            Blogpost.date_created,
+        ).order_by(Blogpost.id)
+        before = posts.all()
+        url = f"/blog/editor/{editable_post.id}" if editing else "/blog/editor"
+        title = blogpost.title + ' "!"' if duplicate else ""
+        content = (
+            '\n# Attempted Markdown\n"quotes" &amp; '
+            '</textarea><script>attempted</script>\n'
+        )
+        if not duplicate and not published:
+            content = ""  # Rejected for its title, not a blank-content policy.
+        data = dict(title=title, content=content)
+        if tags is not None:
+            data["tags"] = tags
+        if published:
+            data["published"] = "True"
+
+        response = test_client.post(url, data=data)
+
+        assert response.status_code == 200
+        message = "Blogpost title already exists!" if duplicate else "Title is too short!"
+        assert message in response.text
+        assert f'name="title"\n               value="{escape(title)}"' in response.text
+        assert f'name="tags"\n               value="{escape(tags or "")}"' in response.text
+        assert (
+            f'onfocus="this.placeholder=\'\'">\n{escape(content)}</textarea>'
+            in response.text
+        )
+        assert 'name="published"\n            value="True"' in response.text
+        assert ('checked="checked"' in response.text) == published
+        assert posts.all() == before
+
+        response = test_client.get(url)
+        assert response.status_code == 200
+        stored_title = "Editor input" if editing else ""
+        assert f'name="title"\n               value="{stored_title}"' in response.text
+        assert ('checked="checked"' in response.text) == (editing and not published)
+        assert posts.all() == before
+
+        data.update(title='Editor input corrected "quotes"', tags=tags or "")
+        data["content"] = content or "Corrected content"
+        response = test_client.post(url, data=data)
+        saved = Blogpost.query.filter_by(slug=slugify(data["title"])).one_or_none()
+        try:
+            assert response.status_code == 302
+            assert response.headers["Location"] == "/blog/post/" + slugify(data["title"])
+            assert saved is not None
+            assert (saved.title, saved.tags, saved.content, saved.published) == (
+                data["title"], data["tags"], data["content"], published,
+            )
+            assert Blogpost.query.count() == len(before) + (0 if editing else 1)
+            if editing:
+                assert saved.id == editable_post.id
+            assert [row for row in posts.all() if row.id != saved.id] == [
+                row for row in before if row.id != saved.id
+            ]
+        finally:
+            if not editing and saved is not None:
+                db.session.delete(saved)
+                db.session.commit()

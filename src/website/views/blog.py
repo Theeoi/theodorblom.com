@@ -65,7 +65,6 @@ def create_post():
     return render_template(
         "pages/blog/editor.html.jinja",
         user=current_user,
-        blogpost=None,
         blogposts=drafts,
         form_values=dict(title=title, tags=tags or "", content=content, published=published)
         if request.method == "POST"
@@ -123,7 +122,6 @@ def edit_post(id):
     return render_template(
         "pages/blog/editor.html.jinja",
         user=current_user,
-        blogpost=blogpost,
         blogposts=drafts,
         form_values=dict(title=title, tags=tags or "", content=content, published=published)
         if request.method == "POST"
