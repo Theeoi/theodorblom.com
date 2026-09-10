@@ -19,6 +19,32 @@ from flask import (
 blog = Blueprint("blog", __name__, url_prefix="/blog")
 
 
+def _validated_post_form(blogpost=None):
+    """Return normalized fields, or flash a validation error and return None."""
+    title = request.form.get("title", "")
+    slug = slugify(title)
+    slug_exists = Blogpost.query.filter_by(slug=slug).first()
+
+    if not title:
+        flash("Title is too short!", category="error")
+        return None
+    if not slug:
+        flash("Title must generate a nonempty slug!", category="error")
+        return None
+    if slug_exists and (blogpost is None or slug_exists.id != blogpost.id):
+        flash("Blogpost title already exists!", category="error")
+        current_app.logger.warning("Attempted to create duplicate blogpost!")
+        return None
+
+    return {
+        "title": title,
+        "slug": slug,
+        "tags": request.form.get("tags", ""),
+        "content": request.form.get("content", ""),
+        "published": bool(request.form.get("published")),
+    }
+
+
 @blog.route("/")
 def index():
     """Definition of the /blog site."""
@@ -36,33 +62,14 @@ def create_post():
     drafts = Blogpost.query.filter_by(published=False).all()
 
     if request.method == "POST":
-        title = request.form.get("title", "")
-        tags = request.form.get("tags", "")
-        content = request.form.get("content", "")
-        published = True if request.form.get("published") else False
-
-        slug = slugify(title)
-
-        slug_exists = Blogpost.query.filter_by(slug=slug).first()
-
-        if slug_exists:
-            flash("Blogpost title already exists!", category="error")
-            current_app.logger.warning("Attempted to create duplicate blogpost!")
-        elif len(title) < 1:
-            flash("Title is too short!", category="error")
-        elif not slug:
-            flash("Title must generate a nonempty slug!", category="error")
-        elif len(content) < 1:
-            flash("Blogpost is too short!", category="error")
-        else:
-            new_post = Blogpost(
-                slug=slug, title=title, tags=tags, content=content, published=published
-            )
+        fields = _validated_post_form()
+        if fields is not None:
+            new_post = Blogpost(**fields)
             db.session.add(new_post)
             db.session.commit()
             flash("Blogpost created!", category="success")
             current_app.logger.info(f"Blogpost with id {new_post.id}" f" was created.")
-            return redirect(url_for("blog.post", slug=slug))
+            return redirect(url_for("blog.post", slug=new_post.slug))
 
     return render_template(
         "pages/blog/editor.html.jinja",
@@ -88,30 +95,13 @@ def edit_post(id):
         return redirect(url_for("blog.index"))
     else:
         if request.method == "POST":
-            title = request.form.get("title", "")
-            tags = request.form.get("tags", "")
-            content = request.form.get("content", "")
-            published = True if request.form.get("published") else False
-
-            slug = slugify(title)
-
-            slug_exists = Blogpost.query.filter_by(slug=slug).first()
-
-            if slug_exists and slug_exists.id != blogpost.id:
-                flash("Blogpost title already exists!", category="error")
-                current_app.logger.warning("Attempted to create duplicate blogpost!")
-            elif len(title) < 1:
-                flash("Title is too short!", category="error")
-            elif not slug:
-                flash("Title must generate a nonempty slug!", category="error")
-            elif len(content) < 1:
-                flash("Blogpost is too short!", category="error")
-            else:
-                blogpost.slug = slug
-                blogpost.title = title
-                blogpost.tags = tags
-                blogpost.content = content
-                blogpost.published = published
+            fields = _validated_post_form(blogpost)
+            if fields is not None:
+                blogpost.slug = fields["slug"]
+                blogpost.title = fields["title"]
+                blogpost.tags = fields["tags"]
+                blogpost.content = fields["content"]
+                blogpost.published = fields["published"]
 
                 db.session.add(blogpost)
                 db.session.commit()
