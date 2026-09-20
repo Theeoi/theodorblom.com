@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import call, patch
 
 import pytest
+
 from app import config
 
 
@@ -39,16 +40,28 @@ def test_entrypoint_from_different_cwd(script_path, tmp_path, monkeypatch):
     """Use configured paths from any cwd without starting the app or its databases."""
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(config, "STATIC_FOLDER", "../custom static")
-    static_dir = (Path(config.__file__).resolve().parent / config.STATIC_FOLDER).resolve()
+    static_dir = (
+        Path(config.__file__).resolve().parent / config.STATIC_FOLDER
+    ).resolve()
 
     with patch.dict(sys.modules, {"wsgi": None}):
-        with patch("app.create_app", side_effect=AssertionError("App startup during build")):
+        with patch(
+            "app.create_app",
+            side_effect=AssertionError("App startup during build"),
+        ):
             with patch("subprocess.run") as run:
                 runpy.run_path(str(script_path), run_name="__main__")
 
     assert run.call_args_list == [
         call(["sass", "--version"], check=True),
-        call(["sass", static_dir / "sass/style.scss", static_dir / "css/style.css"], check=True),
+        call(
+            [
+                "sass",
+                static_dir / "sass/style.scss",
+                static_dir / "css/style.css",
+            ],
+            check=True,
+        ),
     ]
 
 
