@@ -31,14 +31,13 @@ def login():
         if user:
             if check_password_hash(user.password, password):
                 flash("Logged in!", category="success")
-                login_user(user, remember=True)
+                _ = login_user(user, remember=True)
                 current_app.logger.info(f"User {user.username} logged in.")
                 return redirect(url_for("home.index"))
             else:
                 flash("Password is incorrect.", category="error")
                 current_app.logger.warning(
-                    "User {user.username} input wrong \
-                                           password!"
+                    "User {user.username} input wrong password!"
                 )
         else:
             flash("User does not exist.", category="error")
@@ -135,7 +134,9 @@ def change_user_pwd(user_id):
         current_app.logger.warning("Current password is incorrect!")
     elif new_password1 != new_password2:
         flash("Passwords do not match.", category="error")
-        current_app.logger.warning("Password mismatch while changing passwords!")
+        current_app.logger.warning(
+            "Password mismatch while changing passwords!"
+        )
     elif len(new_password1) < 6:
         flash(
             "Password is too short. Must be at least 6 characters long.",
@@ -157,7 +158,9 @@ def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     if user == current_user:
         flash("Forbidden to delete yourself!", category="error")
-        return redirect(url_for("auth.user_admin")), 303  # force redirect to GET
+        return redirect(
+            url_for("auth.user_admin")
+        ), 303  # force redirect to GET
     db.session.delete(user)
     db.session.commit()
     flash(f"Deleted user '{user.username}'", category="success")
