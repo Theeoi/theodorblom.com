@@ -10,6 +10,9 @@ permissions:
   contents: read
 
 jobs:
+  assets:
+    uses: ./.github/workflows/assets.yml
+
   test:
     runs-on: [ubuntu-latest]
     steps:
@@ -38,7 +41,7 @@ jobs:
           path-to-lcov: coverage.xml
 
   deploy:
-    needs: test
+    needs: [test, assets]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/deploy.yml
     secrets:

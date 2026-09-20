@@ -57,6 +57,21 @@ To create an account to store in the database, remove the `@login_required` on
 the create_user route. Remember to revert the changes after storing the user in
 the database.
 
+### Building Stylesheets
+
+Install the Sass CLI and ensure `sass` is on `PATH`. Sass 1.104.0 is the
+version tested for this project. With Node.js and npm installed, run:
+
+```sh
+npm install --global sass@1.104.0
+```
+
+From the repository root, build the stylesheets with:
+
+```sh
+uv run --locked scripts/compile_sass.py
+```
+
 ## Project Status
 
 The website is up but is being developed sporadically.
