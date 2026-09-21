@@ -2,6 +2,7 @@
 
 from conftest import ADMIN_USER
 from flask_login import current_user
+from markupsafe import escape
 from werkzeug.security import check_password_hash
 
 from app.database import db
@@ -58,12 +59,29 @@ class TestLogin:
         assert current_user.is_authenticated is False
 
 
-class TestCreateUser:
+class TestUserAdmin:
     def test_user_admin_redirect(self, test_client):
         response = test_client.get("/auth/user-admin")
         assert response.status_code == 302
         assert "/auth/login" in response.headers["Location"]
 
+    def test_username_is_escaped(self, test_client, authenticated_user):
+        """User-controlled names stay text in headings and confirmation attributes."""
+        authenticated_user.username = '<b title="user">Name & \'quotes\'</b>'
+        db.session.commit()
+
+        response = test_client.get("/auth/user-admin")
+        assert response.status_code == 200
+        username = escape(authenticated_user.username)
+        assert f"<h3>{username}</h3>" in response.text
+        assert (
+            f'hx-confirm="Are you sure you want to delete user \'{username}\'?"'
+            in response.text
+        )
+        assert authenticated_user.username not in response.text
+
+
+class TestCreateUser:
     def test_create_user_success(self, test_client, authenticated_user):
         response = test_client.post(
             "/auth/user-admin", data=TEST_USER, follow_redirects=True
