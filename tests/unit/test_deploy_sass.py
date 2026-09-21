@@ -1,10 +1,83 @@
 import json
 import os
+import shutil
 import subprocess
 import sys
 import textwrap
 
 import pytest
+
+
+@pytest.mark.parametrize("environment", ["existing", "absent", "no-python"])
+def test_uv_preflight_leaves_project_untouched(pytestconfig, tmp_path, environment):
+    """Real uv must check Sass without bootstrapping or syncing the live project."""
+    uv = shutil.which("uv")
+    assert uv is not None, "Run deployment tests with uv installed"
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "pyproject.toml").write_text(
+        '[project]\nname = "preflight-test"\nversion = "0.0.0"\n'
+        'requires-python = ">=3.8,<3.9"\n'
+        'dependencies = ["must-not-be-installed-during-preflight"]\n'
+    )
+    # Neither file needs to be usable: preflight must not resolve the project.
+    (project / "uv.lock").write_text("unchanged lockfile sentinel\n")
+    (project / "scripts").mkdir()
+    (project / "scripts/compile_sass.py").write_text(
+        "raise AssertionError('live script used')\n"
+    )
+    if environment == "existing":
+        subprocess.run(
+            [sys.executable, "-m", "venv", "--without-pip", project / ".venv"],
+            check=True, capture_output=True,
+        )
+
+    def snapshot():
+        return {
+            str(path.relative_to(project)): (
+                path.lstat().st_mode,
+                path.lstat().st_mtime_ns,
+                os.readlink(path) if path.is_symlink() else
+                path.read_bytes() if path.is_file() else None,
+            )
+            for path in project.rglob("*")
+        }
+
+    before = snapshot()
+    commands = tmp_path / "bin"
+    commands.mkdir()
+    sass = commands / "sass"
+    sass.write_text(f"#!{sys.executable}\nprint('1.104.0')\n")
+    sass.chmod(0o755)
+    env = {
+        key: value for key, value in os.environ.items()
+        if not key.startswith(("UV_", "PYTHON", "VIRTUAL_ENV", "CONDA"))
+    }
+    env.update(
+        PATH=str(commands),
+        HOME=str(tmp_path / "home"),
+        XDG_CONFIG_HOME=str(tmp_path / "config"),
+        UV_CACHE_DIR=str(tmp_path / "cache"),
+        UV_PYTHON_INSTALL_DIR=str(tmp_path / "interpreters"),
+    )
+    if environment == "absent":
+        env["UV_PYTHON"] = sys.executable
+    elif environment == "no-python":
+        env["UV_PYTHON_PREFERENCE"] = "only-managed"
+    source = (pytestconfig.rootpath / "scripts/compile_sass.py").read_text()
+    result = subprocess.run(
+        [uv, "run", "--no-project", "--offline", "python", "-I", "-c",
+         source, "--expected-version", "1.104.0"],
+        cwd=project, env=env, capture_output=True, text=True,
+    )
+    assert snapshot() == before
+    assert not list((tmp_path / "interpreters").glob("cpython-*"))
+    if environment == "no-python":
+        assert result.returncode != 0
+        assert "offline" in result.stderr.lower(), result.stderr
+    else:
+        assert result.returncode == 0, result.stderr
+    assert (project / ".venv").exists() == (environment == "existing")
 
 
 @pytest.mark.parametrize(
@@ -17,6 +90,7 @@ import pytest
         "malformed",
         "no-source",
         "empty-source",
+        "missing-uv",
         "missing-python",
         "superseded",
     ],
@@ -57,8 +131,11 @@ def test_remote_preflight(pytestconfig, tmp_path, scenario):
 import os, pathlib, sys
 name = pathlib.Path(sys.argv[0]).name
 args = sys.argv[1:]
+logged_args = args
+if name == 'uv' and '-c' in args:
+    logged_args = args[:6] + ['<source>'] + args[7:]
 with open(os.environ['LOG'], 'a') as log:
-    log.write(name + ' ' + ' '.join(args) + '\\n')
+    log.write(name + ' ' + ' '.join(logged_args) + '\\n')
 scenario = os.environ['SCENARIO']
 if name == 'git':
     if args[0] == 'rev-parse':
@@ -69,6 +146,15 @@ if name == 'git':
             sys.exit(1)
         if scenario != 'empty-source':
             print(pathlib.Path(os.environ['CANDIDATE']).read_text())
+elif name == 'uv' and '--no-project' in args:
+    assert args[:6] == ['run', '--no-project', '--offline', 'python', '-I', '-c']
+    source = pathlib.Path(os.environ['CANDIDATE']).read_text().rstrip('\\n')
+    assert args[6] == source
+    assert args[7:] == ['--expected-version', '1.104.0']
+    if scenario == 'missing-python':
+        print('No Python interpreter available', file=sys.stderr)
+        sys.exit(2)
+    os.execv(sys.executable, [sys.executable] + args[4:])
 elif name == 'sass':
     if scenario == 'nonzero':
         sys.exit(2)
@@ -79,12 +165,15 @@ elif name == 'sass':
     else:
         print('1.104.0 compiled with dart2js 3.11.2')
 """.format(python=sys.executable)
-    for name in ["git", "uv", "sudo"] + ([] if scenario == "missing" else ["sass"]):
+    names = ["git", "sudo"]
+    if scenario != "missing-uv":
+        names.append("uv")
+    if scenario != "missing":
+        names.append("sass")
+    for name in names:
         executable = commands / name
         executable.write_text(fake)
         executable.chmod(0o755)
-    if scenario != "missing-python":
-        (commands / "python3").symlink_to(sys.executable)
     env = dict(
         os.environ,
         PATH=str(commands),
@@ -103,6 +192,7 @@ elif name == 'sass':
     mutations = [
         line for line in calls
         if line.startswith(("git checkout", "git reset", "uv ", "sudo "))
+        and not line.startswith("uv run --no-project --offline ")
     ]
     if scenario == "match":
         assert result.returncode == 0, result.stderr
@@ -121,8 +211,12 @@ elif name == 'sass':
             assert len(calls) == 2
         else:
             assert result.returncode != 0
-            if scenario == "missing-python":
-                assert "python3: command not found" in result.stderr
+            if scenario in ("missing-uv", "missing-python"):
+                message = (
+                    "uv: command not found" if scenario == "missing-uv" else
+                    "No Python interpreter available"
+                )
+                assert message in result.stderr
                 assert "sass --version" not in calls
             elif scenario not in ("no-source", "empty-source"):
                 assert "expected 1.104.0; actual" in result.stderr

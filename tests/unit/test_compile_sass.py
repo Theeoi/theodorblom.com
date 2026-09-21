@@ -97,21 +97,43 @@ def test_matching_version(sass_script, output):
 def test_invalid_actual_version(sass_script, output):
     with patch("subprocess.run") as run:
         run.return_value.stdout = output
-        with pytest.raises(RuntimeError, match="expected 1.104.0; actual"):
+        with pytest.raises(RuntimeError) as exc:
             sass_script["check_sass_installation"]("1.104.0")
+    assert str(exc.value) == (
+        f"Sass version check failed: expected 1.104.0; actual {output!r}. "
+        "Install sass@1.104.0 and ensure sass is on PATH."
+    )
 
 
 @pytest.mark.parametrize(
-    "error",
+    "error, actual",
     [
-        FileNotFoundError("missing"),
-        subprocess.CalledProcessError(2, "sass", output="broken"),
+        (FileNotFoundError("missing"), "missing"),
+        (subprocess.CalledProcessError(2, "sass", output="broken"),
+         "exit 2: broken"),
+        (subprocess.CalledProcessError(2, "sass", stderr=" broken\n"),
+         "exit 2: broken"),
+        (subprocess.CalledProcessError(2, "sass"), "exit 2: "),
     ],
 )
-def test_unavailable_version(sass_script, error):
+def test_unavailable_version(sass_script, error, actual):
     with patch("subprocess.run", side_effect=error):
-        with pytest.raises(RuntimeError, match="Install sass@1.104.0"):
+        with pytest.raises(RuntimeError) as exc:
             sass_script["check_sass_installation"]("1.104.0")
+    assert str(exc.value) == (
+        f"Sass version check failed: expected 1.104.0; actual {actual!r}. "
+        "Install sass@1.104.0 and ensure sass is on PATH."
+    )
+
+
+@pytest.mark.parametrize("version", [None, 123, "bad"])
+def test_invalid_expected_version_diagnostic(sass_script, version):
+    with pytest.raises(ValueError) as exc:
+        sass_script["validate_version"](version)
+    assert str(exc.value) == (
+        "Expected Sass version must be a major.minor.patch string; "
+        f"got {version!r}"
+    )
 
 
 @pytest.mark.parametrize(

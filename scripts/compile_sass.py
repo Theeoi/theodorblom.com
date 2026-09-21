@@ -21,9 +21,8 @@ def validate_version(version):
         r"[0-9]+\.[0-9]+\.[0-9]+", version
     ):
         raise ValueError(
-            "Expected Sass version must be a major.minor.patch string; got {!r}".format(
-                version
-            )
+            "Expected Sass version must be a major.minor.patch string; "
+            f"got {version!r}"
         )
 
 
@@ -37,18 +36,17 @@ def check_sass_installation(expected):
     except OSError as error:
         actual = str(error)
     except subprocess.CalledProcessError as error:
-        actual = "exit {}: {}".format(
-            error.returncode, (error.stdout or error.stderr or "").strip()
-        )
+        output = (error.stdout or error.stderr or "").strip()
+        actual = f"exit {error.returncode}: {output}"
     else:
         actual = result.stdout.strip()
-        # Dart Sass may append implementation information after the version token.
+        # Dart Sass may append implementation details after the version token.
         tokens = actual.split()
         if tokens and tokens[0] == expected:
             return
     raise RuntimeError(
-        "Sass version check failed: expected {}; actual {!r}. "
-        "Install sass@{} and ensure sass is on PATH.".format(expected, actual, expected)
+        f"Sass version check failed: expected {expected}; actual {actual!r}. "
+        f"Install sass@{expected} and ensure sass is on PATH."
     )
 
 

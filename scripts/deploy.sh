@@ -13,9 +13,12 @@ if [ "$(git rev-parse FETCH_HEAD)" != "$deploy_sha" ]; then
 fi
 
 # Read the tested checker without changing the live checkout or environment.
-sass_checker=$(git show "$deploy_sha:scripts/compile_sass.py")
-test -n "$sass_checker"
-python3 -I -c "$sass_checker" --expected-version "$sass_version"
+sass_script_source=$(git show "$deploy_sha:scripts/compile_sass.py")
+test -n "$sass_script_source"
+# Do not sync the live project or download an interpreter during preflight.
+uv run --no-project --offline \
+  python -I -c "$sass_script_source" \
+  --expected-version "$sass_version"
 
 # Apply the release only after preflight succeeds.
 git checkout main

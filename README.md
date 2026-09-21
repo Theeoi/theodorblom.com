@@ -92,10 +92,14 @@ does not need Python or uv; it sends `scripts/deploy.sh` to the VPS over SSH.
 Deployment-only retries reuse the successful assets job's version output.
 After fetching and skipping superseded releases, the server runs the candidate's
 checker before changing the live checkout, dependencies, assets, or service.
-The server must already have `python3` (Python 3.8 or newer) and the required Sass
-on `PATH`; this preflight uses only the Python standard library, not the app or
-a TOML parser. A failed check requires manual Sass installation/correction;
-deployment never installs server tooling automatically.
+The server must already have `uv` and the required Sass on its noninteractive
+`PATH`, plus a Python interpreter (3.8 or newer) discoverable by uv. A standalone
+`python3` command on `PATH` is not required. Preflight uses
+`uv run --no-project --offline` to avoid syncing the live project or downloading
+an interpreter; the check needs only the standard library, not the app or a TOML
+parser. Normal locked project synchronization happens only after preflight
+succeeds and still enforces the application's Python requirement. A failed check
+requires manual tooling correction; preflight never installs server tooling.
 
 ### Deployment Environment
 
