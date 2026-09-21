@@ -10,17 +10,17 @@
         <input type="text"
                id="title"
                name="title"
-               value="{{ blogpost.title }}"
+               value="{{ form_values.title|e }}"
                placeholder="Title"
                onfocus="this.placeholder=''" />
         <input type="text"
                id="tags"
                name="tags"
-               value="{{ blogpost.tags }}"
+               value="{{ form_values.tags|e }}"
                placeholder="Tags (comma separated)"
                onfocus="this.placeholder=''" />
         <textarea id="content" name="content" placeholder="What's on your mind?" onfocus="this.placeholder=''">
-{{ blogpost.content }}</textarea>
+{{ form_values.content|e }}</textarea>
         <label for="published">
           Publish?
           <input
@@ -29,7 +29,7 @@
             value="True"
             {%
             if
-            blogpost.published
+            form_values.published
             %}checked="checked"
             {%
             endif
