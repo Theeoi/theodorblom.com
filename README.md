@@ -72,6 +72,33 @@ From the repository root, build the stylesheets with:
 uv run --locked scripts/compile_sass.py
 ```
 
+### Deployment Host Trust
+
+Production deployment requires both repository Actions secrets `DEPLOY_KEY`
+(client authentication) and `DEPLOY_KNOWN_HOSTS` (server identity). The reusable
+workflow receives both from `test.yml`. An unconfigured, empty, or malformed
+host-key secret blocks deployment; an unknown or changed server key is rejected
+before remote commands run. Existing runner/global host trust is not used.
+
+Provision `DEPLOY_KNOWN_HOSTS` with OpenSSH `known_hosts` entries, for example
+`theodorblom.com ssh-ed25519 <base64-public-host-key>`, one key per line. Hashed
+hostnames are also supported. Obtain the host public key and its SHA256
+fingerprint through an independently trusted channel, such as the provider's
+authenticated console or an administrator using an already verified connection.
+An authorized administrator can inspect `/etc/ssh/ssh_host_ed25519_key.pub` and
+run `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` on the server. Compare the
+fingerprint with the proposed entry using `ssh-keygen -lf <known-hosts-file>`
+before setting the secret. Never upload the server's private host key, and never
+trust unverified `ssh-keyscan` output or learn trust during deployment.
+
+For planned host-key rotation, independently verify the new key and add its
+entry alongside the old key in the secret before the server switches keys.
+After the switch is verified, remove the retired entry. For an unexpected
+mismatch, stop and investigate through the trusted channel rather than disabling
+strict checking or blindly replacing the pin. Configure and verify the secret
+before releasing this workflow to `main`; missing trust intentionally prevents
+release deployment. No systemd service changes are required.
+
 ## Project Status
 
 The website is up but is being developed sporadically.

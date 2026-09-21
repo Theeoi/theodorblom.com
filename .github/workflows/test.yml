@@ -28,6 +28,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e '.[dev]'
 
+      - name: Install isolated SSH test prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes openssh-server
+          sudo install -d -m 0755 -o root -g root /run/sshd
+
       - name: Run tests
         run: |
           pytest --cov-report=xml
@@ -46,3 +52,4 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     secrets:
       DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
