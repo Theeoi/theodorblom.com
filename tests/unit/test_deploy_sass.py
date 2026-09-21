@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import sys
@@ -21,12 +22,9 @@ import pytest
     ],
 )
 def test_remote_preflight(pytestconfig, tmp_path, scenario):
-    """Execute the workflow's remote shell, faking only external commands."""
+    """Execute the remote deployment script, faking only external commands."""
     root = pytestconfig.rootpath
-    workflow = (root / ".github/workflows/deploy.yml").read_text()
-    remote = textwrap.dedent(
-        workflow.split("<< 'EOF'\n", 1)[1].split("          EOF", 1)[0]
-    )
+    remote = (root / "scripts/deploy.sh").read_text()
     # Keep the actual deployment commands and ordering; redirect only its cwd.
     remote = remote.replace("/usr/share/nginx/theodorblom.com", str(tmp_path))
     candidate_root = tmp_path / "candidate"
@@ -128,3 +126,89 @@ elif name == 'sass':
                 assert "sass --version" not in calls
             elif scenario not in ("no-source", "empty-source"):
                 assert "expected 1.104.0; actual" in result.stderr
+
+
+@pytest.mark.parametrize(
+    "scenario", ["success", "invalid-sha", "version-failure", "ssh-failure"]
+)
+def test_runner_deployment(pytestconfig, tmp_path, scenario):
+    """Exercise the workflow's runner shell without connecting to the VPS."""
+    root = pytestconfig.rootpath
+    workflow = (root / ".github/workflows/deploy.yml").read_text()
+    step = workflow.split("- name: Deploy tested commit to VPS\n", 1)[1]
+    lines = step.split("run: |\n", 1)[1].splitlines()
+    indentation = len(lines[0]) - len(lines[0].lstrip())
+    script_lines = []
+    for line in lines:
+        if line.strip() and len(line) - len(line.lstrip()) < indentation:
+            break
+        script_lines.append(line)
+    runner = textwrap.dedent("\n".join(script_lines))
+    syntax = subprocess.run(
+        ["/bin/bash", "-n"], input=runner, text=True, capture_output=True
+    )
+    assert syntax.returncode == 0, syntax.stderr
+
+    commands = tmp_path / "bin"
+    commands.mkdir()
+    log = tmp_path / "commands.jsonl"
+    fake = """#!{python}
+import json, os, pathlib, sys
+name = pathlib.Path(sys.argv[0]).name
+with open(os.environ['LOG'], 'a') as log:
+    log.write(json.dumps({{'name': name, 'args': sys.argv[1:],
+                          'stdin': sys.stdin.read() if name == 'ssh' else None}}) + '\\n')
+if name == 'uv':
+    if os.environ['SCENARIO'] == 'version-failure':
+        sys.exit(1)
+    print('1.104.0')
+elif os.environ['SCENARIO'] == 'ssh-failure':
+    sys.exit(255)
+""".format(python=sys.executable)
+    for name in ["uv", "ssh"]:
+        executable = commands / name
+        executable.write_text(fake)
+        executable.chmod(0o755)
+    known_hosts = tmp_path / "deploy_known_hosts"
+    known_hosts.write_text("test host key\n")
+    sha = "invalid;sha" if scenario == "invalid-sha" else "a" * 40
+    result = subprocess.run(
+        ["/bin/bash", "-c", runner],
+        cwd=root,
+        env=dict(
+            os.environ,
+            PATH=str(commands) + os.pathsep + os.environ["PATH"],
+            LOG=str(log), SCENARIO=scenario, DEPLOY_SHA=sha,
+            RUNNER_TEMP=str(tmp_path),
+        ),
+        text=True,
+        capture_output=True,
+    )
+    assert not known_hosts.exists()
+    assert (result.returncode == 0) == (scenario == "success"), result.stderr
+    calls = []
+    if log.exists():
+        calls = [json.loads(line) for line in log.read_text().splitlines()]
+    if scenario == "invalid-sha":
+        assert calls == []
+        return
+    assert calls[0] == {
+        "name": "uv",
+        "args": ["run", "--locked", "scripts/compile_sass.py", "--print-version"],
+        "stdin": None,
+    }
+    if scenario == "version-failure":
+        assert len(calls) == 1
+        return
+    assert len(calls) == 2
+    assert calls[1] == {
+        "name": "ssh",
+        "args": [
+            "-o", "StrictHostKeyChecking=yes",
+            "-o", "UserKnownHostsFile=" + str(known_hosts),
+            "-o", "GlobalKnownHostsFile=/dev/null",
+            "-o", "BatchMode=yes",
+            "github@theodorblom.com", "bash -s -- " + sha + " 1.104.0",
+        ],
+        "stdin": (root / "scripts/deploy.sh").read_text(),
+    }
