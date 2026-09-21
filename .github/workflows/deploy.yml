@@ -5,6 +5,8 @@ on:
     secrets:
       DEPLOY_KEY:
         required: true
+      DEPLOY_KNOWN_HOSTS:
+        required: true
 
 permissions:
   contents: read
@@ -16,17 +18,34 @@ jobs:
       group: production-deploy
       cancel-in-progress: false
     steps:
+      - name: Install pinned SSH host keys
+        shell: bash
+        env:
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/deploy_known_hosts"
+
       - name: Install SSH key
         uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Deploy tested commit to VPS
+        shell: bash
         env:
           DEPLOY_SHA: ${{ github.sha }}
         run: |
+          set -euo pipefail
+          trap 'rm -f "$RUNNER_TEMP/deploy_known_hosts"' EXIT
           [[ "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]
-          ssh -o StrictHostKeyChecking=no github@theodorblom.com "bash -s -- $DEPLOY_SHA" << 'EOF'
+          ssh \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$RUNNER_TEMP/deploy_known_hosts" \
+            -o GlobalKnownHostsFile=/dev/null \
+            -o BatchMode=yes \
+            github@theodorblom.com "bash -s -- $DEPLOY_SHA" << 'EOF'
           set -euo pipefail
           deploy_sha="$1"
           cd /usr/share/nginx/theodorblom.com
