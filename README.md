@@ -82,42 +82,15 @@ uv run --locked scripts/compile_sass.py
 
 ### Deployment Environment
 
-Deployment prepares the environment and builds assets before restarting the
-service. Both commands validate the committed lockfile without updating it,
-and both select the deployment extra so the Sass build retains Gunicorn:
+The site runs on a VPS, with Gunicorn serving the Flask application and systemd
+managing the service. CI and deployment use the committed dependency lockfile
+to keep Python dependencies consistent.
 
-```sh
-uv sync --locked --extra deploy
-uv run --locked --extra deploy scripts/compile_sass.py
-```
+Updates to `main` are deployed after automated tests and asset checks pass.
+Deployment prepares dependencies and stylesheets before restarting the application.
 
-If project metadata and `uv.lock` disagree, deployment must fail before the
-service restart. Do not regenerate the lockfile on the server or replace
-`--locked` with `--frozen`, which skips the metadata consistency check.
-
-The supplied `gunicorn-theodorblom` systemd service currently starts with
-`/usr/bin/uv run gunicorn -w 2 -b 127.0.0.1:8000 'app:create_app()'`.
-The proposed service configuration is:
-
-```ini
-[Service]
-User=github
-Group=github
-WorkingDirectory=/usr/share/nginx/theodorblom.com
-ExecStart=/usr/bin/uv run --no-sync gunicorn -w 2 -b 127.0.0.1:8000 'app:create_app()'
-Restart=always
-RestartSec=5
-StandardOutput=journal
-StandardError=journal
-```
-
-Only `ExecStart` changes: deployment owns environment preparation; startup must
-use that prepared environment without synchronizing dependencies or changing
-the lockfile. `--no-sync` does not validate freshness, so it is not a substitute
-for the locked deployment commands. Applying this service change and reloading
-systemd require separate authorization; this repository change does not modify
-the live service. Until then, the existing startup command can still
-synchronize the environment without the deployment extra.
+See the [CI workflow](.github/workflows/test.yml) and
+[deployment workflow](.github/workflows/deploy.yml) for implementation details.
 
 ## Project Status
 
