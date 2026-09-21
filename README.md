@@ -96,6 +96,17 @@ Deployment prepares dependencies and stylesheets before restarting the applicati
 See the [CI workflow](.github/workflows/test.yml) and
 [deployment workflow](.github/workflows/deploy.yml) for implementation details.
 
+### Deployment Host Trust
+
+Set the repository Actions secret `DEPLOY_KNOWN_HOSTS` to an independently
+verified VPS public host key in `known_hosts` format:
+`theodorblom.com ssh-ed25519 <base64-public-host-key>`.
+
+For planned host-key rotation, replace the secret's value with both the existing
+and independently verified new key, one entry per line, before switching the
+server key. After verifying the rotation, update the secret to contain only the
+new key. Investigate unexpected key mismatches rather than disabling verification.
+
 ## Project Status
 
 The website is up but is being developed sporadically.
