@@ -38,7 +38,7 @@ jobs:
           fi
           git checkout main
           git reset --hard "$deploy_sha"
-          uv sync --frozen --extra deploy
-          uv run scripts/compile_sass.py
+          uv sync --locked --extra deploy
+          uv run --locked --extra deploy scripts/compile_sass.py
           sudo systemctl restart gunicorn-theodorblom
           EOF

@@ -47,10 +47,18 @@ Default development settings are found in 'src/app/config.py'.
 
 1. Clone the repo `git clone https://github.com/Theeoi/theodorblom.com`
 2. Go into the directory `cd theodorblom.com`
-3. Create a Python 3.8 virtual environment `python3.8 -m venv .venv`
-4. Activate the venv and install requirements `pip install .[dev]`
-5. Run the app `flask run`
+3. Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
+4. Install Python 3.8 and the locked development environment:
+   `uv python install 3.8` then `uv sync --locked --extra dev`.
+5. Run the app `uv run --locked --extra dev flask run`
 6. View the webpage at [127.0.0.1:5000](http://127.0.0.1:5000)
+
+The project requires Python 3.8 (`>=3.8,<3.9`); uv selects a compatible
+interpreter automatically. Run the same test command as CI:
+
+```sh
+uv run --locked --extra dev pytest --cov-report=xml
+```
 
 Please note:
 To create an account to store in the database, remove the `@login_required` on
@@ -71,6 +79,45 @@ From the repository root, build the stylesheets with:
 ```sh
 uv run --locked scripts/compile_sass.py
 ```
+
+### Deployment Environment
+
+Deployment prepares the environment and builds assets before restarting the
+service. Both commands validate the committed lockfile without updating it,
+and both select the deployment extra so the Sass build retains Gunicorn:
+
+```sh
+uv sync --locked --extra deploy
+uv run --locked --extra deploy scripts/compile_sass.py
+```
+
+If project metadata and `uv.lock` disagree, deployment must fail before the
+service restart. Do not regenerate the lockfile on the server or replace
+`--locked` with `--frozen`, which skips the metadata consistency check.
+
+The supplied `gunicorn-theodorblom` systemd service currently starts with
+`/usr/bin/uv run gunicorn -w 2 -b 127.0.0.1:8000 'app:create_app()'`.
+The proposed service configuration is:
+
+```ini
+[Service]
+User=github
+Group=github
+WorkingDirectory=/usr/share/nginx/theodorblom.com
+ExecStart=/usr/bin/uv run --no-sync gunicorn -w 2 -b 127.0.0.1:8000 'app:create_app()'
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+```
+
+Only `ExecStart` changes: deployment owns environment preparation; startup must
+use that prepared environment without synchronizing dependencies or changing
+the lockfile. `--no-sync` does not validate freshness, so it is not a substitute
+for the locked deployment commands. Applying this service change and reloading
+systemd require separate authorization; this repository change does not modify
+the live service. Until then, the existing startup command can still
+synchronize the environment without the deployment extra.
 
 ## Project Status
 
