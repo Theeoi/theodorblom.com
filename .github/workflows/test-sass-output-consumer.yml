@@ -1,0 +1,29 @@
+name: Test Sass output consumer
+
+on:
+  workflow_call:
+    inputs:
+      sass_version:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  consume:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assert preserved version
+        env:
+          SASS_VERSION: ${{ inputs.sass_version }}
+          ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          printf 'Consumer attempt: %s; version: %s\n' \
+            "$ATTEMPT" "$SASS_VERSION"
+          [[ "$SASS_VERSION" == '1.104.0' ]]
+          if [[ "$ATTEMPT" == '1' ]]; then
+            echo 'Intentional first-attempt failure after version assertion'
+            exit 1
+          fi

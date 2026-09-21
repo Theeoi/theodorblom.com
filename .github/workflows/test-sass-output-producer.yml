@@ -1,0 +1,24 @@
+name: Test Sass output producer
+
+on:
+  workflow_call:
+    outputs:
+      sass_version:
+        description: Fixed version for the retry experiment
+        value: ${{ jobs.build.outputs.sass_version }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      sass_version: ${{ steps.sass.outputs.sass_version }}
+    steps:
+      - id: sass
+        env:
+          ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          printf 'Producer attempt: %s\n' "$ATTEMPT"
+          printf 'sass_version=1.104.0\n' >> "$GITHUB_OUTPUT"
