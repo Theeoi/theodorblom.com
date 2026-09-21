@@ -5,6 +5,8 @@ Define default (dev) configuration variables here.
 Production variables are configured through the instance config.
 """
 
+from pathlib import Path
+
 # Flask app setup
 TEMPLATE_FOLDER = "../website/templates"
 STATIC_FOLDER = "../website/static"
@@ -29,19 +31,46 @@ class DefaultConfig:
     SITEMAP_URL_SCHEME = "https"
 
 
-def load_configs(app, test_config):
-    """Loads all configuration onto the app.
+def load_configs(app, test_config, mode):
+    """Load mode-specific configuration before any database initialization."""
+    if mode not in ("production", "development", "testing"):
+        raise ValueError("Unknown application mode.")
+    if test_config is not None and mode != "testing":
+        raise ValueError("test_config requires mode='testing'.")
+    if mode == "testing" and test_config is None:
+        raise ValueError("Testing mode requires an isolated test_config.")
 
-    Args:
-        app (Flask): A Flask app instance.
-        test_config (dict | None): Mapping of additional configuration options.
-    """
-    # Load default app config
     app.config.from_object("app.config.DefaultConfig")
 
-    # Load any instance config (if it exists)
-    app.config.from_pyfile("config.py", silent=True)
-
-    # Update with supplied test-config
-    if test_config is not None:
+    if mode == "testing":
+        app.config.update(TESTING=True)
         app.config.update(test_config)
+        return
+
+    if mode == "production":
+        app.config["SECRET_KEY"] = None
+    try:
+        app.config.from_pyfile("config.py", silent=(mode == "development"))
+    except Exception:
+        # Config exceptions can contain secrets, including SyntaxError source lines.
+        config_path = Path(app.instance_path) / "config.py"
+        message = (
+            f"Cannot load instance configuration at {config_path}; "
+            "check readability and syntax."
+        )
+        if mode == "production":
+            message = "Production requires a readable, valid config.py. " + message
+        raise RuntimeError(message) from None
+
+    if mode == "production":
+        secret = app.config.get("SECRET_KEY")
+        if (
+            not isinstance(secret, (str, bytes))
+            or not secret.strip()
+            or secret in (DefaultConfig.SECRET_KEY, DefaultConfig.SECRET_KEY.encode())
+        ):
+            raise RuntimeError(
+                "Production requires a nonempty, nondefault str/bytes SECRET_KEY."
+            )
+        if app.config["DEBUG"] or app.config["TESTING"]:
+            raise RuntimeError("Production forbids DEBUG and TESTING settings.")

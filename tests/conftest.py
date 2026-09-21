@@ -30,7 +30,7 @@ def test_client():
         },
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
     }
-    flask_app = create_app(test_config)
+    flask_app = create_app(test_config, mode="testing")
 
     with flask_app.test_client() as testing_client:
         with flask_app.app_context():
