@@ -57,3 +57,42 @@ def test_workflows_prepare_locked_dependencies_before_restart(pytestconfig):
     restart = commands.index("sudo systemctl restart gunicorn-theodorblom")
 
     assert strict_mode < sync < build < restart
+
+
+def test_assets_version_passed_to_deployment(pytestconfig):
+    """Keep the validated build version wired through both reusable workflows."""
+    workflows = pytestconfig.rootpath / ".github/workflows"
+    assets = (workflows / "assets.yml").read_text()
+    caller = (workflows / "test.yml").read_text()
+    deploy = (workflows / "deploy.yml").read_text()
+
+    assert re.search(
+        r"workflow_call:\s+outputs:\s+sass_version:\s+description:[^\n]+\n"
+        r"\s+value: \$\{\{ jobs.build.outputs.sass_version \}\}", assets
+    )
+    assert re.search(
+        r"outputs:\s+sass_version: \$\{\{ steps.sass.outputs.sass_version \}\}",
+        assets,
+    )
+    assert re.search(r"- name: Install Sass\s+id: sass\s+run: \|", assets)
+    reader = assets.index(
+        "sass_version=$(uv run --locked scripts/compile_sass.py --print-version)"
+    )
+    install = assets.index('npm install --global "sass@$sass_version"')
+    publish = assets.index(
+        "printf 'sass_version=%s\\n' \"$sass_version\" >> \"$GITHUB_OUTPUT\""
+    )
+    assert reader < install < publish
+    assert re.search(
+        r"deploy:\s+needs: \[test, assets\][\s\S]+?"
+        r"uses: \./.github/workflows/deploy.yml\s+with:\s+"
+        r"sass_version: \$\{\{ needs.assets.outputs.sass_version \}\}", caller
+    )
+    assert re.search(
+        r"workflow_call:\s+inputs:\s+sass_version:\s+description:[^\n]+\n"
+        r"\s+required: true\s+type: string", deploy
+    )
+    assert "SASS_VERSION: ${{ inputs.sass_version }}" in deploy
+    assert "setup-python" not in deploy
+    assert "setup-uv" not in deploy
+    assert "--print-version" not in deploy

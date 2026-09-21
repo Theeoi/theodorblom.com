@@ -40,7 +40,7 @@ def test_remote_preflight(pytestconfig, tmp_path, scenario):
         "raise AssertionError('live checker used')"
     )
     (tmp_path / "pyproject.toml").write_text('[tool.sass]\nversion = "1.103.0"\n')
-    # Use the runner's reader interface, with a different live config in cwd.
+    # Use the assets reader interface, with a different live config in cwd.
     extraction = subprocess.run(
         [sys.executable, candidate, "--print-version"],
         cwd=tmp_path,
@@ -129,7 +129,7 @@ elif name == 'sass':
 
 
 @pytest.mark.parametrize(
-    "scenario", ["success", "invalid-sha", "version-failure", "ssh-failure"]
+    "scenario", ["success", "invalid-sha", "missing-version", "ssh-failure"]
 )
 def test_runner_deployment(pytestconfig, tmp_path, scenario):
     """Exercise the workflow's runner shell without connecting to the VPS."""
@@ -153,24 +153,30 @@ def test_runner_deployment(pytestconfig, tmp_path, scenario):
     commands.mkdir()
     log = tmp_path / "commands.jsonl"
     fake = """#!{python}
-import json, os, pathlib, sys
-name = pathlib.Path(sys.argv[0]).name
+import json, os, sys
 with open(os.environ['LOG'], 'a') as log:
-    log.write(json.dumps({{'name': name, 'args': sys.argv[1:],
-                          'stdin': sys.stdin.read() if name == 'ssh' else None}}) + '\\n')
-if name == 'uv':
-    if os.environ['SCENARIO'] == 'version-failure':
-        sys.exit(1)
-    print('1.104.0')
-elif os.environ['SCENARIO'] == 'ssh-failure':
+    log.write(json.dumps({{'args': sys.argv[1:],
+                          'stdin': sys.stdin.read()}}) + '\\n')
+if os.environ['SCENARIO'] == 'ssh-failure':
     sys.exit(255)
 """.format(python=sys.executable)
-    for name in ["uv", "ssh"]:
-        executable = commands / name
-        executable.write_text(fake)
-        executable.chmod(0o755)
+    executable = commands / "ssh"
+    executable.write_text(fake)
+    executable.chmod(0o755)
     known_hosts = tmp_path / "deploy_known_hosts"
-    known_hosts.write_text("test host key\n")
+    host_step = workflow.split("- name: Install pinned SSH host keys\n", 1)[1]
+    host_script = textwrap.dedent(
+        host_step.split("run: |\n", 1)[1].split("- name: Install SSH key", 1)[0]
+    )
+    subprocess.run(
+        ["/bin/bash", "-c", host_script],
+        env=dict(os.environ, RUNNER_TEMP=str(tmp_path),
+                 DEPLOY_KNOWN_HOSTS="test host key"),
+        check=True,
+        capture_output=True,
+    )
+    assert known_hosts.read_text() == "test host key\n"
+    assert known_hosts.stat().st_mode & 0o777 == 0o600
     sha = "invalid;sha" if scenario == "invalid-sha" else "a" * 40
     result = subprocess.run(
         ["/bin/bash", "-c", runner],
@@ -179,6 +185,7 @@ elif os.environ['SCENARIO'] == 'ssh-failure':
             os.environ,
             PATH=str(commands) + os.pathsep + os.environ["PATH"],
             LOG=str(log), SCENARIO=scenario, DEPLOY_SHA=sha,
+            SASS_VERSION="" if scenario == "missing-version" else "1.104.0",
             RUNNER_TEMP=str(tmp_path),
         ),
         text=True,
@@ -189,20 +196,13 @@ elif os.environ['SCENARIO'] == 'ssh-failure':
     calls = []
     if log.exists():
         calls = [json.loads(line) for line in log.read_text().splitlines()]
-    if scenario == "invalid-sha":
+    if scenario in ("invalid-sha", "missing-version"):
         assert calls == []
+        if scenario == "missing-version":
+            assert "Missing Sass version from assets" in result.stderr
         return
+    assert len(calls) == 1
     assert calls[0] == {
-        "name": "uv",
-        "args": ["run", "--locked", "scripts/compile_sass.py", "--print-version"],
-        "stdin": None,
-    }
-    if scenario == "version-failure":
-        assert len(calls) == 1
-        return
-    assert len(calls) == 2
-    assert calls[1] == {
-        "name": "ssh",
         "args": [
             "-o", "StrictHostKeyChecking=yes",
             "-o", "UserKnownHostsFile=" + str(known_hosts),

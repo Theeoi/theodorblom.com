@@ -86,7 +86,10 @@ uv run --locked scripts/compile_sass.py
 ```
 
 Local builds reject missing or mismatched Sass versions before compilation.
-Deployment reads the expected version from the tested candidate on the runner.
+The assets workflow reads and validates the candidate's expected version, then
+passes it to deployment as a reusable-workflow output. The deployment runner
+does not need Python or uv; it sends `scripts/deploy.sh` to the VPS over SSH.
+Deployment-only retries reuse the successful assets job's version output.
 After fetching and skipping superseded releases, the server runs the candidate's
 checker before changing the live checkout, dependencies, assets, or service.
 The server must already have `python3` (Python 3.8 or newer) and the required Sass

@@ -2,6 +2,11 @@ name: Deploy to VPS
 
 on:
     workflow_call:
+        inputs:
+            sass_version:
+                description: Validated Sass version from the assets workflow
+                required: true
+                type: string
         secrets:
             DEPLOY_KEY:
                 required: true
@@ -22,14 +27,6 @@ jobs:
               with:
                   ref: ${{ github.sha }}
 
-            - name: Set up Python
-              uses: actions/setup-python@v6
-              with:
-                  python-version: "3.8"
-
-            - name: Set up uv
-              uses: astral-sh/setup-uv@v7
-
             - name: Install pinned SSH host keys
               shell: bash
               env:
@@ -37,7 +34,8 @@ jobs:
               run: |
                   set -euo pipefail
                   umask 077
-                  printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/deploy_known_hosts"
+                  printf '%s\n' "$DEPLOY_KNOWN_HOSTS" \
+                    > "$RUNNER_TEMP/deploy_known_hosts"
 
             - name: Install SSH key
               uses: webfactory/ssh-agent@v0.10.0
@@ -48,15 +46,17 @@ jobs:
               shell: bash
               env:
                   DEPLOY_SHA: ${{ github.sha }}
+                  SASS_VERSION: ${{ inputs.sass_version }}
               run: |
                   set -euo pipefail
                   trap 'rm -f "$RUNNER_TEMP/deploy_known_hosts"' EXIT
                   [[ "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]
-                  sass_version=$(uv run --locked scripts/compile_sass.py --print-version)
+                  : "${SASS_VERSION:?Missing Sass version from assets}"
                   ssh \
                     -o StrictHostKeyChecking=yes \
                     -o UserKnownHostsFile="$RUNNER_TEMP/deploy_known_hosts" \
                     -o GlobalKnownHostsFile=/dev/null \
                     -o BatchMode=yes \
-                    github@theodorblom.com "bash -s -- $DEPLOY_SHA $sass_version" \
+                    github@theodorblom.com \
+                    "bash -s -- $DEPLOY_SHA $SASS_VERSION" \
                     < scripts/deploy.sh
