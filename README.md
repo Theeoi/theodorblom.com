@@ -76,9 +76,13 @@ uv run --locked scripts/compile_sass.py
 
 Production deployment requires both repository Actions secrets `DEPLOY_KEY`
 (client authentication) and `DEPLOY_KNOWN_HOSTS` (server identity). The reusable
-workflow receives both from `test.yml`. An unconfigured, empty, or malformed
-host-key secret blocks deployment; an unknown or changed server key is rejected
-before remote commands run. Existing runner/global host trust is not used.
+workflow receives both from `test.yml`. The deployment step writes the host-key
+secret to an owner-only temporary known-hosts file and removes it on exit,
+without a separate installation or validation step. SSH requires a usable
+trusted key matching `theodorblom.com`; missing or empty trust and unknown or
+changed server keys block deployment before remote commands run. Malformed
+extra entries do not necessarily block deployment if a usable matching key
+exists. Existing runner/global host trust is not used.
 
 Provision `DEPLOY_KNOWN_HOSTS` with OpenSSH `known_hosts` entries, for example
 `theodorblom.com ssh-ed25519 <base64-public-host-key>`, one key per line. Hashed

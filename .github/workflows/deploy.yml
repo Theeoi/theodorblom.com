@@ -18,41 +18,29 @@ jobs:
       group: production-deploy
       cancel-in-progress: false
     steps:
-      - name: Install pinned SSH host keys
-        env:
-          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
-        run: |
-          set -euo pipefail
-          umask 077
-          trust_dir=$(mktemp -d "$RUNNER_TEMP/deploy-ssh.XXXXXX")
-          known_hosts="$trust_dir/known_hosts"
-          printf '%s\n' "${DEPLOY_KNOWN_HOSTS:-}" > "$known_hosts"
-          key_count=0
-          while IFS= read -r line; do
-            [[ "$line" =~ ^[[:space:]]*(#|$) ]] && continue
-            if ! ssh-keygen -l -f /dev/stdin <<< "$line" >/dev/null 2>&1; then
-              echo '::error::DEPLOY_KNOWN_HOSTS contains a malformed host key entry.'
-              exit 1
-            fi
-            key_count=$((key_count + 1))
-          done < "$known_hosts"
-          if [ "$key_count" -eq 0 ] || ! ssh-keygen -F theodorblom.com -f "$known_hosts" >/dev/null; then
-            echo '::error::DEPLOY_KNOWN_HOSTS must contain a verified host key for theodorblom.com.'
-            exit 1
-          fi
-          printf 'DEPLOY_KNOWN_HOSTS_FILE=%s\n' "$known_hosts" >> "$GITHUB_ENV"
-
       - name: Install SSH key
         uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Deploy tested commit to VPS
+        shell: bash
         env:
           DEPLOY_SHA: ${{ github.sha }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
         run: |
+          set -euo pipefail
           [[ "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]
-          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$DEPLOY_KNOWN_HOSTS_FILE" -o GlobalKnownHostsFile=/dev/null -o BatchMode=yes github@theodorblom.com "bash -s -- $DEPLOY_SHA" << 'EOF'
+          # OpenSSH reads known hosts more than once, so use a file rather than a pipe.
+          known_hosts=$(mktemp)
+          trap 'rm -f "$known_hosts"' EXIT
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$known_hosts"
+          ssh \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$known_hosts" \
+            -o GlobalKnownHostsFile=/dev/null \
+            -o BatchMode=yes \
+            github@theodorblom.com "bash -s -- $DEPLOY_SHA" << 'EOF'
           set -euo pipefail
           deploy_sha="$1"
           cd /usr/share/nginx/theodorblom.com
