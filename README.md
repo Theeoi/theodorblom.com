@@ -13,8 +13,10 @@ goal of the website is to act as a mix of CV, portfolio and a creative hub.
 
 ### Technologies
 
-- Python =3.8
-- Flask >=3.0
+- Python
+- Flask
+
+See [pyproject.toml](pyproject.toml) for compatibility and dependency requirements.
 
 ### Features
 
@@ -48,13 +50,15 @@ Default development settings are found in 'src/app/config.py'.
 1. Clone the repo `git clone https://github.com/Theeoi/theodorblom.com`
 2. Go into the directory `cd theodorblom.com`
 3. Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
-4. Install Python 3.8 and the locked development environment:
-   `uv python install 3.8` then `uv sync --locked --extra dev`.
+4. Install the locked development environment: `uv sync --locked --extra dev`.
 5. Run the app `uv run --locked --extra dev flask run`
 6. View the webpage at [127.0.0.1:5000](http://127.0.0.1:5000)
 
-The project requires Python 3.8 (`>=3.8,<3.9`); uv selects a compatible
-interpreter automatically. Run the same test command as CI:
+Python compatibility is defined by `requires-python` in
+[pyproject.toml](pyproject.toml). With its default settings, uv selects a compatible
+interpreter automatically and downloads one if needed.
+
+Run the same test command as CI:
 
 ```sh
 uv run --locked --extra dev pytest --cov-report=xml
