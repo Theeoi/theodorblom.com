@@ -18,6 +18,15 @@ jobs:
       group: production-deploy
       cancel-in-progress: false
     steps:
+      - name: Install pinned SSH host keys
+        shell: bash
+        env:
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/deploy_known_hosts"
+
       - name: Install SSH key
         uses: webfactory/ssh-agent@v0.10.0
         with:
@@ -27,17 +36,13 @@ jobs:
         shell: bash
         env:
           DEPLOY_SHA: ${{ github.sha }}
-          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
+          trap 'rm -f "$RUNNER_TEMP/deploy_known_hosts"' EXIT
           [[ "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]
-          # OpenSSH reads known hosts more than once, so use a file rather than a pipe.
-          known_hosts=$(mktemp)
-          trap 'rm -f "$known_hosts"' EXIT
-          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$known_hosts"
           ssh \
             -o StrictHostKeyChecking=yes \
-            -o UserKnownHostsFile="$known_hosts" \
+            -o UserKnownHostsFile="$RUNNER_TEMP/deploy_known_hosts" \
             -o GlobalKnownHostsFile=/dev/null \
             -o BatchMode=yes \
             github@theodorblom.com "bash -s -- $DEPLOY_SHA" << 'EOF'
