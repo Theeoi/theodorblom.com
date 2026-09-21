@@ -8,6 +8,7 @@ from markdown import markdown
 from flask_login import current_user, login_required
 from flask import (
     Blueprint,
+    abort,
     render_template,
     redirect,
     url_for,
@@ -158,9 +159,8 @@ def post(slug):
     """
     blogpost = Blogpost.query.filter_by(slug=slug).first()
 
-    if not blogpost:
-        flash("No blogpost with that slug exists.", category="error")
-        return redirect(url_for("blog.index"))
+    if not blogpost or (not blogpost.published and not current_user.is_authenticated):
+        abort(404)
 
     html = markdown(
         blogpost.content, extensions=["toc", "fenced_code", "codehilite", "sane_lists"]
