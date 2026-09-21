@@ -74,35 +74,14 @@ uv run --locked scripts/compile_sass.py
 
 ### Deployment Host Trust
 
-Production deployment requires both repository Actions secrets `DEPLOY_KEY`
-(client authentication) and `DEPLOY_KNOWN_HOSTS` (server identity). The reusable
-workflow receives both from `test.yml`. A separate preparation step writes the
-host-key secret to an owner-only file at `$RUNNER_TEMP/deploy_known_hosts`.
-The deployment step uses that file and removes it on exit. No custom key
-validation is performed: SSH requires a usable
-trusted key matching `theodorblom.com`; missing or empty trust and unknown or
-changed server keys block deployment before remote commands run. Malformed
-extra entries do not necessarily block deployment if a usable matching key
-exists. Existing runner/global host trust is not used.
+Set the repository Actions secret `DEPLOY_KNOWN_HOSTS` to an independently
+verified VPS public host key in `known_hosts` format:
+`theodorblom.com ssh-ed25519 <base64-public-host-key>`.
 
-Provision `DEPLOY_KNOWN_HOSTS` with OpenSSH `known_hosts` entries, for example
-`theodorblom.com ssh-ed25519 <base64-public-host-key>`, one key per line. Hashed
-hostnames are also supported. Obtain the host public key and its SHA256
-fingerprint through an independently trusted channel, such as the provider's
-authenticated console or an administrator using an already verified connection.
-An authorized administrator can inspect `/etc/ssh/ssh_host_ed25519_key.pub` and
-run `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` on the server. Compare the
-fingerprint with the proposed entry using `ssh-keygen -lf <known-hosts-file>`
-before setting the secret. Never upload the server's private host key, and never
-trust unverified `ssh-keyscan` output or learn trust during deployment.
-
-For planned host-key rotation, independently verify the new key and add its
-entry alongside the old key in the secret before the server switches keys.
-After the switch is verified, remove the retired entry. For an unexpected
-mismatch, stop and investigate through the trusted channel rather than disabling
-strict checking or blindly replacing the pin. Configure and verify the secret
-before releasing this workflow to `main`; missing trust intentionally prevents
-release deployment. No systemd service changes are required.
+For planned host-key rotation, replace the secret's value with both the existing
+and independently verified new key, one entry per line, before switching the
+server key. After verifying the rotation, update the secret to contain only the
+new key. Investigate unexpected key mismatches rather than disabling verification.
 
 ## Project Status
 

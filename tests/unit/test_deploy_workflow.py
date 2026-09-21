@@ -5,6 +5,7 @@ import shlex
 
 
 def test_deploy_requires_and_receives_host_trust(pytestconfig):
+    """Require host trust to be supplied to the deployment workflow."""
     workflow = (pytestconfig.rootpath / ".github/workflows/deploy.yml").read_text()
     caller = (pytestconfig.rootpath / ".github/workflows/test.yml").read_text()
     assert re.search(r"DEPLOY_KNOWN_HOSTS:\s+required:\s+true\b", workflow)
@@ -17,6 +18,7 @@ def test_deploy_requires_and_receives_host_trust(pytestconfig):
 
 
 def test_deploy_requires_pinned_host_verification(pytestconfig):
+    """Require explicit host trust and strict, noninteractive SSH verification."""
     workflow = (pytestconfig.rootpath / ".github/workflows/deploy.yml").read_text()
     command = next(
         line.strip() for line in workflow.replace("\\\n", " ").splitlines()
