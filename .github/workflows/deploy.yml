@@ -1,63 +1,82 @@
 name: Deploy to VPS
 
 on:
-  workflow_call:
-    secrets:
-      DEPLOY_KEY:
-        required: true
+    workflow_call:
+        secrets:
+            DEPLOY_KEY:
+                required: true
+            DEPLOY_KNOWN_HOSTS:
+                required: true
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  deploy:
-    runs-on: [ubuntu-latest]
-    concurrency:
-      group: production-deploy
-      cancel-in-progress: false
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.sha }}
+    deploy:
+        runs-on: [ubuntu-latest]
+        concurrency:
+            group: production-deploy
+            cancel-in-progress: false
+        steps:
+            - uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.sha }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.8"
+            - name: Set up Python
+              uses: actions/setup-python@v6
+              with:
+                  python-version: "3.8"
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+            - name: Set up uv
+              uses: astral-sh/setup-uv@v7
 
-      - name: Install SSH key
-        uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+            - name: Install pinned SSH host keys
+              shell: bash
+              env:
+                  DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+              run: |
+                  set -euo pipefail
+                  umask 077
+                  printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/deploy_known_hosts"
 
-      - name: Deploy tested commit to VPS
-        env:
-          DEPLOY_SHA: ${{ github.sha }}
-        run: |
-          [[ "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]
-          sass_version=$(uv run --locked scripts/compile_sass.py --print-version)
-          [[ "$sass_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
-          ssh -o StrictHostKeyChecking=no github@theodorblom.com "bash -s -- $DEPLOY_SHA $sass_version" << 'EOF'
-          set -euo pipefail
-          deploy_sha="$1"
-          sass_version="$2"
-          cd /usr/share/nginx/theodorblom.com
-          git fetch origin main
-          # A slow or rerun workflow must not roll back a newer release.
-          if [ "$(git rev-parse FETCH_HEAD)" != "$deploy_sha" ]; then
-            echo "Skipping superseded commit $deploy_sha"
-            exit 0
-          fi
-          # Read the tested checker without changing the live checkout or environment.
-          sass_checker=$(git show "$deploy_sha:scripts/compile_sass.py")
-          test -n "$sass_checker"
-          python3 -I -c "$sass_checker" --expected-version "$sass_version"
-          git checkout main
-          git reset --hard "$deploy_sha"
-          uv sync --frozen --extra deploy
-          uv run scripts/compile_sass.py
-          sudo systemctl restart gunicorn-theodorblom
-          EOF
+            - name: Install SSH key
+              uses: webfactory/ssh-agent@v0.10.0
+              with:
+                  ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+            - name: Deploy tested commit to VPS
+              shell: bash
+              env:
+                  DEPLOY_SHA: ${{ github.sha }}
+              run: |
+                  set -euo pipefail
+                  trap 'rm -f "$RUNNER_TEMP/deploy_known_hosts"' EXIT
+                  [[ "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]
+                  sass_version=$(uv run --locked scripts/compile_sass.py --print-version)
+                  [[ "$sass_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+                  ssh \
+                    -o StrictHostKeyChecking=yes \
+                    -o UserKnownHostsFile="$RUNNER_TEMP/deploy_known_hosts" \
+                    -o GlobalKnownHostsFile=/dev/null \
+                    -o BatchMode=yes \
+                    github@theodorblom.com "bash -s -- $DEPLOY_SHA $sass_version" << 'EOF'
+                  set -euo pipefail
+                  deploy_sha="$1"
+                  sass_version="$2"
+                  cd /usr/share/nginx/theodorblom.com
+                  git fetch origin main
+                  # A slow or rerun workflow must not roll back a newer release.
+                  if [ "$(git rev-parse FETCH_HEAD)" != "$deploy_sha" ]; then
+                    echo "Skipping superseded commit $deploy_sha"
+                    exit 0
+                  fi
+                  # Read the tested checker without changing the live checkout or environment.
+                  sass_checker=$(git show "$deploy_sha:scripts/compile_sass.py")
+                  test -n "$sass_checker"
+                  python3 -I -c "$sass_checker" --expected-version "$sass_version"
+                  git checkout main
+                  git reset --hard "$deploy_sha"
+                  uv sync --locked --extra deploy
+                  uv run --locked --extra deploy scripts/compile_sass.py
+                  sudo systemctl restart gunicorn-theodorblom
+                  EOF
