@@ -85,22 +85,6 @@ From the repository root, build the stylesheets with:
 uv run --locked scripts/compile_sass.py
 ```
 
-Local builds reject missing or mismatched Sass versions before compilation.
-The assets workflow reads and validates the candidate's expected version, then
-passes it to deployment as a reusable-workflow output. The deployment runner
-does not need Python or uv; it sends `scripts/deploy.sh` to the VPS over SSH.
-Deployment-only retries reuse the successful assets job's version output.
-After fetching and skipping superseded releases, the server runs the candidate's
-checker before changing the live checkout, dependencies, assets, or service.
-The server must already have `uv` and the required Sass on its noninteractive
-`PATH`, plus a Python interpreter (3.8 or newer) discoverable by uv. A standalone
-`python3` command on `PATH` is not required. Preflight uses
-`uv run --no-project --offline` to avoid syncing the live project or downloading
-an interpreter; the check needs only the standard library, not the app or a TOML
-parser. Normal locked project synchronization happens only after preflight
-succeeds and still enforces the application's Python requirement. A failed check
-requires manual tooling correction; preflight never installs server tooling.
-
 ### Deployment Environment
 
 The site runs on a VPS, with Gunicorn serving the Flask application and systemd
