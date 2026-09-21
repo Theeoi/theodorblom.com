@@ -26,7 +26,9 @@ jobs:
           node-version: "24"
 
       - name: Install Sass
-        run: npm install --global sass@1.104.0
+        run: |
+          sass_version=$(uv run --locked scripts/compile_sass.py --print-version)
+          npm install --global "sass@$sass_version"
 
       - name: Compile stylesheets
         run: uv run --locked scripts/compile_sass.py

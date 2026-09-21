@@ -59,11 +59,12 @@ the database.
 
 ### Building Stylesheets
 
-Install the Sass CLI and ensure `sass` is on `PATH`. Sass 1.104.0 is the
-version tested for this project. With Node.js and npm installed, run:
+Install the Sass CLI and ensure `sass` is on `PATH`. The required version is
+declared in `[tool.sass]` in `pyproject.toml`. With Node.js, npm, and uv installed, run:
 
 ```sh
-npm install --global sass@1.104.0
+sass_version=$(uv run --locked scripts/compile_sass.py --print-version)
+npm install --global "sass@$sass_version"
 ```
 
 From the repository root, build the stylesheets with:
@@ -71,6 +72,15 @@ From the repository root, build the stylesheets with:
 ```sh
 uv run --locked scripts/compile_sass.py
 ```
+
+Local builds reject missing or mismatched Sass versions before compilation.
+Deployment reads the expected version from the tested candidate on the runner.
+After fetching and skipping superseded releases, the server runs the candidate's
+checker before changing the live checkout, dependencies, assets, or service.
+The server must already have `python3` (Python 3.8 or newer) and the required Sass
+on `PATH`; this preflight uses only the Python standard library, not the app or
+a TOML parser. A failed check requires manual Sass installation/correction;
+deployment never installs server tooling automatically.
 
 ## Project Status
 

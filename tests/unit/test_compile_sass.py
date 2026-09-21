@@ -36,9 +36,10 @@ def test_compile_scss(sass_script, tmp_path):
     assert exc.value is error
 
 
-def test_entrypoint_from_different_cwd(script_path, tmp_path, monkeypatch):
+def test_entrypoint_from_different_cwd(script_path, sass_script, tmp_path, monkeypatch):
     """Use configured paths from any cwd without starting the app or its databases."""
     monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(sys, "argv", [str(script_path)])
     monkeypatch.setattr(config, "STATIC_FOLDER", "../custom static")
     static_dir = (
         Path(config.__file__).resolve().parent / config.STATIC_FOLDER
@@ -50,10 +51,11 @@ def test_entrypoint_from_different_cwd(script_path, tmp_path, monkeypatch):
             side_effect=AssertionError("App startup during build"),
         ):
             with patch("subprocess.run") as run:
+                run.return_value.stdout = sass_script["expected_sass_version"]()
                 runpy.run_path(str(script_path), run_name="__main__")
 
     assert run.call_args_list == [
-        call(["sass", "--version"], check=True),
+        call(["sass", "--version"], check=True, capture_output=True, text=True),
         call(
             [
                 "sass",
@@ -76,4 +78,77 @@ def test_entrypoint_missing_sass(script_path, tmp_path):
     )
 
     assert result.returncode != 0
-    assert "Sass CLI tool is not installed." in result.stderr
+    assert "Sass version check failed: expected" in result.stderr
+    assert "ensure sass is on PATH" in result.stderr
+
+
+@pytest.mark.parametrize(
+    "output", ["1.104.0\n", "1.104.0 compiled with dart2js 3.11.2\n"]
+)
+def test_matching_version(sass_script, output):
+    with patch("subprocess.run") as run:
+        run.return_value.stdout = output
+        sass_script["check_sass_installation"]("1.104.0")
+
+
+@pytest.mark.parametrize(
+    "output", ["", "garbage", "1.104.00", "1.104.0-dev", "1.103.0"]
+)
+def test_invalid_actual_version(sass_script, output):
+    with patch("subprocess.run") as run:
+        run.return_value.stdout = output
+        with pytest.raises(RuntimeError, match="expected 1.104.0; actual"):
+            sass_script["check_sass_installation"]("1.104.0")
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        FileNotFoundError("missing"),
+        subprocess.CalledProcessError(2, "sass", output="broken"),
+    ],
+)
+def test_unavailable_version(sass_script, error):
+    with patch("subprocess.run", side_effect=error):
+        with pytest.raises(RuntimeError, match="Install sass@1.104.0"):
+            sass_script["check_sass_installation"]("1.104.0")
+
+
+@pytest.mark.parametrize(
+    "declaration", ['version = "1.104.0"', 'version = "1.104.0" # comment']
+)
+def test_config_parser(sass_script, tmp_path, declaration):
+    scripts = tmp_path / "scripts"
+    scripts.mkdir()
+    (tmp_path / "pyproject.toml").write_text("[tool.sass]\n" + declaration)
+    reader = sass_script["expected_sass_version"]
+    reader.__globals__["__file__"] = str(scripts / "compile_sass.py")
+    assert reader() == "1.104.0"
+
+
+@pytest.mark.parametrize(
+    "config_text",
+    ["", '[tool.sass]\nversion = 123', '[tool.sass]\nversion = "bad"', '[tool.sass'],
+)
+def test_bad_config(sass_script, tmp_path, config_text):
+    scripts = tmp_path / "scripts"
+    scripts.mkdir()
+    (tmp_path / "pyproject.toml").write_text(config_text)
+    reader = sass_script["expected_sass_version"]
+    reader.__globals__["__file__"] = str(scripts / "compile_sass.py")
+    with pytest.raises((KeyError, ValueError)):
+        reader()
+
+
+def test_preflight_without_site_packages(script_path, tmp_path):
+    """The remote interface needs neither tomli nor the application installed."""
+    result = subprocess.run(
+        [sys.executable, "-I", "-S", script_path, "--expected-version", "1.104.0"],
+        cwd=tmp_path,
+        env={"PATH": ""},
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "Sass version check failed: expected 1.104.0" in result.stderr
+    assert "ModuleNotFoundError" not in result.stderr
