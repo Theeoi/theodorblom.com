@@ -18,7 +18,7 @@ test -n "$sass_script_source"
 # Do not sync the live project or download an interpreter during preflight.
 uv run --no-project --offline \
   python -I -c "$sass_script_source" \
-  --expected-version "$sass_version"
+  --check-installed-version "$sass_version"
 
 # Apply the release only after preflight succeeds.
 git checkout main

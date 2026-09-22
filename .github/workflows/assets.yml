@@ -34,7 +34,7 @@ jobs:
       - name: Install Sass
         id: sass
         run: |
-          sass_version=$(uv run --locked scripts/compile_sass.py --print-version)
+          sass_version=$(uv run --locked scripts/compile_sass.py --print-configured-version)
           npm install --global "sass@$sass_version"
           printf 'sass_version=%s\n' "$sass_version" >> "$GITHUB_OUTPUT"
 

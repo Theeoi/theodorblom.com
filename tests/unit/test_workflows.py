@@ -76,7 +76,7 @@ def test_assets_version_passed_to_deployment(pytestconfig):
     )
     assert re.search(r"- name: Install Sass\s+id: sass\s+run: \|", assets)
     reader = assets.index(
-        "sass_version=$(uv run --locked scripts/compile_sass.py --print-version)"
+        "sass_version=$(uv run --locked scripts/compile_sass.py --print-configured-version)"
     )
     install = assets.index('npm install --global "sass@$sass_version"')
     publish = assets.index(
@@ -95,4 +95,4 @@ def test_assets_version_passed_to_deployment(pytestconfig):
     assert "SASS_VERSION: ${{ inputs.sass_version }}" in deploy
     assert "setup-python" not in deploy
     assert "setup-uv" not in deploy
-    assert "--print-version" not in deploy
+    assert "--print-configured-version" not in deploy

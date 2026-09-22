@@ -51,7 +51,7 @@ def test_entrypoint_from_different_cwd(script_path, sass_script, tmp_path, monke
             side_effect=AssertionError("App startup during build"),
         ):
             with patch("subprocess.run") as run:
-                run.return_value.stdout = sass_script["expected_sass_version"]()
+                run.return_value.stdout = sass_script["configured_sass_version"]()
                 runpy.run_path(str(script_path), run_name="__main__")
 
     assert run.call_args_list == [
@@ -88,7 +88,7 @@ def test_entrypoint_missing_sass(script_path, tmp_path):
 def test_matching_version(sass_script, output):
     with patch("subprocess.run") as run:
         run.return_value.stdout = output
-        sass_script["check_sass_installation"]("1.104.0")
+        sass_script["check_installed_sass_version"]("1.104.0")
 
 
 @pytest.mark.parametrize(
@@ -98,7 +98,7 @@ def test_invalid_actual_version(sass_script, output):
     with patch("subprocess.run") as run:
         run.return_value.stdout = output
         with pytest.raises(RuntimeError) as exc:
-            sass_script["check_sass_installation"]("1.104.0")
+            sass_script["check_installed_sass_version"]("1.104.0")
     assert str(exc.value) == (
         f"Sass version check failed: expected 1.104.0; actual {output!r}. "
         "Install sass@1.104.0 and ensure sass is on PATH."
@@ -119,7 +119,7 @@ def test_invalid_actual_version(sass_script, output):
 def test_unavailable_version(sass_script, error, actual):
     with patch("subprocess.run", side_effect=error):
         with pytest.raises(RuntimeError) as exc:
-            sass_script["check_sass_installation"]("1.104.0")
+            sass_script["check_installed_sass_version"]("1.104.0")
     assert str(exc.value) == (
         f"Sass version check failed: expected 1.104.0; actual {actual!r}. "
         "Install sass@1.104.0 and ensure sass is on PATH."
@@ -129,7 +129,7 @@ def test_unavailable_version(sass_script, error, actual):
 @pytest.mark.parametrize("version", [None, 123, "bad"])
 def test_invalid_expected_version_diagnostic(sass_script, version):
     with pytest.raises(ValueError) as exc:
-        sass_script["validate_version"](version)
+        sass_script["validate_sass_version"](version)
     assert str(exc.value) == (
         "Expected Sass version must be a major.minor.patch string; "
         f"got {version!r}"
@@ -143,7 +143,7 @@ def test_config_parser(sass_script, tmp_path, declaration):
     scripts = tmp_path / "scripts"
     scripts.mkdir()
     (tmp_path / "pyproject.toml").write_text("[tool.sass]\n" + declaration)
-    reader = sass_script["expected_sass_version"]
+    reader = sass_script["configured_sass_version"]
     reader.__globals__["__file__"] = str(scripts / "compile_sass.py")
     assert reader() == "1.104.0"
 
@@ -156,7 +156,7 @@ def test_bad_config(sass_script, tmp_path, config_text):
     scripts = tmp_path / "scripts"
     scripts.mkdir()
     (tmp_path / "pyproject.toml").write_text(config_text)
-    reader = sass_script["expected_sass_version"]
+    reader = sass_script["configured_sass_version"]
     reader.__globals__["__file__"] = str(scripts / "compile_sass.py")
     with pytest.raises((KeyError, ValueError)):
         reader()
@@ -165,7 +165,7 @@ def test_bad_config(sass_script, tmp_path, config_text):
 def test_preflight_without_site_packages(script_path, tmp_path):
     """The remote interface needs neither tomli nor the application installed."""
     result = subprocess.run(
-        [sys.executable, "-I", "-S", script_path, "--expected-version", "1.104.0"],
+        [sys.executable, "-I", "-S", script_path, "--check-installed-version", "1.104.0"],
         cwd=tmp_path,
         env={"PATH": ""},
         capture_output=True,

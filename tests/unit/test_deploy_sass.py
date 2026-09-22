@@ -67,7 +67,7 @@ def test_uv_preflight_leaves_project_untouched(pytestconfig, tmp_path, environme
     source = (pytestconfig.rootpath / "scripts/compile_sass.py").read_text()
     result = subprocess.run(
         [uv, "run", "--no-project", "--offline", "python", "-I", "-c",
-         source, "--expected-version", "1.104.0"],
+         source, "--check-installed-version", "1.104.0"],
         cwd=project, env=env, capture_output=True, text=True,
     )
     assert snapshot() == before
@@ -116,7 +116,7 @@ def test_remote_preflight(pytestconfig, tmp_path, scenario):
     (tmp_path / "pyproject.toml").write_text('[tool.sass]\nversion = "1.103.0"\n')
     # Use the assets reader interface, with a different live config in cwd.
     extraction = subprocess.run(
-        [sys.executable, candidate, "--print-version"],
+        [sys.executable, candidate, "--print-configured-version"],
         cwd=tmp_path,
         check=True,
         capture_output=True,
@@ -150,7 +150,7 @@ elif name == 'uv' and '--no-project' in args:
     assert args[:6] == ['run', '--no-project', '--offline', 'python', '-I', '-c']
     source = pathlib.Path(os.environ['CANDIDATE']).read_text().rstrip('\\n')
     assert args[6] == source
-    assert args[7:] == ['--expected-version', '1.104.0']
+    assert args[7:] == ['--check-installed-version', '1.104.0']
     if scenario == 'missing-python':
         print('No Python interpreter available', file=sys.stderr)
         sys.exit(2)

@@ -75,7 +75,7 @@ Install the Sass CLI and ensure `sass` is on `PATH`. The required version is
 declared in `[tool.sass]` in `pyproject.toml`. With Node.js, npm, and uv installed, run:
 
 ```sh
-sass_version=$(uv run --locked scripts/compile_sass.py --print-version)
+sass_version=$(uv run --locked scripts/compile_sass.py --print-configured-version)
 npm install --global "sass@$sass_version"
 ```
 
