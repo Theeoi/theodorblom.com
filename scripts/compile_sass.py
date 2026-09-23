@@ -21,8 +21,7 @@ def validate_sass_version(version):
         r"[0-9]+\.[0-9]+\.[0-9]+", version
     ):
         raise ValueError(
-            "Expected Sass version must be a major.minor.patch string; "
-            f"got {version!r}"
+            f"Sass version must be a major.minor.patch string; got {version!r}"
         )
 
 
@@ -45,27 +44,33 @@ def check_installed_sass_version(expected):
         if tokens and tokens[0] == expected:
             return
     raise RuntimeError(
-        f"Sass version check failed: expected {expected}; actual {actual!r}. "
-        f"Install sass@{expected} and ensure sass is on PATH."
+        f"""
+        Sass version check failed: expected {expected}; actual {actual!r}.
+        Install sass@{expected} and ensure sass is on PATH.
+        """
     )
 
 
 def compile_scss(input_file, output_file):
-    subprocess.run(["sass", input_file, output_file], check=True)
+    _ = subprocess.run(["sass", input_file, output_file], check=True)
 
 
-def main():
+def parse_args():
     parser = argparse.ArgumentParser()
     mode = parser.add_mutually_exclusive_group()
-    mode.add_argument("--print-configured-version", action="store_true")
-    mode.add_argument("--check-installed-version")
+    _ = mode.add_argument("--print-configured-version", action="store_true")
+    _ = mode.add_argument("--check-installed-version")
     args = parser.parse_args()
     if args.print_configured_version:
         print(configured_sass_version())
-        return
+        raise SystemExit(0)
     if args.check_installed_version is not None:
         check_installed_sass_version(args.check_installed_version)
-        return
+        raise SystemExit(0)
+
+
+def main():
+    parse_args()
 
     check_installed_sass_version(configured_sass_version())
     from app import config
