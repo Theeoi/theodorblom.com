@@ -15,10 +15,7 @@ STATIC_FOLDER = "../website/static"
 LOGIN_VIEW = "auth.login"
 
 
-class DefaultConfig:
-    # Flask essentials
-    SECRET_KEY = "secret_dev"
-
+class BaseConfig:
     # Databases
     SQLALCHEMY_BINDS = {
         "auth": "sqlite:///auth.db",
@@ -31,6 +28,10 @@ class DefaultConfig:
     SITEMAP_URL_SCHEME = "https"
 
 
+class DevelopmentConfig(BaseConfig):
+    SECRET_KEY = "secret_dev"
+
+
 def load_configs(app, test_config, mode):
     """Load mode-specific configuration before any database initialization."""
     if mode not in ("production", "development", "testing"):
@@ -40,12 +41,13 @@ def load_configs(app, test_config, mode):
     if mode == "testing" and test_config is None:
         raise ValueError("Testing mode requires an isolated test_config.")
 
-    app.config.from_object("app.config.DefaultConfig")
-
     if mode == "testing":
-        app.config.update(TESTING=True)
         app.config.update(test_config)
+        app.config["TESTING"] = True
         return
+
+    config_class = DevelopmentConfig if mode == "development" else BaseConfig
+    app.config.from_object(config_class)
 
     try:
         app.config.from_pyfile("config.py", silent=(mode == "development"))
@@ -65,7 +67,10 @@ def load_configs(app, test_config, mode):
         if (
             not isinstance(secret, (str, bytes))
             or not secret.strip()
-            or secret in (DefaultConfig.SECRET_KEY, DefaultConfig.SECRET_KEY.encode())
+            or secret in (
+                DevelopmentConfig.SECRET_KEY,
+                DevelopmentConfig.SECRET_KEY.encode(),
+            )
         ):
             raise RuntimeError(
                 "Production requires a nonempty, nondefault str/bytes SECRET_KEY."

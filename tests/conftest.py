@@ -23,6 +23,7 @@ TEST_BLOGPOST = {
 @pytest.fixture(scope="module")
 def test_client():
     test_config = {
+        "SECRET_KEY": "test-secret",
         "TESTING": True,
         "SQLALCHEMY_BINDS": {
             "auth": "sqlite:///:memory:",

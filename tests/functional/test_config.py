@@ -7,7 +7,7 @@ import pytest
 from flask import Flask
 
 from app import create_app
-from app.config import DefaultConfig
+from app.config import DevelopmentConfig
 
 
 @pytest.fixture
@@ -121,7 +121,7 @@ def test_development_optional_config(instance, with_config):
         instance.write_text("SECRET_KEY = 'local-secret'\nDEBUG = True\n")
     app = create_app(mode="development")
     assert app.config["SECRET_KEY"] == (
-        "local-secret" if with_config else DefaultConfig.SECRET_KEY
+        "local-secret" if with_config else DevelopmentConfig.SECRET_KEY
     )
     assert app.debug is with_config
 
@@ -130,6 +130,7 @@ def test_testing_skips_instance_config(instance):
     instance.write_text("raise AssertionError('Instance config must not execute')")
     app = create_app({
         "SECRET_KEY": "isolated-test-secret",
+        "TESTING": False,
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "SQLALCHEMY_BINDS": {
             "auth": "sqlite:///:memory:",
