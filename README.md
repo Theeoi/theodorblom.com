@@ -71,11 +71,12 @@ the database.
 
 ### Building Stylesheets
 
-Install the Sass CLI and ensure `sass` is on `PATH`. Sass 1.104.0 is the
-version tested for this project. With Node.js and npm installed, run:
+Install the Sass CLI and ensure `sass` is on `PATH`. The required version is
+declared in `[tool.sass]` in `pyproject.toml`. With Node.js, npm, and uv installed, run:
 
 ```sh
-npm install --global sass@1.104.0
+sass_version=$(uv run --locked scripts/compile_sass.py --print-configured-version)
+npm install --global "sass@$sass_version"
 ```
 
 From the repository root, build the stylesheets with:
