@@ -15,16 +15,17 @@ ext = Sitemap()
 migrate = Migrate()
 
 
-def create_app(test_config=None, *, mode="production", instance_path=None):
+def create_app(test_config=None, *, mode="production"):
     """Create the app in production, development, or explicit testing mode."""
     app = Flask(
         __name__,
         instance_relative_config=True,
         template_folder=TEMPLATE_FOLDER,
         static_folder=STATIC_FOLDER,
-        instance_path=instance_path,
     )
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+    )
 
     load_configs(app, test_config, mode)
     init_db(app)

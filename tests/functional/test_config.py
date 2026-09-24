@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import importlib
 import traceback
 from unittest.mock import Mock
 
@@ -89,9 +88,7 @@ def test_unreadable_config(instance, database_startup, monkeypatch):
 @pytest.mark.parametrize("secret", ["a", b"a"])
 def test_valid_production_factory(instance, mode, secret):
     instance.write_text("SECRET_KEY = {!r}\n".format(secret))
-    # The deployed app:create_app() imports app, then invokes the factory.
-    factory = getattr(importlib.import_module("app"), "create_app")
-    app = factory() if mode is None else factory(mode=mode)
+    app = create_app() if mode is None else create_app(mode=mode)
     assert app.config["SECRET_KEY"] == secret
     assert not app.debug
     assert not app.testing
@@ -122,7 +119,7 @@ def test_invalid_factory_arguments(instance, database_startup, kwargs):
 def test_development_optional_config(instance, with_config):
     if with_config:
         instance.write_text("SECRET_KEY = 'local-secret'\nDEBUG = True\n")
-    app = create_app(mode="development", instance_path=str(instance.parent))
+    app = create_app(mode="development")
     assert app.config["SECRET_KEY"] == (
         "local-secret" if with_config else DefaultConfig.SECRET_KEY
     )
@@ -138,7 +135,7 @@ def test_testing_skips_instance_config(instance):
             "auth": "sqlite:///:memory:",
             "blog": "sqlite:///:memory:",
         },
-    }, mode="testing", instance_path=str(instance.parent))
+    }, mode="testing")
     assert app.testing
     assert app.config["SECRET_KEY"] == "isolated-test-secret"
     assert not list(instance.parent.glob("*.db"))

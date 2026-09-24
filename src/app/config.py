@@ -47,8 +47,6 @@ def load_configs(app, test_config, mode):
         app.config.update(test_config)
         return
 
-    if mode == "production":
-        app.config["SECRET_KEY"] = None
     try:
         app.config.from_pyfile("config.py", silent=(mode == "development"))
     except Exception:
