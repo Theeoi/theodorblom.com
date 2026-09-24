@@ -13,8 +13,10 @@ goal of the website is to act as a mix of CV, portfolio and a creative hub.
 
 ### Technologies
 
-- Python =3.8
-- Flask >=3.0
+- Python
+- Flask
+
+See [pyproject.toml](pyproject.toml) for compatibility and dependency requirements.
 
 ### Features
 
@@ -48,10 +50,20 @@ be selected explicitly; `create_app()` defaults to production.
 
 1. Clone the repo `git clone https://github.com/Theeoi/theodorblom.com`
 2. Go into the directory `cd theodorblom.com`
-3. Create a Python 3.8 virtual environment `python3.8 -m venv .venv`
-4. Activate the venv and install requirements `pip install .[dev]`
-5. Run the app `flask --app 'app:create_app(mode="development")' run`
+3. Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
+4. Install the locked development environment: `uv sync --locked --extra dev`.
+5. Run the app `uv run --locked --extra dev flask run`
 6. View the webpage at [127.0.0.1:5000](http://127.0.0.1:5000)
+
+Python compatibility is defined by `requires-python` in
+[pyproject.toml](pyproject.toml). With its default settings, uv selects a compatible
+interpreter automatically and downloads one if needed.
+
+Run the same test command as CI:
+
+```sh
+uv run --locked --extra dev pytest --cov-report=xml
+```
 
 Please note:
 To create an account to store in the database, remove the `@login_required` on
@@ -116,11 +128,12 @@ instance discovery. Unknown modes and test overrides outside testing mode fail.
 
 ### Building Stylesheets
 
-Install the Sass CLI and ensure `sass` is on `PATH`. Sass 1.104.0 is the
-version tested for this project. With Node.js and npm installed, run:
+Install the Sass CLI and ensure `sass` is on `PATH`. The required version is
+declared in `[tool.sass]` in `pyproject.toml`. With Node.js, npm, and uv installed, run:
 
 ```sh
-npm install --global sass@1.104.0
+sass_version=$(uv run --locked scripts/compile_sass.py --print-configured-version)
+npm install --global "sass@$sass_version"
 ```
 
 From the repository root, build the stylesheets with:
@@ -128,6 +141,29 @@ From the repository root, build the stylesheets with:
 ```sh
 uv run --locked scripts/compile_sass.py
 ```
+
+### Deployment Environment
+
+The site runs on a VPS, with Gunicorn serving the Flask application and systemd
+managing the service. CI and deployment use the committed dependency lockfile
+to keep Python dependencies consistent.
+
+Updates to `main` are deployed after automated tests and asset checks pass.
+Deployment prepares dependencies and stylesheets before restarting the application.
+
+See the [CI workflow](.github/workflows/test.yml) and
+[deployment workflow](.github/workflows/deploy.yml) for implementation details.
+
+### Deployment Host Trust
+
+Set the repository Actions secret `DEPLOY_KNOWN_HOSTS` to an independently
+verified VPS public host key in `known_hosts` format:
+`theodorblom.com ssh-ed25519 <base64-public-host-key>`.
+
+For planned host-key rotation, replace the secret's value with both the existing
+and independently verified new key, one entry per line, before switching the
+server key. After verifying the rotation, update the secret to contain only the
+new key. Investigate unexpected key mismatches rather than disabling verification.
 
 ## Project Status
 
