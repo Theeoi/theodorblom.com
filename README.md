@@ -43,15 +43,16 @@ Setup is not required unless you want to explore the dev branch and/or
 If you found an error or have suggestions for further development, please
 submit an issue! <3
 
-To contribute you have to set up your own instance of the app. Settings for
-your instance are made in the 'config.py' file in the 'instance' directory.
-Default development settings are found in 'src/app/config.py'.
+To contribute you have to set up your own instance of the app. Local development
+uses built-in defaults. To customize your instance, add a `config.py` file in
+Flask's instance directory. See [src/app/config.py](src/app/config.py) for the
+default settings.
 
 1. Clone the repo `git clone https://github.com/Theeoi/theodorblom.com`
 2. Go into the directory `cd theodorblom.com`
 3. Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 4. Install the locked development environment: `uv sync --locked --extra dev`.
-5. Run the app `uv run --locked --extra dev flask run`
+5. Run the app `uv run --locked --extra dev flask --app 'app:create_app(mode="development")' run`
 6. View the webpage at [127.0.0.1:5000](http://127.0.0.1:5000)
 
 Python compatibility is defined by `requires-python` in
@@ -96,6 +97,16 @@ Deployment prepares dependencies and stylesheets before restarting the applicati
 
 See the [CI workflow](.github/workflows/test.yml) and
 [deployment workflow](.github/workflows/deploy.yml) for implementation details.
+
+### Production Configuration
+
+Production requires a `config.py` file in Flask's instance directory with a
+private, randomly generated `SECRET_KEY`. Debug and testing settings must remain
+disabled; the application refuses to start with missing or unsafe configuration.
+
+Keep instance configuration out of version control and restrict access to it.
+The account running the application needs read access to the configuration and
+write access to its database files and their containing directory.
 
 ### Deployment Host Trust
 
