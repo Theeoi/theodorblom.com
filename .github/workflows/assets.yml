@@ -1,0 +1,42 @@
+name: Assets
+
+on:
+  workflow_call:
+    outputs:
+      sass_version:
+        description: Validated Sass version used to build the stylesheets
+        value: ${{ jobs.build.outputs.sass_version }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: [ubuntu-latest]
+    outputs:
+      sass_version: ${{ steps.sass.outputs.sass_version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.8"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Install Sass
+        id: sass
+        run: |
+          sass_version=$(uv run --locked scripts/compile_sass.py --print-configured-version)
+          npm install --global "sass@$sass_version"
+          printf 'sass_version=%s\n' "$sass_version" >> "$GITHUB_OUTPUT"
+
+      - name: Compile stylesheets
+        run: uv run --locked scripts/compile_sass.py

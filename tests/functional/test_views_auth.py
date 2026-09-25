@@ -4,6 +4,7 @@ from conftest import ADMIN_USER
 from flask_login import current_user
 from werkzeug.security import check_password_hash
 
+from app.database import db
 from app.database.models import User
 
 TEST_USER = {
@@ -41,7 +42,9 @@ class TestLogin:
             "username": ADMIN_USER["username"],
             "password": "Password123",
         }
-        response = test_client.post("/auth/login", data=data, follow_redirects=True)
+        response = test_client.post(
+            "/auth/login", data=data, follow_redirects=True
+        )
         assert response.status_code == 200
         assert b"Password is incorrect" in response.data
         assert current_user.is_authenticated is False
@@ -66,7 +69,10 @@ class TestCreateUser:
             "/auth/user-admin", data=TEST_USER, follow_redirects=True
         )
         assert response.status_code == 200
-        assert User.query.filter_by(username=TEST_USER["username"]).first() is not None
+        assert (
+            User.query.filter_by(username=TEST_USER["username"]).first()
+            is not None
+        )
 
     def test_create_duplicate_user(self, test_client, authenticated_user):
         response = test_client.post(
@@ -74,9 +80,14 @@ class TestCreateUser:
         )
         assert response.status_code == 200
         assert b"Username already exists." in response.data
-        assert User.query.filter_by(username=TEST_USER["username"]).first() is not None
+        assert (
+            User.query.filter_by(username=TEST_USER["username"]).first()
+            is not None
+        )
 
-    def test_create_user_password_mismatch(self, test_client, authenticated_user):
+    def test_create_user_password_mismatch(
+        self, test_client, authenticated_user
+    ):
         data = {
             "username": "mismatchPhil",
             "password1": "philsPassword123",
@@ -103,7 +114,11 @@ class TestCreateUser:
         assert User.query.filter_by(username="P").first() is None
 
     def test_create_user_short_password(self, test_client, authenticated_user):
-        data = {"username": "shortPhil", "password1": "12345", "password2": "12345"}
+        data = {
+            "username": "shortPhil",
+            "password1": "12345",
+            "password2": "12345",
+        }
         response = test_client.post(
             "/auth/user-admin", data=data, follow_redirects=True
         )
@@ -120,7 +135,10 @@ class TestChangeUserPwd:
         assert response.status_code == 200
         assert b"Repeat new password" in response.data
 
-    def test_change_user_pwd_old_mismatch(self, test_client, authenticated_user):
+    def test_change_user_pwd_old_mismatch(
+        self, test_client, authenticated_user
+    ):
+        original_hash = authenticated_user.password
         data = {
             "old_password": "philsPassword1234",
             "new_password1": "philsPassword321",
@@ -133,8 +151,13 @@ class TestChangeUserPwd:
         )
         assert response.status_code == 200
         assert b"Current password is incorrect." in response.data
+        db.session.refresh(authenticated_user)
+        assert authenticated_user.password == original_hash
 
-    def test_change_user_pwd_short_password(self, test_client, authenticated_user):
+    def test_change_user_pwd_short_password(
+        self, test_client, authenticated_user
+    ):
+        original_hash = authenticated_user.password
         data = {
             "old_password": f"{ADMIN_USER['password']}",
             "new_password1": "12345",
@@ -147,8 +170,13 @@ class TestChangeUserPwd:
         )
         assert response.status_code == 200
         assert b"Password is too short." in response.data
+        db.session.refresh(authenticated_user)
+        assert authenticated_user.password == original_hash
 
-    def test_change_user_pwd_new_mismatch(self, test_client, authenticated_user):
+    def test_change_user_pwd_new_mismatch(
+        self, test_client, authenticated_user
+    ):
+        original_hash = authenticated_user.password
         data = {
             "old_password": f"{ADMIN_USER['password']}",
             "new_password1": "philsPassword321",
@@ -161,30 +189,78 @@ class TestChangeUserPwd:
         )
         assert response.status_code == 200
         assert b"Passwords do not match." in response.data
+        db.session.refresh(authenticated_user)
+        assert authenticated_user.password == original_hash
 
-    def test_change_user_pwd_success(self, test_client, authenticated_user):
+    def test_change_user_pwd_success(
+        self, test_client, authenticated_user, monkeypatch
+    ):
+        user_id = authenticated_user.id
+        original_hash = authenticated_user.password
+        # Statistics teardown commits the shared session and could hide a missing commit.
+        monkeypatch.setitem(
+            test_client.application.teardown_request_funcs, None, []
+        )
         data = {
             "old_password": f"{ADMIN_USER['password']}",
             "new_password1": "philsPassword321",
             "new_password2": "philsPassword321",
         }
         response = test_client.post(
-            f"/auth/user-admin/{authenticated_user.id}",
+            f"/auth/user-admin/{user_id}",
             data=data,
             follow_redirects=True,
         )
+        assert response.history[0].status_code == 302
+        assert response.history[0].headers["Location"] == "/auth/user-admin"
         assert response.status_code == 200
         assert b"Successfully changed password!" in response.data
 
+        db.session.remove()
+        stored_hash = (
+            db.session.query(User.password).filter_by(id=user_id).scalar()
+        )
+        assert stored_hash != original_hash
+        assert stored_hash != data["new_password1"]
+        assert stored_hash.startswith("scrypt:")
+        assert check_password_hash(stored_hash, data["new_password1"])
+        assert not check_password_hash(stored_hash, ADMIN_USER["password"])
+
+        test_client.get("/auth/logout", follow_redirects=True)
+        assert current_user.is_authenticated is False
+        response = test_client.post(
+            "/auth/login", data=ADMIN_USER, follow_redirects=True
+        )
+        assert response.status_code == 200
+        assert b"Password is incorrect." in response.data
+        assert current_user.is_authenticated is False
+
+        response = test_client.post(
+            "/auth/login",
+            data={
+                "username": ADMIN_USER["username"],
+                "password": data["new_password1"],
+            },
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+        assert b"Logged in!" in response.data
+        assert current_user.is_authenticated is True
+
     def test_change_user_pwd_unauthorized(self, test_client, admin_user):
+        original_hash = admin_user.password
         data = {
             "old_password": f"{ADMIN_USER['password']}",
             "new_password1": "philsPassword321",
             "new_password2": "philsPassword321",
         }
-        response = test_client.post(f"/auth/user-admin/{admin_user.id}", data=data)
+        response = test_client.post(
+            f"/auth/user-admin/{admin_user.id}", data=data
+        )
         assert response.status_code == 302
         assert "/auth/login" in response.headers["Location"]
+        db.session.refresh(admin_user)
+        assert admin_user.password == original_hash
         assert check_password_hash(admin_user.password, ADMIN_USER["password"])
 
 
@@ -203,9 +279,12 @@ class TestDeleteUser:
         assert "/auth/user-admin" in response.history[0].headers["Location"]
         assert response.status_code == 200
         assert b"Forbidden to delete yourself!" in response.data
-        assert User.query.filter_by(id=authenticated_user.id).first() is not None
+        assert (
+            User.query.filter_by(id=authenticated_user.id).first() is not None
+        )
 
-    # This test relies on a test_user being created in an earlier test. Bad test design.
+    # This test relies on a test_user being created in an earlier test.
+    # Bad test design.
     def test_delete_user(self, test_client, authenticated_user):
         test_user = User.query.filter_by(username=TEST_USER["username"]).first()
         response = test_client.delete(
