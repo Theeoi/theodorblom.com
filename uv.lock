@@ -395,6 +395,7 @@ dependencies = [
     { name = "jinja2-fragments" },
     { name = "markdown" },
     { name = "python-slugify" },
+    { name = "tomli" },
 ]
 
 [package.optional-dependencies]
@@ -419,6 +420,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.4,<8" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0,<5" },
     { name = "python-slugify", specifier = ">=8.0.2,<9" },
+    { name = "tomli", specifier = ">=2,<3" },
 ]
 provides-extras = ["dev", "deploy"]
 
