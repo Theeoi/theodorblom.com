@@ -10,6 +10,9 @@ permissions:
   contents: read
 
 jobs:
+  assets:
+    uses: ./.github/workflows/assets.yml
+
   test:
     runs-on: [ubuntu-latest]
     steps:
@@ -20,14 +23,12 @@ jobs:
         with:
           python-version: "3.8"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e '.[dev]'
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
 
       - name: Run tests
         run: |
-          pytest --cov-report=xml
+          uv run --locked --extra dev pytest --cov-report=xml
 
       - name: Coveralls GitHub Action
         uses: coverallsapp/github-action@v2.2.3
@@ -38,8 +39,11 @@ jobs:
           path-to-lcov: coverage.xml
 
   deploy:
-    needs: test
+    needs: [test, assets]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/deploy.yml
+    with:
+      sass_version: ${{ needs.assets.outputs.sass_version }}
     secrets:
       DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
