@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
+from datetime import date, datetime
+
 import pytest
-from datetime import datetime, date
 from werkzeug.security import check_password_hash
-from app.database.models import User, Blogpost, Request
+
+from app.database.models import Blogpost, Request, User
 
 
 class TestUser:
@@ -11,7 +13,10 @@ class TestUser:
         assert isinstance(admin_user.id, int)
         assert admin_user.username == "adminPhil"
         assert admin_user.password != "superphilsPassword123"
-        assert check_password_hash(admin_user.password, "superphilsPassword123") is True
+        assert (
+            check_password_hash(admin_user.password, "superphilsPassword123")
+            is True
+        )
         assert isinstance(admin_user.date_created, datetime)
 
     def test_database_entry(self, test_client, admin_user):

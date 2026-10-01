@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 import pytest
-from app import create_app
-from app.database import db, create_dbs
-from app.database.models import User, Blogpost
-from werkzeug.security import generate_password_hash
 from slugify import slugify
+from werkzeug.security import generate_password_hash
+
+from app import create_app
+from app.database import create_dbs, db
+from app.database.models import Blogpost, User
 
 ADMIN_USER = {
     "username": "adminPhil",
@@ -36,16 +37,24 @@ def test_client():
     with flask_app.test_client() as testing_client:
         with flask_app.app_context():
             create_dbs(flask_app)
-            yield testing_client
-            db.session.remove()
-            db.drop_all()
+            try:
+                yield testing_client
+            finally:
+                try:
+                    db.session.remove()
+                    db.drop_all()
+                finally:
+                    for engine in db.engines.values():
+                        engine.dispose()
 
 
 @pytest.fixture(scope="function")
 def admin_user():
     user = User(
         username=ADMIN_USER["username"],
-        password=generate_password_hash(ADMIN_USER["password"], method="scrypt"),
+        password=generate_password_hash(
+            ADMIN_USER["password"], method="scrypt"
+        ),
     )
     try:
         db.session.add(user)
