@@ -4,7 +4,7 @@
       <h3>{{ blogpost.title }}</h3>
       <p class="metainfo">{{ blogpost.date_created.date() }}</p>
       <div class="tags">
-        {% for tag in blogpost.tags.split(",") %}<em>{{ tag }}</em>{% endfor %}
+        {% for tag in (blogpost.tags or '').split(",") %}<em>{{ tag }}</em>{% endfor %}
       </div>
     </div>
   </a>

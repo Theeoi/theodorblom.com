@@ -24,7 +24,7 @@
         {% endif %}
         <h1>{{ blogpost.title }}</h1>
         <p class="tags">
-          {% for tag in blogpost.tags.split(",") %}<em>{{ tag }}</em>{% endfor %}
+          {% for tag in (blogpost.tags or '').split(",") %}<em>{{ tag }}</em>{% endfor %}
         </p>
         <p class="metainfo">Posted: {{ blogpost.date_created.date() }}</p>
         <div id="content">{{ html | safe }}</div>
