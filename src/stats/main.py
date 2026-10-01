@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import datetime
 from collections import defaultdict
-from flask import g, request, Response
+
+from flask import Response, g, request
 from flask_sqlalchemy.query import Query
-from sqlalchemy import func, desc
-from typing import Tuple, List, Dict
+from sqlalchemy import desc, func
 
 
 class Statistics:
@@ -19,7 +19,7 @@ class Statistics:
 
     def before_request(self) -> None:
         """Function called before handling any request."""
-        g.request_date = datetime.datetime.utcnow()
+        g.request_date = datetime.datetime.now(datetime.UTC)
 
     def after_request(self, response: Response) -> Response:
         """Function called after handling any request."""
@@ -46,7 +46,10 @@ class Statistics:
             self.app.logger.warning(f"Error tearing down a request: {e}")
 
     def _add_date_filter_to_query(
-        self, query: Query, start_date: datetime.datetime, end_date: datetime.datetime
+        self,
+        query: Query,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> Query:
         return query.filter(self.model.date.between(start_date, end_date))
 
@@ -57,7 +60,9 @@ class Statistics:
             self.db.session.query(
                 self.model.path,
                 func.count(self.model.path).label("hits"),
-                func.count(self.model.remote_address.distinct()).label("unique_hits"),
+                func.count(self.model.remote_address.distinct()).label(
+                    "unique_hits"
+                ),
                 func.max(self.model.date).label("last_requested"),
             )
             .group_by(self.model.path)
@@ -70,8 +75,10 @@ class Statistics:
 
     def get_chart_data(
         self, start_date: datetime.datetime, end_date: datetime.datetime
-    ) -> Tuple[List[Dict], List[Dict]]:
-        query = self.db.session.query(self.model.date, self.model.remote_address)
+    ) -> tuple[list[dict], list[dict]]:
+        query = self.db.session.query(
+            self.model.date, self.model.remote_address
+        )
         query = self._add_date_filter_to_query(query, start_date, end_date)
 
         requests = query.all()
@@ -85,7 +92,8 @@ class Statistics:
 
         hits = [{"x": date, "y": count} for date, count in hits_dict.items()]
         unique_hits = [
-            {"x": date, "y": len(ip_set)} for date, ip_set in unique_hits_dict.items()
+            {"x": date, "y": len(ip_set)}
+            for date, ip_set in unique_hits_dict.items()
         ]
 
         return hits, unique_hits
@@ -93,7 +101,9 @@ class Statistics:
     def get_unique_visitors(
         self, start_date: datetime.datetime, end_date: datetime.datetime
     ) -> int:
-        query = self.db.session.query(self.model).group_by(self.model.remote_address)
+        query = self.db.session.query(self.model).group_by(
+            self.model.remote_address
+        )
 
         query = self._add_date_filter_to_query(query, start_date, end_date)
 

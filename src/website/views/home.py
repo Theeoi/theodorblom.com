@@ -26,7 +26,9 @@ def index():
 
 @home.put("/_user-nav")
 def user_nav():
-    return render_block("components/_nav.html.jinja", "user_nav", user=current_user)
+    return render_block(
+        "components/_nav.html.jinja", "user_nav", user=current_user
+    )
 
 
 @home.put("/_admin-nav")
@@ -52,7 +54,7 @@ def stats():
         start_date = datetime.datetime.strptime(start, "%Y-%m-%d")
         end_date = datetime.datetime.strptime(end, "%Y-%m-%d")
     else:
-        current_date = datetime.datetime.utcnow()
+        current_date = datetime.datetime.now(datetime.UTC)
         start_date = current_date - datetime.timedelta(days=7)
         end_date = current_date
 
