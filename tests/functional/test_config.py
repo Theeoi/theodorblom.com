@@ -8,6 +8,7 @@ from flask import Flask
 
 from app import create_app
 from app.config import DevelopmentConfig
+from app.database import db
 
 
 @pytest.fixture
@@ -26,6 +27,25 @@ def database_startup(monkeypatch):
     monkeypatch.setattr("app.init_db", init_db)
     monkeypatch.setattr("app.create_dbs", create_dbs)
     return init_db, create_dbs
+
+
+@pytest.fixture
+def cleanup_app(instance):
+    apps = []
+
+    def register(app):
+        apps.append(app)
+
+    try:
+        yield register
+    finally:
+        for app in reversed(apps):
+            with app.app_context():
+                try:
+                    db.session.remove()
+                finally:
+                    for engine in db.engines.values():
+                        engine.dispose()
 
 
 @pytest.mark.parametrize(
@@ -86,9 +106,10 @@ def test_unreadable_config(instance, database_startup, monkeypatch):
     ("kwargs", "secret"),
     [({}, "a"), ({"mode": "production"}, b"a")],
 )
-def test_valid_production_factory(instance, kwargs, secret):
+def test_valid_production_factory(instance, cleanup_app, kwargs, secret):
     instance.write_text(f"SECRET_KEY = {secret!r}\n")
     app = create_app(**kwargs)
+    cleanup_app(app)
     assert app.config["SECRET_KEY"] == secret
     assert not app.debug
     assert not app.testing
@@ -115,17 +136,18 @@ def test_invalid_factory_arguments(instance, database_startup, kwargs):
 
 
 @pytest.mark.parametrize("with_config", [False, True])
-def test_development_optional_config(instance, with_config):
+def test_development_optional_config(instance, cleanup_app, with_config):
     if with_config:
         instance.write_text("SECRET_KEY = 'local-secret'\nDEBUG = True\n")
     app = create_app(mode="development")
+    cleanup_app(app)
     assert app.config["SECRET_KEY"] == (
         "local-secret" if with_config else DevelopmentConfig.SECRET_KEY
     )
     assert app.debug is with_config
 
 
-def test_testing_skips_instance_config(instance):
+def test_testing_skips_instance_config(instance, cleanup_app):
     instance.write_text(
         "raise AssertionError('Instance config must not execute')"
     )
@@ -141,6 +163,7 @@ def test_testing_skips_instance_config(instance):
         },
         mode="testing",
     )
+    cleanup_app(app)
     assert app.testing
     assert app.config["SECRET_KEY"] == "isolated-test-secret"
     assert not list(instance.parent.glob("*.db"))

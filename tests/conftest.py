@@ -34,18 +34,18 @@ def test_client():
     }
     flask_app = create_app(test_config, mode="testing")
 
-    with flask_app.test_client() as testing_client:
-        with flask_app.app_context():
+    with flask_app.app_context():
+        try:
             create_dbs(flask_app)
-            try:
+            with flask_app.test_client() as testing_client:
                 yield testing_client
+        finally:
+            try:
+                db.session.remove()
+                db.drop_all()
             finally:
-                try:
-                    db.session.remove()
-                    db.drop_all()
-                finally:
-                    for engine in db.engines.values():
-                        engine.dispose()
+                for engine in db.engines.values():
+                    engine.dispose()
 
 
 @pytest.fixture(scope="function")

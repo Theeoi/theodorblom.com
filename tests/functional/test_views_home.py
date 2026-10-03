@@ -2,8 +2,8 @@
 
 
 def test_robots(test_client):
-    response = test_client.get("/robots.txt")
-    assert response.status_code == 200
+    with test_client.get("/robots.txt") as response:
+        assert response.status_code == 200
 
 
 def test_sitemap(test_client):
