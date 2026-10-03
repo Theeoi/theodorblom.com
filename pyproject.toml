@@ -47,6 +47,10 @@ deploy = [
 [tool.pytest.ini_options]
 addopts = "-v --cov=./src"
 testpaths = "tests"
+filterwarnings = [
+    'ignore:datetime\.datetime\.utcnow\(\) is deprecated:DeprecationWarning:flask_login\.login_manager',
+    'ignore:The Query\.get\(\) method is considered legacy:sqlalchemy.exc.LegacyAPIWarning:flask_sqlalchemy\.query',
+]
 
 [project.urls]
 homepage = "https://github.com/Theeoi/theodorblom.com"
