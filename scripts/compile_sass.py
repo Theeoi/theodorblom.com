@@ -1,22 +1,22 @@
-#!/usr/bin/env python
-
 import argparse
 import re
 import subprocess
 from pathlib import Path
 
 
-def configured_sass_version():
+def configured_sass_version() -> str | object:
     import tomli
 
     path = Path(__file__).resolve().parent.parent / "pyproject.toml"
     with path.open("rb") as config_file:
-        version = tomli.load(config_file)["tool"]["sass"]["version"]
+        version: str | object = tomli.load(config_file)["tool"]["sass"][
+            "version"
+        ]
     validate_sass_version(version)
     return version
 
 
-def validate_sass_version(version):
+def validate_sass_version(version: str | object):
     if not isinstance(version, str) or not re.fullmatch(
         r"[0-9]+\.[0-9]+\.[0-9]+", version
     ):
@@ -25,7 +25,7 @@ def validate_sass_version(version):
         )
 
 
-def check_installed_sass_version(expected):
+def check_installed_sass_version(expected: str | object):
     validate_sass_version(expected)
     actual = "unavailable"
     try:
@@ -51,7 +51,7 @@ def check_installed_sass_version(expected):
     )
 
 
-def compile_scss(input_file, output_file):
+def compile_scss(input_file: Path, output_file: Path):
     _ = subprocess.run(["sass", input_file, output_file], check=True)
 
 
