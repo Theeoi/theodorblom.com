@@ -1,9 +1,21 @@
 from collections.abc import Callable
-from typing import TypeVar
+from typing import Protocol, TypeVar
 
 from flask import Flask
+from werkzeug.local import LocalProxy
 
 _CallbackT = TypeVar("_CallbackT", bound=Callable[[str], object])
+
+class _CurrentUser(Protocol):
+    id: int
+    username: str
+    is_authenticated: bool
+
+current_user: LocalProxy[_CurrentUser]
+
+def login_required[**P, R](func: Callable[P, R]) -> Callable[P, R]: ...
+def login_user(user: UserMixin, remember: bool = False) -> bool: ...
+def logout_user() -> None: ...
 
 class UserMixin:
     @property
