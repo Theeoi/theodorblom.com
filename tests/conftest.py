@@ -72,7 +72,9 @@ def admin_user() -> Generator[User]:
 
 
 @pytest.fixture(scope="function")
-def authenticated_user(test_client: FlaskClient, admin_user: User) -> Generator[User]:
+def authenticated_user(
+    test_client: FlaskClient, admin_user: User
+) -> Generator[User]:
     _ = test_client.post("/auth/login", data=ADMIN_USER)
     yield admin_user
     _ = test_client.get("/auth/logout")
