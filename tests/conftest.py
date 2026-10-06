@@ -1,6 +1,8 @@
-#!/usr/bin/env python
+from collections.abc import Generator
 
 import pytest
+from flask.app import Flask
+from flask.testing import FlaskClient
 from slugify import slugify
 from werkzeug.security import generate_password_hash
 
@@ -8,12 +10,12 @@ from app import create_app
 from app.database import create_dbs, db
 from app.database.models import Blogpost, User
 
-ADMIN_USER = {
+ADMIN_USER: dict[str, str] = {
     "username": "adminPhil",
     "password": "superphilsPassword123",
 }
 
-TEST_BLOGPOST = {
+TEST_BLOGPOST: dict[str, object] = {
     "title": "Blogpost in Testing",
     "tags": "test, pytest, blogpost",
     "content": "This is a test blogpost!",
@@ -22,8 +24,8 @@ TEST_BLOGPOST = {
 
 
 @pytest.fixture(scope="module")
-def test_client():
-    test_config = {
+def test_client() -> Generator[FlaskClient]:
+    test_config: dict[str, object] = {
         "SECRET_KEY": "test-secret",
         "TESTING": True,
         "SQLALCHEMY_BINDS": {
@@ -32,7 +34,7 @@ def test_client():
         },
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
     }
-    flask_app = create_app(test_config, mode="testing")
+    flask_app: Flask = create_app(test_config, mode="testing")
 
     with flask_app.app_context():
         try:
@@ -49,12 +51,11 @@ def test_client():
 
 
 @pytest.fixture(scope="function")
-def admin_user():
-    user = User(
-        username=ADMIN_USER["username"],
-        password=generate_password_hash(
-            ADMIN_USER["password"], method="scrypt"
-        ),
+def admin_user() -> Generator[User]:
+    user = User()
+    user.username = ADMIN_USER["username"]
+    user.password = generate_password_hash(
+        ADMIN_USER["password"], method="scrypt"
     )
     try:
         db.session.add(user)
@@ -71,15 +72,15 @@ def admin_user():
 
 
 @pytest.fixture(scope="function")
-def authenticated_user(test_client, admin_user):
-    test_client.post("/auth/login", data=ADMIN_USER)
+def authenticated_user(test_client: FlaskClient, admin_user: User) -> Generator[User]:
+    _ = test_client.post("/auth/login", data=ADMIN_USER)
     yield admin_user
-    test_client.get("/auth/logout")
+    _ = test_client.get("/auth/logout")
 
 
 @pytest.fixture(scope="function")
-def blogpost():
-    TEST_BLOGPOST["slug"] = slugify(TEST_BLOGPOST["title"])
+def blogpost() -> Generator[Blogpost]:
+    TEST_BLOGPOST["slug"] = slugify(str(TEST_BLOGPOST["title"]))
     blogpost = Blogpost(**TEST_BLOGPOST)
     db.session.add(blogpost)
     db.session.commit()
