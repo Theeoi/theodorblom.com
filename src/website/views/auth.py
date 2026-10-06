@@ -34,7 +34,9 @@ def login():
             select(User).where(User.username == username)
         )
         if user:
-            if check_password_hash(user.password, password):
+            if user.password is not None and check_password_hash(
+                user.password, password
+            ):
                 flash("Logged in!", category="success")
                 _ = login_user(user, remember=True)
                 current_app.logger.info(f"User {user.username} logged in.")
@@ -135,7 +137,7 @@ def change_user_pwd(user_id: int):
 
     user: User = db.get_or_404(User, user_id)
 
-    if not check_password_hash(user.password, old_password):
+    if user.password is None or not check_password_hash(user.password, old_password):
         flash("Current password is incorrect.", category="error")
         current_app.logger.warning("Current password is incorrect!")
     elif new_password1 != new_password2:

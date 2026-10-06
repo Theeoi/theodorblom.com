@@ -71,7 +71,7 @@ class Statistics:
 
     def get_routes_data(
         self, start_date: datetime, end_date: datetime
-    ) -> list[Row[tuple[str, int, int, datetime]]]:
+    ) -> list[Row[tuple[str | None, int, int, datetime | None]]]:
         _, db, model = self._require_initialized()
         query = (
             db.session.query(
@@ -103,6 +103,8 @@ class Statistics:
         unique_hits_dict: dict[str, set[str]] = defaultdict(set)
 
         for request_date, remote_address in requests:
+            if request_date is None:
+                continue
             date_key = request_date.date().isoformat()
             hits_dict[date_key] += 1
             if remote_address is not None:
