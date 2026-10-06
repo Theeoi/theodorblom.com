@@ -44,9 +44,12 @@ class Statistics:
 
         return response
 
-    def teardown_request(self, _exception: BaseException | None = None):
+    def teardown_request(self, _exception: BaseException | None = None) -> None:
         """Function called on every request."""
-        request_date = cast(datetime, g.request_date)
+        request_date = cast(datetime | None, g.get("request_date"))
+        if request_date is None:
+            return
+
         app, db, model = self._require_initialized()
 
         path = request.path
