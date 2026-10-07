@@ -10,17 +10,25 @@ from app import create_app
 from app.database import create_dbs, db
 from app.database.models import Blogpost, User
 
-ADMIN_USER: dict[str, str] = {
-    "username": "adminPhil",
-    "password": "superphilsPassword123",
-}
 
-TEST_BLOGPOST: dict[str, object] = {
-    "title": "Blogpost in Testing",
-    "tags": "test, pytest, blogpost",
-    "content": "This is a test blogpost!",
-    "published": True,
-}
+@pytest.fixture
+def test_blogpost() -> dict[str, object]:
+    TEST_BLOGPOST: dict[str, object] = {
+        "title": "Blogpost in Testing",
+        "tags": "test, pytest, blogpost",
+        "content": "This is a test blogpost!",
+        "published": True,
+    }
+    return TEST_BLOGPOST
+
+
+@pytest.fixture
+def admin_credentials() -> dict[str, str]:
+    ADMIN_CREDENTIALS: dict[str, str] = {
+        "username": "adminPhil",
+        "password": "superphilsPassword123",
+    }
+    return ADMIN_CREDENTIALS
 
 
 @pytest.fixture(scope="module")
@@ -51,11 +59,11 @@ def test_client() -> Generator[FlaskClient]:
 
 
 @pytest.fixture(scope="function")
-def admin_user() -> Generator[User]:
+def admin_user(admin_credentials: dict[str, str]) -> Generator[User]:
     user = User()
-    user.username = ADMIN_USER["username"]
+    user.username = admin_credentials["username"]
     user.password = generate_password_hash(
-        ADMIN_USER["password"], method="scrypt"
+        admin_credentials["password"], method="scrypt"
     )
     try:
         db.session.add(user)
@@ -73,17 +81,17 @@ def admin_user() -> Generator[User]:
 
 @pytest.fixture(scope="function")
 def authenticated_user(
-    test_client: FlaskClient, admin_user: User
+    test_client: FlaskClient, admin_user: User, admin_credentials: dict[str, str]
 ) -> Generator[User]:
-    _ = test_client.post("/auth/login", data=ADMIN_USER)
+    _ = test_client.post("/auth/login", data=admin_credentials)
     yield admin_user
     _ = test_client.get("/auth/logout")
 
 
 @pytest.fixture(scope="function")
-def blogpost() -> Generator[Blogpost]:
-    TEST_BLOGPOST["slug"] = slugify(str(TEST_BLOGPOST["title"]))
-    blogpost = Blogpost(**TEST_BLOGPOST)
+def blogpost(test_blogpost: dict[str, object]) -> Generator[Blogpost]:
+    test_blogpost["slug"] = slugify(str(test_blogpost["title"]))
+    blogpost = Blogpost(**test_blogpost)
     db.session.add(blogpost)
     db.session.commit()
     yield blogpost
