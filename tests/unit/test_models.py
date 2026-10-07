@@ -48,10 +48,10 @@ class TestBlogpost:
         )
         assert post is not None
         assert isinstance(post.id, int)
-        assert post.slug == post.slug
-        assert post.title == post.title
-        assert post.tags == post.tags
-        assert post.content == post.content
+        assert post.slug == blogpost.slug
+        assert post.title == blogpost.title
+        assert post.tags == blogpost.tags
+        assert post.content == blogpost.content
         assert isinstance(post.published, bool)
         assert isinstance(post.date_created, date)
 

@@ -28,7 +28,6 @@ dependencies = [
   "python-slugify >= 9.1.1, < 10",
   "markdown >= 3.11, < 4",
   "jinja2-fragments >= 1.7, < 2",
-  "tomli >= 2, < 3",
 ]
 
 [tool.sass]

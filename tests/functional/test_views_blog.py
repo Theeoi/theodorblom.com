@@ -14,12 +14,16 @@ class TestIndex:
         assert b"Blogposts" in response.get_data()
         assert b'<section id="blogposts"' in response.get_data()
 
-    def test_blog_entry(self, test_client: FlaskClient, blogpost: Blogpost) -> None:
+    def test_blog_entry(
+        self, test_client: FlaskClient, blogpost: Blogpost
+    ) -> None:
         response = test_client.get("/blog", follow_redirects=True)
         assert response.status_code == 200
         assert f"<h3>{blogpost.title}</h3>" in response.text
         assert blogpost.date_created is not None
-        assert f'class="metainfo">{blogpost.date_created.date()}' in response.text
+        assert (
+            f'class="metainfo">{blogpost.date_created.date()}' in response.text
+        )
         assert b'<div class="tags"' in response.get_data()
 
 
@@ -37,7 +41,9 @@ class TestPost:
         assert b'<div id="content"' in response.get_data()
 
     @pytest.mark.usefixtures("authenticated_user")
-    def test_post_admin(self, test_client: FlaskClient, blogpost: Blogpost) -> None:
+    def test_post_admin(
+        self, test_client: FlaskClient, blogpost: Blogpost
+    ) -> None:
         response = test_client.get(f"/blog/post/{blogpost.slug}")
         assert response.status_code == 200
         assert f'href="/blog/editor/{blogpost.id}"' in response.text
@@ -62,14 +68,21 @@ class TestPost:
 
     @pytest.mark.filterwarnings("ignore::sqlalchemy.exc.SAWarning")
     @pytest.mark.usefixtures("authenticated_user")
-    def test_delete_post(self, test_client: FlaskClient, blogpost: Blogpost) -> None:
+    def test_delete_post(
+        self, test_client: FlaskClient, blogpost: Blogpost
+    ) -> None:
         response = test_client.get(f"/blog/delete/{blogpost.id}")
         assert response.status_code == 302
         assert "/blog/" in response.headers["Location"]
         response = test_client.get(response.headers["Location"])
         assert response.status_code == 200
         assert b"Post successfully deleted." in response.get_data()
-        assert Blogpost.query.filter_by(id=blogpost.id).first() is None
+        assert (
+            db.session.scalar(
+                select(Blogpost).where(Blogpost.id == blogpost.id)
+            )
+            is None
+        )
 
     @pytest.mark.usefixtures("authenticated_user")
     def test_delete_post_no_exist(self, test_client: FlaskClient) -> None:
@@ -120,7 +133,10 @@ class TestEditor:
         response = test_client.get(response.headers["Location"])
         assert response.status_code == 200
         assert b"Blogpost created!" in response.get_data()
-        assert Blogpost.query.filter_by(slug=slug).first() is not None
+        assert (
+            db.session.scalar(select(Blogpost).where(Blogpost.slug == slug))
+            is not None
+        )
 
     @pytest.mark.usefixtures("authenticated_user")
     def test_create_duplicate_post(
@@ -178,7 +194,9 @@ class TestEditor:
         assert b"Blogpost does not exist" in response.get_data()
 
     @pytest.mark.usefixtures("authenticated_user")
-    def test_edit_post_get(self, test_client: FlaskClient, blogpost: Blogpost) -> None:
+    def test_edit_post_get(
+        self, test_client: FlaskClient, blogpost: Blogpost
+    ) -> None:
         response = test_client.get(f"/blog/editor/{blogpost.id}")
         assert response.status_code == 200
         assert f'value="{blogpost.title}"' in response.text
@@ -186,7 +204,9 @@ class TestEditor:
         assert f"{blogpost.content}</textarea" in response.text
 
     @pytest.mark.usefixtures("authenticated_user")
-    def test_edit_post_post(self, test_client: FlaskClient, blogpost: Blogpost) -> None:
+    def test_edit_post_post(
+        self, test_client: FlaskClient, blogpost: Blogpost
+    ) -> None:
         DATA = {
             "title": blogpost.title,
             "tags": blogpost.tags,

@@ -7,30 +7,30 @@ from pathlib import Path
 from typing import cast
 
 
-def configured_sass_version() -> str | object:
-    import tomli
+def configured_sass_version() -> str:
+    import tomllib
 
     path: Path = Path(__file__).resolve().parent.parent / "pyproject.toml"
     with path.open("rb") as config_file:
         version = cast(
             str | object,
-            tomli.load(config_file)["tool"]["sass"]["version"],
+            tomllib.load(config_file)["tool"]["sass"]["version"],
         )
-    validate_sass_version(version)
-    return version
+    return validate_sass_version(version)
 
 
-def validate_sass_version(version: str | object) -> None:
+def validate_sass_version(version: object) -> str:
     if not isinstance(version, str) or not re.fullmatch(
         r"[0-9]+\.[0-9]+\.[0-9]+", version
     ):
         raise ValueError(
             f"Sass version must be a major.minor.patch string; got {version!r}"
         )
+    return version
 
 
-def check_installed_sass_version(expected: str | object) -> None:
-    validate_sass_version(expected)
+def check_installed_sass_version(expected: object) -> None:
+    expected_version: str = validate_sass_version(expected)
     actual: str = "unavailable"
     try:
         result = subprocess.run(
@@ -49,12 +49,12 @@ def check_installed_sass_version(expected: str | object) -> None:
         actual = result.stdout.strip()
         # Dart Sass may append implementation details after the version token.
         tokens = actual.split()
-        if tokens and tokens[0] == expected:
+        if tokens and tokens[0] == expected_version:
             return
     raise RuntimeError(
         f"""
-        Sass version check failed: expected {expected}; actual {actual!r}.
-        Install sass@{expected} and ensure sass is on PATH.
+        Sass version check failed: expected {expected_version}; actual {actual!r}.
+        Install sass@{expected_version} and ensure sass is on PATH.
         """
     )
 

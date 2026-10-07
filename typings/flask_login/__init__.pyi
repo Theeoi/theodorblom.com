@@ -1,10 +1,8 @@
 from collections.abc import Callable
-from typing import Protocol, TypeVar
+from typing import Protocol
 
 from flask import Flask
 from werkzeug.local import LocalProxy
-
-_CallbackT = TypeVar("_CallbackT", bound=Callable[[str], object])
 
 class _CurrentUser(Protocol):
     id: int
@@ -29,7 +27,9 @@ class UserMixin:
 class LoginManager:
     login_view: str | None
 
-    def user_loader(self, callback: _CallbackT) -> _CallbackT: ...
+    def user_loader[CallbackT: Callable[[str], object]](
+        self, callback: CallbackT
+    ) -> CallbackT: ...
     def init_app(
         self, app: Flask, add_context_processor: bool = True
     ) -> None: ...

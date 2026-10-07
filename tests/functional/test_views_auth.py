@@ -54,7 +54,9 @@ class TestLogin:
             "username": admin_credentials["username"],
             "password": "Password123",
         }
-        response = test_client.post("/auth/login", data=data, follow_redirects=True)
+        response = test_client.post(
+            "/auth/login", data=data, follow_redirects=True
+        )
         assert response.status_code == 200
         assert b"Password is incorrect" in response.get_data()
         assert not _is_authenticated()
@@ -82,7 +84,12 @@ class TestCreateUser:
             "/auth/user-admin", data=TEST_USER, follow_redirects=True
         )
         assert response.status_code == 200
-        assert User.query.filter_by(username=TEST_USER["username"]).first() is not None
+        assert (
+            db.session.scalar(
+                select(User).where(User.username == TEST_USER["username"])
+            )
+            is not None
+        )
 
     @pytest.mark.usefixtures("authenticated_user")
     def test_create_duplicate_user(self, test_client: FlaskClient) -> None:
@@ -91,10 +98,17 @@ class TestCreateUser:
         )
         assert response.status_code == 200
         assert b"Username already exists." in response.get_data()
-        assert User.query.filter_by(username=TEST_USER["username"]).first() is not None
+        assert (
+            db.session.scalar(
+                select(User).where(User.username == TEST_USER["username"])
+            )
+            is not None
+        )
 
     @pytest.mark.usefixtures("authenticated_user")
-    def test_create_user_password_mismatch(self, test_client: FlaskClient) -> None:
+    def test_create_user_password_mismatch(
+        self, test_client: FlaskClient
+    ) -> None:
         data: dict[str, str] = {
             "username": "mismatchPhil",
             "password1": "philsPassword123",
@@ -105,7 +119,12 @@ class TestCreateUser:
         )
         assert response.status_code == 200
         assert b"Passwords do not match." in response.get_data()
-        assert User.query.filter_by(username="mismatchPhil").first() is None
+        assert (
+            db.session.scalar(
+                select(User).where(User.username == "mismatchPhil")
+            )
+            is None
+        )
 
     @pytest.mark.usefixtures("authenticated_user")
     def test_create_user_short_username(self, test_client: FlaskClient) -> None:
@@ -119,7 +138,9 @@ class TestCreateUser:
         )
         assert response.status_code == 200
         assert b"Username is too short." in response.get_data()
-        assert User.query.filter_by(username="P").first() is None
+        assert (
+            db.session.scalar(select(User).where(User.username == "P")) is None
+        )
 
     @pytest.mark.usefixtures("authenticated_user")
     def test_create_user_short_password(self, test_client: FlaskClient) -> None:
@@ -133,7 +154,10 @@ class TestCreateUser:
         )
         assert response.status_code == 200
         assert b"Password is too short." in response.get_data()
-        assert User.query.filter_by(username="shortPhil").first() is None
+        assert (
+            db.session.scalar(select(User).where(User.username == "shortPhil"))
+            is None
+        )
 
 
 class TestChangeUserPwd:
@@ -219,7 +243,9 @@ class TestChangeUserPwd:
         user_id = authenticated_user.id
         original_hash = authenticated_user.password
         # Statistics teardown commits the shared session and could hide a missing commit.
-        monkeypatch.setitem(test_client.application.teardown_request_funcs, None, [])
+        monkeypatch.setitem(
+            test_client.application.teardown_request_funcs, None, []
+        )
         data: dict[str, str] = {
             "old_password": admin_credentials["password"],
             "new_password1": "philsPassword321",
@@ -244,7 +270,9 @@ class TestChangeUserPwd:
         assert stored_hash != data["new_password1"]
         assert stored_hash.startswith("scrypt:")
         assert check_password_hash(stored_hash, data["new_password1"])
-        assert not check_password_hash(stored_hash, admin_credentials["password"])
+        assert not check_password_hash(
+            stored_hash, admin_credentials["password"]
+        )
 
         _ = test_client.get("/auth/logout", follow_redirects=True)
         assert not _is_authenticated()
@@ -279,13 +307,17 @@ class TestChangeUserPwd:
             "new_password1": "philsPassword321",
             "new_password2": "philsPassword321",
         }
-        response = test_client.post(f"/auth/user-admin/{admin_user.id}", data=data)
+        response = test_client.post(
+            f"/auth/user-admin/{admin_user.id}", data=data
+        )
         assert response.status_code == 302
         assert "/auth/login" in response.headers["Location"]
         db.session.refresh(admin_user)
         assert admin_user.password is not None
         assert admin_user.password == original_hash
-        assert check_password_hash(admin_user.password, admin_credentials["password"])
+        assert check_password_hash(
+            admin_user.password, admin_credentials["password"]
+        )
 
 
 class TestDeleteUser:
@@ -306,7 +338,12 @@ class TestDeleteUser:
         assert "/auth/user-admin" in response.history[0].headers["Location"]
         assert response.status_code == 200
         assert b"Forbidden to delete yourself!" in response.get_data()
-        assert User.query.filter_by(id=authenticated_user.id).first() is not None
+        assert (
+            db.session.scalar(
+                select(User).where(User.id == authenticated_user.id)
+            )
+            is not None
+        )
 
     # This test relies on a test_user being created in an earlier test.
     # Bad test design.
@@ -323,4 +360,7 @@ class TestDeleteUser:
         assert "/auth/user-admin" in response.history[0].headers["Location"]
         assert response.status_code == 200
         assert b"Deleted user " in response.get_data()
-        assert User.query.filter_by(id=test_user.id).first() is None
+        assert (
+            db.session.scalar(select(User).where(User.id == test_user.id))
+            is None
+        )

@@ -1,4 +1,5 @@
 from collections import defaultdict
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from typing import cast
 
@@ -71,10 +72,10 @@ class Statistics:
 
     def get_routes_data(
         self, start_date: datetime, end_date: datetime
-    ) -> list[Row[tuple[str | None, int, int, datetime | None]]]:
+    ) -> Sequence[Row[tuple[str | None, int, int, datetime | None]]]:
         _, db, model = self._require_initialized()
-        query = (
-            db.session.query(
+        statement = (
+            select(
                 model.path,
                 func.count(model.path).label("hits"),
                 func.count(model.remote_address.distinct()).label(
@@ -82,12 +83,12 @@ class Statistics:
                 ),
                 func.max(model.date).label("last_requested"),
             )
+            .where(model.date.between(start_date, end_date))
             .group_by(model.path)
             .order_by(desc("hits"))
-            .filter(model.date.between(start_date, end_date))
         )
 
-        return query.all()
+        return db.session.execute(statement).all()
 
     def get_chart_data(
         self, start_date: datetime, end_date: datetime
@@ -122,10 +123,12 @@ class Statistics:
         self, start_date: datetime, end_date: datetime
     ) -> int:
         _, db, model = self._require_initialized()
-        query = (
-            db.session.query(model)
+        visitor_groups = (
+            select(model.remote_address)
+            .where(model.date.between(start_date, end_date))
             .group_by(model.remote_address)
-            .filter(model.date.between(start_date, end_date))
+            .subquery()
         )
-
-        return query.count()
+        return db.session.execute(
+            select(func.count()).select_from(visitor_groups)
+        ).scalar_one()
