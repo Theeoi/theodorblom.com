@@ -1,11 +1,14 @@
-def test_deployment_uses_pinned_host_trust(pytestconfig):
+import pytest
+
+
+def test_deployment_uses_pinned_host_trust(pytestconfig: pytest.Config) -> None:
     deploy = (
         pytestconfig.rootpath / ".github/workflows/deploy.yml"
     ).read_text()
     caller = (pytestconfig.rootpath / ".github/workflows/test.yml").read_text()
 
-    deploy = " ".join(deploy.split())
-    caller = " ".join(caller.split())
+    deploy: str = " ".join(deploy.split())
+    caller: str = " ".join(caller.split())
     host_mapping = "DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}"
 
     assert "DEPLOY_KNOWN_HOSTS: required: true" in deploy

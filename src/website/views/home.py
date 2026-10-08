@@ -1,7 +1,7 @@
-#!/usr/bin/env python
 """Views for the / url."""
 
-import datetime
+from datetime import UTC, datetime, timedelta
+from typing import cast
 
 from flask import (
     Blueprint,
@@ -26,7 +26,9 @@ def index():
 
 @home.put("/_user-nav")
 def user_nav():
-    return render_block("components/_nav.html.jinja", "user_nav", user=current_user)
+    return render_block(
+        "components/_nav.html.jinja", "user_nav", user=current_user
+    )
 
 
 @home.put("/_admin-nav")
@@ -38,7 +40,9 @@ def admin_nav():
 @home.route("/robots.txt")
 @home.route("/sitemap.xml")
 def static_from_root():
-    return send_from_directory(home.static_folder, request.path[1:])  # type: ignore
+    if home.static_folder is None:
+        raise RuntimeError("Home blueprint has no static folder.")
+    return send_from_directory(home.static_folder, request.path[1:])
 
 
 @home.route("/stats")
@@ -49,20 +53,20 @@ def stats():
     end = request.args.get("end", None)
 
     if start and end is not None:
-        start_date = datetime.datetime.strptime(start, "%Y-%m-%d")
-        end_date = datetime.datetime.strptime(end, "%Y-%m-%d")
+        start_date = datetime.strptime(start, "%Y-%m-%d").replace(tzinfo=UTC)
+        end_date = datetime.strptime(end, "%Y-%m-%d").replace(tzinfo=UTC)
     else:
-        current_date = datetime.datetime.utcnow()
-        start_date = current_date - datetime.timedelta(days=7)
+        current_date = datetime.now(UTC)
+        start_date = current_date - timedelta(days=7)
         end_date = current_date
 
     end_date = end_date.replace(hour=23, minute=59, second=59)
 
-    stats: dict = {}
+    stats: dict[str, object] = {}
 
     stats["routes"] = statistics.get_routes_data(start_date, end_date)
     stats["chart_data"] = statistics.get_chart_data(start_date, end_date)
-    stats["hits"] = sum([route.hits for route in stats["routes"]])
+    stats["hits"] = sum(cast(int, route.hits) for route in stats["routes"])
     stats["unique_users"] = statistics.get_unique_visitors(start_date, end_date)
 
     return render_template(

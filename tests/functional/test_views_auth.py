@@ -1,94 +1,115 @@
-#!/usr/bin/env python
-
-from conftest import ADMIN_USER
+import pytest
+from _pytest.monkeypatch import MonkeyPatch
+from flask.testing import FlaskClient
 from flask_login import current_user
+from sqlalchemy import select
 from werkzeug.security import check_password_hash
 
 from app.database import db
 from app.database.models import User
 
-TEST_USER = {
+TEST_USER: dict[str, str] = {
     "username": "testingPhil",
     "password1": "philsPassword123",
     "password2": "philsPassword123",
 }
 
 
-class TestLogin:
-    def test_login_page(self, test_client):
-        response = test_client.get("auth/login")
-        assert current_user.is_authenticated is False
-        assert response.status_code == 200
-        assert b"Login" in response.data
+def _is_authenticated() -> bool:
+    return bool(getattr(current_user, "is_authenticated", False))
 
-    def test_login_success(self, test_client, admin_user):
+
+class TestLogin:
+    def test_login_page(self, test_client: FlaskClient) -> None:
+        response = test_client.get("auth/login")
+        assert not _is_authenticated()
+        assert response.status_code == 200
+        assert b"Login" in response.get_data()
+
+    @pytest.mark.usefixtures("admin_user")
+    def test_login_success(
+        self, test_client: FlaskClient, admin_credentials: dict[str, str]
+    ) -> None:
         response = test_client.post(
-            "/auth/login", data=ADMIN_USER, follow_redirects=True
+            "/auth/login", data=admin_credentials, follow_redirects=True
         )
         assert response.status_code == 200
-        assert current_user.is_authenticated is True
-        assert b"Logged in!" in response.data
-        assert b"Logout" in response.data
+        assert _is_authenticated() is True
+        assert b"Logged in!" in response.get_data()
+        assert b"Logout" in response.get_data()
 
-    def test_logout(self, test_client, authenticated_user):
-        assert current_user.is_authenticated is True
+    @pytest.mark.usefixtures("authenticated_user")
+    def test_logout(self, test_client: FlaskClient) -> None:
+        assert _is_authenticated() is True
         response = test_client.get("/auth/logout", follow_redirects=True)
         assert response.status_code == 200
-        assert current_user.is_authenticated is False
-        assert b"Login" in response.data
+        assert not _is_authenticated()
+        assert b"Login" in response.get_data()
 
-    def test_login_wrong_password(self, test_client, admin_user):
-        data = {
-            "username": ADMIN_USER["username"],
+    @pytest.mark.usefixtures("admin_user")
+    def test_login_wrong_password(
+        self, test_client: FlaskClient, admin_credentials: dict[str, str]
+    ) -> None:
+        data: dict[str, str] = {
+            "username": admin_credentials["username"],
             "password": "Password123",
         }
         response = test_client.post(
             "/auth/login", data=data, follow_redirects=True
         )
         assert response.status_code == 200
-        assert b"Password is incorrect" in response.data
-        assert current_user.is_authenticated is False
+        assert b"Password is incorrect" in response.get_data()
+        assert not _is_authenticated()
 
-    def test_login_invalid_user(self, test_client):
+    def test_login_invalid_user(
+        self, test_client: FlaskClient, admin_credentials: dict[str, str]
+    ) -> None:
         response = test_client.post(
-            "/auth/login", data=ADMIN_USER, follow_redirects=True
+            "/auth/login", data=admin_credentials, follow_redirects=True
         )
         assert response.status_code == 200
-        assert b"User does not exist" in response.data
-        assert current_user.is_authenticated is False
+        assert b"User does not exist" in response.get_data()
+        assert not _is_authenticated()
 
 
 class TestCreateUser:
-    def test_user_admin_redirect(self, test_client):
+    def test_user_admin_redirect(self, test_client: FlaskClient) -> None:
         response = test_client.get("/auth/user-admin")
         assert response.status_code == 302
         assert "/auth/login" in response.headers["Location"]
 
-    def test_create_user_success(self, test_client, authenticated_user):
+    @pytest.mark.usefixtures("authenticated_user")
+    def test_create_user_success(self, test_client: FlaskClient) -> None:
         response = test_client.post(
             "/auth/user-admin", data=TEST_USER, follow_redirects=True
         )
         assert response.status_code == 200
         assert (
-            User.query.filter_by(username=TEST_USER["username"]).first()
+            db.session.scalar(
+                select(User).where(User.username == TEST_USER["username"])
+            )
             is not None
         )
 
-    def test_create_duplicate_user(self, test_client, authenticated_user):
+    @pytest.mark.usefixtures("authenticated_user")
+    def test_create_duplicate_user(self, test_client: FlaskClient) -> None:
         response = test_client.post(
             "/auth/user-admin", data=TEST_USER, follow_redirects=True
         )
         assert response.status_code == 200
-        assert b"Username already exists." in response.data
+        assert b"Username already exists." in response.get_data()
         assert (
-            User.query.filter_by(username=TEST_USER["username"]).first()
+            db.session.scalar(
+                select(User).where(User.username == TEST_USER["username"])
+            )
             is not None
         )
 
+    @pytest.mark.usefixtures("authenticated_user")
     def test_create_user_password_mismatch(
-        self, test_client, authenticated_user
-    ):
-        data = {
+        self, test_client: FlaskClient
+    ) -> None:
+        data: dict[str, str] = {
             "username": "mismatchPhil",
             "password1": "philsPassword123",
             "password2": "philsPassword1234",
@@ -97,11 +118,17 @@ class TestCreateUser:
             "/auth/user-admin", data=data, follow_redirects=True
         )
         assert response.status_code == 200
-        assert b"Passwords do not match." in response.data
-        assert User.query.filter_by(username="mismatchPhil").first() is None
+        assert b"Passwords do not match." in response.get_data()
+        assert (
+            db.session.scalar(
+                select(User).where(User.username == "mismatchPhil")
+            )
+            is None
+        )
 
-    def test_create_user_short_username(self, test_client, authenticated_user):
-        data = {
+    @pytest.mark.usefixtures("authenticated_user")
+    def test_create_user_short_username(self, test_client: FlaskClient) -> None:
+        data: dict[str, str] = {
             "username": "P",
             "password1": "philsPassword123",
             "password2": "philsPassword123",
@@ -110,11 +137,14 @@ class TestCreateUser:
             "/auth/user-admin", data=data, follow_redirects=True
         )
         assert response.status_code == 200
-        assert b"Username is too short." in response.data
-        assert User.query.filter_by(username="P").first() is None
+        assert b"Username is too short." in response.get_data()
+        assert (
+            db.session.scalar(select(User).where(User.username == "P")) is None
+        )
 
-    def test_create_user_short_password(self, test_client, authenticated_user):
-        data = {
+    @pytest.mark.usefixtures("authenticated_user")
+    def test_create_user_short_password(self, test_client: FlaskClient) -> None:
+        data: dict[str, str] = {
             "username": "shortPhil",
             "password1": "12345",
             "password2": "12345",
@@ -123,23 +153,28 @@ class TestCreateUser:
             "/auth/user-admin", data=data, follow_redirects=True
         )
         assert response.status_code == 200
-        assert b"Password is too short." in response.data
-        assert User.query.filter_by(username="shortPhil").first() is None
+        assert b"Password is too short." in response.get_data()
+        assert (
+            db.session.scalar(select(User).where(User.username == "shortPhil"))
+            is None
+        )
 
 
 class TestChangeUserPwd:
-    def test_change_pwd_form(self, test_client, authenticated_user):
+    def test_change_pwd_form(
+        self, test_client: FlaskClient, authenticated_user: User
+    ) -> None:
         response = test_client.patch(
             f"/auth/user-admin/{authenticated_user.id}", follow_redirects=True
         )
         assert response.status_code == 200
-        assert b"Repeat new password" in response.data
+        assert b"Repeat new password" in response.get_data()
 
     def test_change_user_pwd_old_mismatch(
-        self, test_client, authenticated_user
-    ):
+        self, test_client: FlaskClient, authenticated_user: User
+    ) -> None:
         original_hash = authenticated_user.password
-        data = {
+        data: dict[str, str] = {
             "old_password": "philsPassword1234",
             "new_password1": "philsPassword321",
             "new_password2": "philsPassword321",
@@ -150,16 +185,19 @@ class TestChangeUserPwd:
             follow_redirects=True,
         )
         assert response.status_code == 200
-        assert b"Current password is incorrect." in response.data
+        assert b"Current password is incorrect." in response.get_data()
         db.session.refresh(authenticated_user)
         assert authenticated_user.password == original_hash
 
     def test_change_user_pwd_short_password(
-        self, test_client, authenticated_user
-    ):
+        self,
+        test_client: FlaskClient,
+        authenticated_user: User,
+        admin_credentials: dict[str, str],
+    ) -> None:
         original_hash = authenticated_user.password
-        data = {
-            "old_password": f"{ADMIN_USER['password']}",
+        data: dict[str, str] = {
+            "old_password": admin_credentials["password"],
             "new_password1": "12345",
             "new_password2": "12345",
         }
@@ -169,16 +207,19 @@ class TestChangeUserPwd:
             follow_redirects=True,
         )
         assert response.status_code == 200
-        assert b"Password is too short." in response.data
+        assert b"Password is too short." in response.get_data()
         db.session.refresh(authenticated_user)
         assert authenticated_user.password == original_hash
 
     def test_change_user_pwd_new_mismatch(
-        self, test_client, authenticated_user
-    ):
+        self,
+        test_client: FlaskClient,
+        authenticated_user: User,
+        admin_credentials: dict[str, str],
+    ) -> None:
         original_hash = authenticated_user.password
-        data = {
-            "old_password": f"{ADMIN_USER['password']}",
+        data: dict[str, str] = {
+            "old_password": admin_credentials["password"],
             "new_password1": "philsPassword321",
             "new_password2": "philsPassword3210",
         }
@@ -188,21 +229,25 @@ class TestChangeUserPwd:
             follow_redirects=True,
         )
         assert response.status_code == 200
-        assert b"Passwords do not match." in response.data
+        assert b"Passwords do not match." in response.get_data()
         db.session.refresh(authenticated_user)
         assert authenticated_user.password == original_hash
 
     def test_change_user_pwd_success(
-        self, test_client, authenticated_user, monkeypatch
-    ):
+        self,
+        test_client: FlaskClient,
+        authenticated_user: User,
+        admin_credentials: dict[str, str],
+        monkeypatch: MonkeyPatch,
+    ) -> None:
         user_id = authenticated_user.id
         original_hash = authenticated_user.password
         # Statistics teardown commits the shared session and could hide a missing commit.
         monkeypatch.setitem(
             test_client.application.teardown_request_funcs, None, []
         )
-        data = {
-            "old_password": f"{ADMIN_USER['password']}",
+        data: dict[str, str] = {
+            "old_password": admin_credentials["password"],
             "new_password1": "philsPassword321",
             "new_password2": "philsPassword321",
         }
@@ -214,43 +259,51 @@ class TestChangeUserPwd:
         assert response.history[0].status_code == 302
         assert response.history[0].headers["Location"] == "/auth/user-admin"
         assert response.status_code == 200
-        assert b"Successfully changed password!" in response.data
+        assert b"Successfully changed password!" in response.get_data()
 
         db.session.remove()
-        stored_hash = (
-            db.session.query(User.password).filter_by(id=user_id).scalar()
+        stored_hash: str | None = db.session.scalar(
+            select(User.password).where(User.id == user_id)
         )
+        assert stored_hash is not None
         assert stored_hash != original_hash
         assert stored_hash != data["new_password1"]
         assert stored_hash.startswith("scrypt:")
         assert check_password_hash(stored_hash, data["new_password1"])
-        assert not check_password_hash(stored_hash, ADMIN_USER["password"])
+        assert not check_password_hash(
+            stored_hash, admin_credentials["password"]
+        )
 
-        test_client.get("/auth/logout", follow_redirects=True)
-        assert current_user.is_authenticated is False
+        _ = test_client.get("/auth/logout", follow_redirects=True)
+        assert not _is_authenticated()
         response = test_client.post(
-            "/auth/login", data=ADMIN_USER, follow_redirects=True
+            "/auth/login", data=admin_credentials, follow_redirects=True
         )
         assert response.status_code == 200
-        assert b"Password is incorrect." in response.data
-        assert current_user.is_authenticated is False
+        assert b"Password is incorrect." in response.get_data()
+        assert not _is_authenticated()
 
         response = test_client.post(
             "/auth/login",
             data={
-                "username": ADMIN_USER["username"],
+                "username": admin_credentials["username"],
                 "password": data["new_password1"],
             },
             follow_redirects=True,
         )
         assert response.status_code == 200
-        assert b"Logged in!" in response.data
-        assert current_user.is_authenticated is True
+        assert b"Logged in!" in response.get_data()
+        assert _is_authenticated() is True
 
-    def test_change_user_pwd_unauthorized(self, test_client, admin_user):
+    def test_change_user_pwd_unauthorized(
+        self,
+        test_client: FlaskClient,
+        admin_user: User,
+        admin_credentials: dict[str, str],
+    ) -> None:
         original_hash = admin_user.password
-        data = {
-            "old_password": f"{ADMIN_USER['password']}",
+        data: dict[str, str] = {
+            "old_password": admin_credentials["password"],
             "new_password1": "philsPassword321",
             "new_password2": "philsPassword321",
         }
@@ -260,38 +313,54 @@ class TestChangeUserPwd:
         assert response.status_code == 302
         assert "/auth/login" in response.headers["Location"]
         db.session.refresh(admin_user)
+        assert admin_user.password is not None
         assert admin_user.password == original_hash
-        assert check_password_hash(admin_user.password, ADMIN_USER["password"])
+        assert check_password_hash(
+            admin_user.password, admin_credentials["password"]
+        )
 
 
 class TestDeleteUser:
-    def test_delete_user_popup(self, test_client, authenticated_user):
+    @pytest.mark.usefixtures("authenticated_user")
+    def test_delete_user_popup(self, test_client: FlaskClient) -> None:
         response = test_client.get("/auth/user-admin", follow_redirects=True)
         assert response.status_code == 200
-        assert b"hx-confirm=" in response.data
-        assert b"Are you sure you want to delete user " in response.data
+        assert b"hx-confirm=" in response.get_data()
+        assert b"Are you sure you want to delete user " in response.get_data()
 
-    def test_delete_current_user(self, test_client, authenticated_user):
+    def test_delete_current_user(
+        self, test_client: FlaskClient, authenticated_user: User
+    ) -> None:
         response = test_client.delete(
             f"/auth/user-admin/{authenticated_user.id}", follow_redirects=True
         )
         assert response.history[0].status_code == 303
         assert "/auth/user-admin" in response.history[0].headers["Location"]
         assert response.status_code == 200
-        assert b"Forbidden to delete yourself!" in response.data
+        assert b"Forbidden to delete yourself!" in response.get_data()
         assert (
-            User.query.filter_by(id=authenticated_user.id).first() is not None
+            db.session.scalar(
+                select(User).where(User.id == authenticated_user.id)
+            )
+            is not None
         )
 
     # This test relies on a test_user being created in an earlier test.
     # Bad test design.
-    def test_delete_user(self, test_client, authenticated_user):
-        test_user = User.query.filter_by(username=TEST_USER["username"]).first()
+    @pytest.mark.usefixtures("authenticated_user")
+    def test_delete_user(self, test_client: FlaskClient) -> None:
+        test_user: User | None = db.session.scalar(
+            select(User).where(User.username == TEST_USER["username"])
+        )
+        assert test_user is not None
         response = test_client.delete(
             f"/auth/user-admin/{test_user.id}", follow_redirects=True
         )
         assert response.history[0].status_code == 303
         assert "/auth/user-admin" in response.history[0].headers["Location"]
         assert response.status_code == 200
-        assert b"Deleted user " in response.data
-        assert User.query.filter_by(id=test_user.id).first() is None
+        assert b"Deleted user " in response.get_data()
+        assert (
+            db.session.scalar(select(User).where(User.id == test_user.id))
+            is None
+        )

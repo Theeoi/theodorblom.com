@@ -1,5 +1,7 @@
-#!/usr/bin/env python
 """Views for the /auth url."""
+
+from collections.abc import Sequence
+from typing import cast
 
 from flask import (
     Blueprint,
@@ -12,6 +14,7 @@ from flask import (
 )
 from flask_login import current_user, login_required, login_user, logout_user
 from jinja2_fragments.flask import render_block
+from sqlalchemy import select
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.database import db
@@ -24,12 +27,16 @@ auth = Blueprint("auth", __name__, url_prefix="/auth")
 def login():
     """Definition of the /auth/login site."""
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        username: str = request.form.get("username", "")
+        password: str = request.form.get("password", "")
 
-        user = User.query.filter_by(username=username).first()
+        user: User | None = db.session.scalar(
+            select(User).where(User.username == username)
+        )
         if user:
-            if check_password_hash(user.password, password):
+            if user.password is not None and check_password_hash(
+                user.password, password
+            ):
                 flash("Logged in!", category="success")
                 _ = login_user(user, remember=True)
                 current_app.logger.info(f"User {user.username} logged in.")
@@ -60,7 +67,7 @@ def logout():
 @login_required
 def user_admin():
     """Definition of the /auth/user-admin site."""
-    users = User.query.all()
+    users: Sequence[User] = db.session.scalars(select(User)).all()
     return render_template(
         "pages/auth/user-admin.html.jinja", user=current_user, users=users
     )
@@ -70,11 +77,13 @@ def user_admin():
 @login_required
 def create_user():
     """Definition of the /auth/create-user site."""
-    username = request.form.get("username")
-    password1 = request.form.get("password1")
-    password2 = request.form.get("password2")
+    username: str = request.form.get("username", "")
+    password1: str = request.form.get("password1", "")
+    password2: str = request.form.get("password2", "")
 
-    username_exists = User.query.filter_by(username=username).first()
+    username_exists: User | None = db.session.scalar(
+        select(User).where(User.username == username)
+    )
 
     if username_exists:
         flash("Username already exists.", category="error")
@@ -95,10 +104,9 @@ def create_user():
         )
         current_app.logger.warning("Created password is invalid!")
     else:
-        new_user = User(
-            username=username,
-            password=generate_password_hash(password1, method="scrypt"),
-        )
+        new_user = User()
+        new_user.username = username
+        new_user.password = generate_password_hash(password1, method="scrypt")
         db.session.add(new_user)
         db.session.commit()
         flash("User created!", category="success")
@@ -112,7 +120,7 @@ def create_user():
 
 @auth.patch("/user-admin/<int:user_id>")
 @login_required
-def change_pwd_form(user_id):
+def change_pwd_form(user_id: int):
     """Definition of the /auth/create-user site."""
     return render_block(
         "components/_user-cards.html.jinja", "change_pwd_form", user_id=user_id
@@ -121,15 +129,15 @@ def change_pwd_form(user_id):
 
 @auth.post("/user-admin/<int:user_id>")
 @login_required
-def change_user_pwd(user_id):
+def change_user_pwd(user_id: int):
     """Definition of the /auth/create-user site."""
-    old_password = request.form.get("old_password")
-    new_password1 = request.form.get("new_password1")
-    new_password2 = request.form.get("new_password2")
+    old_password: str = request.form.get("old_password", "")
+    new_password1: str = request.form.get("new_password1", "")
+    new_password2: str = request.form.get("new_password2", "")
 
-    user = User.query.get_or_404(user_id)
+    user: User = db.get_or_404(User, user_id)
 
-    if not check_password_hash(user.password, old_password):
+    if user.password is None or not check_password_hash(user.password, old_password):
         flash("Current password is incorrect.", category="error")
         current_app.logger.warning("Current password is incorrect!")
     elif new_password1 != new_password2:
@@ -153,10 +161,11 @@ def change_user_pwd(user_id):
 
 @auth.delete("/user-admin/<int:user_id>")
 @login_required
-def delete_user(user_id):
+def delete_user(user_id: int):
     """Definition of the /auth/create-user site."""
-    user = User.query.get_or_404(user_id)
-    if user == current_user:
+    user: User = db.get_or_404(User, user_id)
+    current_user_id = cast(int, current_user.id)
+    if user.id == current_user_id:
         flash("Forbidden to delete yourself!", category="error")
         return redirect(
             url_for("auth.user_admin")

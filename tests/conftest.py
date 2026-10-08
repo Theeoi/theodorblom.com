@@ -1,28 +1,39 @@
-#!/usr/bin/env python
+from collections.abc import Generator
 
 import pytest
-from app import create_app
-from app.database import db, create_dbs
-from app.database.models import User, Blogpost
-from werkzeug.security import generate_password_hash
+from flask.app import Flask
+from flask.testing import FlaskClient
 from slugify import slugify
+from werkzeug.security import generate_password_hash
 
-ADMIN_USER = {
-    "username": "adminPhil",
-    "password": "superphilsPassword123",
-}
+from app import create_app
+from app.database import create_dbs, db
+from app.database.models import Blogpost, User
 
-TEST_BLOGPOST = {
-    "title": "Blogpost in Testing",
-    "tags": "test, pytest, blogpost",
-    "content": "This is a test blogpost!",
-    "published": True,
-}
+
+@pytest.fixture
+def test_blogpost() -> dict[str, object]:
+    TEST_BLOGPOST: dict[str, object] = {
+        "title": "Blogpost in Testing",
+        "tags": "test, pytest, blogpost",
+        "content": "This is a test blogpost!",
+        "published": True,
+    }
+    return TEST_BLOGPOST
+
+
+@pytest.fixture
+def admin_credentials() -> dict[str, str]:
+    ADMIN_CREDENTIALS: dict[str, str] = {
+        "username": "adminPhil",
+        "password": "superphilsPassword123",
+    }
+    return ADMIN_CREDENTIALS
 
 
 @pytest.fixture(scope="module")
-def test_client():
-    test_config = {
+def test_client() -> Generator[FlaskClient]:
+    test_config: dict[str, object] = {
         "SECRET_KEY": "test-secret",
         "TESTING": True,
         "SQLALCHEMY_BINDS": {
@@ -31,21 +42,28 @@ def test_client():
         },
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
     }
-    flask_app = create_app(test_config, mode="testing")
+    flask_app: Flask = create_app(test_config, mode="testing")
 
-    with flask_app.test_client() as testing_client:
-        with flask_app.app_context():
+    with flask_app.app_context():
+        try:
             create_dbs(flask_app)
-            yield testing_client
-            db.session.remove()
-            db.drop_all()
+            with flask_app.test_client() as testing_client:
+                yield testing_client
+        finally:
+            try:
+                db.session.remove()
+                db.drop_all()
+            finally:
+                for engine in db.engines.values():
+                    engine.dispose()
 
 
 @pytest.fixture(scope="function")
-def admin_user():
-    user = User(
-        username=ADMIN_USER["username"],
-        password=generate_password_hash(ADMIN_USER["password"], method="scrypt"),
+def admin_user(admin_credentials: dict[str, str]) -> Generator[User]:
+    user = User()
+    user.username = admin_credentials["username"]
+    user.password = generate_password_hash(
+        admin_credentials["password"], method="scrypt"
     )
     try:
         db.session.add(user)
@@ -62,16 +80,18 @@ def admin_user():
 
 
 @pytest.fixture(scope="function")
-def authenticated_user(test_client, admin_user):
-    test_client.post("/auth/login", data=ADMIN_USER)
+def authenticated_user(
+    test_client: FlaskClient, admin_user: User, admin_credentials: dict[str, str]
+) -> Generator[User]:
+    _ = test_client.post("/auth/login", data=admin_credentials)
     yield admin_user
-    test_client.get("/auth/logout")
+    _ = test_client.get("/auth/logout")
 
 
 @pytest.fixture(scope="function")
-def blogpost():
-    TEST_BLOGPOST["slug"] = slugify(TEST_BLOGPOST["title"])
-    blogpost = Blogpost(**TEST_BLOGPOST)
+def blogpost(test_blogpost: dict[str, object]) -> Generator[Blogpost]:
+    test_blogpost["slug"] = slugify(str(test_blogpost["title"]))
+    blogpost = Blogpost(**test_blogpost)
     db.session.add(blogpost)
     db.session.commit()
     yield blogpost

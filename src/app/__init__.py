@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sitemap import Sitemap
@@ -15,7 +13,9 @@ ext = Sitemap()
 migrate = Migrate()
 
 
-def create_app(test_config=None, *, mode="production"):
+def create_app(
+    test_config: dict[str, object] | None = None, *, mode: str = "production"
+) -> Flask:
     """Create the app in production, development, or explicit testing mode."""
     app = Flask(
         __name__,
