@@ -39,8 +39,8 @@ def check_installed_sass_version(expected: object) -> None:
     except OSError as error:
         actual = str(error)
     except subprocess.CalledProcessError as error:
-        stdout = cast(str | bytes | None, error.stdout)
-        stderr = cast(str | bytes | None, error.stderr)
+        stdout = cast("str | bytes | None", error.stdout)
+        stderr = cast("str | bytes | None", error.stderr)
         output = (stdout or stderr or "").strip()
         if isinstance(output, bytes):
             output = output.decode(errors="replace")
