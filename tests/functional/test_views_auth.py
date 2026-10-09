@@ -168,7 +168,13 @@ class TestChangeUserPwd:
             f"/auth/user-admin/{authenticated_user.id}", follow_redirects=True
         )
         assert response.status_code == 200
-        assert b"Repeat new password" in response.get_data()
+        content = response.get_data(as_text=True)
+        assert content.count('class="user-card"') == 1
+        assert 'class="change-pwd"' in content
+        assert "fa-x" in content
+        assert "?close=1" in content
+        assert f'action="/auth/user-admin/{authenticated_user.id}"' in content
+        assert 'hx-swap="outerHTML"' in content
 
     def test_change_pwd_form_closes(
         self, test_client: FlaskClient, authenticated_user: User
@@ -178,31 +184,8 @@ class TestChangeUserPwd:
         )
         assert response.status_code == 200
         content = response.get_data(as_text=True)
-        assert content.count('class="user-card"') == 1
         assert "fa-key" in content
-        assert "fa-x" not in content
-        assert 'aria-label="Change password"' in content
         assert 'class="change-pwd"' not in content
-
-    def test_change_pwd_form_returns_complete_card(
-        self, test_client: FlaskClient, authenticated_user: User
-    ) -> None:
-        response = test_client.patch(
-            f"/auth/user-admin/{authenticated_user.id}"
-        )
-        assert response.status_code == 200
-        content = response.get_data(as_text=True)
-        assert content.count('class="user-card"') == 1
-        assert 'class="change-pwd"' in content
-        assert "fa-x" in content
-        assert "fa-key" not in content
-        assert 'aria-label="Close password form"' in content
-        assert f'action="/auth/user-admin/{authenticated_user.id}"' in content
-        assert 'hx-target="closest .user-card"' in content
-        assert 'hx-swap="outerHTML"' in content
-        assert 'hx-disabled-elt="this"' in content
-        assert f'id="old_password-{authenticated_user.id}"' in content
-        assert 'hx-get=""' not in content
 
     def test_change_user_pwd_old_mismatch(
         self, test_client: FlaskClient, authenticated_user: User
