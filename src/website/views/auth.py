@@ -121,9 +121,14 @@ def create_user():
 @auth.patch("/user-admin/<int:user_id>")
 @login_required
 def change_pwd_form(user_id: int):
-    """Definition of the /auth/create-user site."""
+    """Open or close the password form in a user card."""
+    card_user: User = db.get_or_404(User, user_id)
+    password_open = request.args.get("close") != "1"
     return render_block(
-        "components/_user-cards.html.jinja", "change_pwd_form", user_id=user_id
+        "components/_user-cards.html.jinja",
+        "user_card_fragment",
+        card_user=card_user,
+        password_open=password_open,
     )
 
 
@@ -137,7 +142,9 @@ def change_user_pwd(user_id: int):
 
     user: User = db.get_or_404(User, user_id)
 
-    if user.password is None or not check_password_hash(user.password, old_password):
+    if user.password is None or not check_password_hash(
+        user.password, old_password
+    ):
         flash("Current password is incorrect.", category="error")
         current_app.logger.warning("Current password is incorrect!")
     elif new_password1 != new_password2:

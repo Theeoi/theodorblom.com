@@ -168,7 +168,24 @@ class TestChangeUserPwd:
             f"/auth/user-admin/{authenticated_user.id}", follow_redirects=True
         )
         assert response.status_code == 200
-        assert b"Repeat new password" in response.get_data()
+        content = response.get_data(as_text=True)
+        assert content.count('class="user-card"') == 1
+        assert 'class="change-pwd"' in content
+        assert "fa-x" in content
+        assert "?close=1" in content
+        assert f'action="/auth/user-admin/{authenticated_user.id}"' in content
+        assert 'hx-swap="outerHTML"' in content
+
+    def test_change_pwd_form_closes(
+        self, test_client: FlaskClient, authenticated_user: User
+    ) -> None:
+        response = test_client.patch(
+            f"/auth/user-admin/{authenticated_user.id}?close=1"
+        )
+        assert response.status_code == 200
+        content = response.get_data(as_text=True)
+        assert "fa-key" in content
+        assert 'class="change-pwd"' not in content
 
     def test_change_user_pwd_old_mismatch(
         self, test_client: FlaskClient, authenticated_user: User
