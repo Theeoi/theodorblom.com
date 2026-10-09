@@ -15,11 +15,20 @@
   margin-block: 0.5rem;
   @include floating-card;
 
+  @include media-size("<medium") {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "info tags"
+      "form form";
+  }
+
   & .user-info {
     grid-area: info;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
 
     & h3 {
       padding-top: 0;
@@ -28,6 +37,13 @@
 
   & .change-pwd {
     grid-area: form;
+    min-width: 0;
+
+    & input {
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
   }
 
   & .user-options {
