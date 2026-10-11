@@ -16,15 +16,12 @@ from app.database import db
 class FactoryArgs(TypedDict, total=False):
     mode: str
     test_config: dict[str, object]
+    instance_path: str
 
 
 @pytest.fixture
 def instance(tmp_path: Path, monkeypatch: MonkeyPatch) -> Path:
-    # Also isolate no-argument calls used by the production entrypoint.
-    def auto_find_instance_path(_self: Flask) -> str:
-        return str(tmp_path)
-
-    monkeypatch.setattr(Flask, "auto_find_instance_path", auto_find_instance_path)
+    monkeypatch.setenv("THEODORBLOM_INSTANCE_PATH", str(tmp_path))
     return tmp_path / "config.py"
 
 
@@ -38,7 +35,9 @@ def database_startup(monkeypatch: MonkeyPatch) -> tuple[Mock, Mock]:
 
 
 @pytest.fixture
-def cleanup_app(request: pytest.FixtureRequest) -> Generator[Callable[..., None]]:
+def cleanup_app(
+    request: pytest.FixtureRequest,
+) -> Generator[Callable[..., None]]:
     _ = cast(Path, request.getfixturevalue("instance"))
     apps: list[Flask] = []
 
@@ -72,7 +71,9 @@ def cleanup_app(request: pytest.FixtureRequest) -> Generator[Callable[..., None]
         "SECRET_KEY = 'valid-secret'; TESTING = True",
     ],
 )
-def test_production_rejects_invalid_config(instance: Path, database_startup: tuple[Mock, Mock], source: str | None) -> None:
+def test_production_rejects_invalid_config(
+    instance: Path, database_startup: tuple[Mock, Mock], source: str | None
+) -> None:
     if source is not None:
         _ = instance.write_text(source)
 
@@ -94,7 +95,11 @@ def test_production_rejects_invalid_config(instance: Path, database_startup: tup
     assert not list(instance.parent.glob("*.db"))
 
 
-def test_unreadable_config(instance: Path, database_startup: tuple[Mock, Mock], monkeypatch: MonkeyPatch) -> None:
+def test_unreadable_config(
+    instance: Path,
+    database_startup: tuple[Mock, Mock],
+    monkeypatch: MonkeyPatch,
+) -> None:
     def unreadable(*_args: object, **_kwargs: object) -> None:
         raise PermissionError("unreadable-secret")
 
@@ -115,7 +120,12 @@ def test_unreadable_config(instance: Path, database_startup: tuple[Mock, Mock], 
     ("kwargs", "secret"),
     [({}, "a"), ({"mode": "production"}, b"a")],
 )
-def test_valid_production_factory(instance: Path, cleanup_app: Callable[..., None], kwargs: FactoryArgs, secret: str) -> None:
+def test_valid_production_factory(
+    instance: Path,
+    cleanup_app: Callable[..., None],
+    kwargs: FactoryArgs,
+    secret: str,
+) -> None:
     _ = instance.write_text(f"SECRET_KEY = {secret!r}\n")
     app = create_app(**kwargs)
     cleanup_app(app)
@@ -139,8 +149,7 @@ def test_valid_production_factory(instance: Path, cleanup_app: Callable[..., Non
     ],
 )
 def test_invalid_factory_arguments(
-    database_startup: tuple[Mock, Mock],
-    kwargs: FactoryArgs
+    database_startup: tuple[Mock, Mock], kwargs: FactoryArgs
 ) -> None:
     with pytest.raises(ValueError):
         _ = create_app(**kwargs)
@@ -149,7 +158,9 @@ def test_invalid_factory_arguments(
 
 
 @pytest.mark.parametrize("with_config", [False, True])
-def test_development_optional_config(instance: Path, cleanup_app: Callable[..., None], with_config: bool) -> None:
+def test_development_optional_config(
+    instance: Path, cleanup_app: Callable[..., None], with_config: bool
+) -> None:
     if with_config:
         _ = instance.write_text("SECRET_KEY = 'local-secret'\nDEBUG = True\n")
     app = create_app(mode="development")
@@ -160,7 +171,14 @@ def test_development_optional_config(instance: Path, cleanup_app: Callable[..., 
     assert app.debug is with_config
 
 
-def test_testing_skips_instance_config(instance: Path, cleanup_app: Callable[..., None]) -> None:
+def test_testing_skips_instance_config(
+    instance: Path,
+    cleanup_app: Callable[..., None],
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    env_instance = tmp_path / "environment-instance"
+    monkeypatch.setenv("THEODORBLOM_INSTANCE_PATH", str(env_instance))
     _ = instance.write_text(
         "raise AssertionError('Instance config must not execute')"
     )
@@ -175,8 +193,84 @@ def test_testing_skips_instance_config(instance: Path, cleanup_app: Callable[...
             },
         },
         mode="testing",
+        instance_path=str(instance.parent),
     )
     cleanup_app(app)
+    assert Path(app.instance_path) == instance.parent
     assert app.testing
     assert app.config["SECRET_KEY"] == "isolated-test-secret"
     assert not list(instance.parent.glob("*.db"))
+    assert not env_instance.exists()
+
+
+@pytest.mark.parametrize("mode", ["production", "development"])
+def test_default_instance_path_is_repository_root(
+    tmp_path: Path, monkeypatch: MonkeyPatch, mode: str
+) -> None:
+    class StopAfterPathSelection(Exception):
+        pass
+
+    selected_paths: list[str] = []
+
+    def capture_path(app: Flask, _test_config: object, _mode: str) -> None:
+        selected_paths.append(app.instance_path)
+        raise StopAfterPathSelection
+
+    monkeypatch.delenv("THEODORBLOM_INSTANCE_PATH", raising=False)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr("app.load_configs", capture_path)
+
+    with pytest.raises(StopAfterPathSelection):
+        _ = create_app(mode=mode)
+
+    expected = Path(__file__).resolve().parents[2] / "instance"
+    assert selected_paths == [str(expected)]
+
+
+def test_explicit_instance_path_overrides_environment(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    cleanup_app: Callable[..., None],
+) -> None:
+    env_instance = tmp_path / "environment-instance"
+    explicit_instance = tmp_path / "explicit-instance"
+    env_instance.mkdir()
+    explicit_instance.mkdir()
+    monkeypatch.setenv("THEODORBLOM_INSTANCE_PATH", str(env_instance))
+    config_file = explicit_instance / "config.py"
+    _ = config_file.write_text("SECRET_KEY = 'explicit-secret'\n")
+
+    app = create_app(mode="production", instance_path=str(explicit_instance))
+    cleanup_app(app)
+
+    assert Path(app.instance_path) == explicit_instance
+    assert app.config["SECRET_KEY"] == "explicit-secret"
+    assert {path.name for path in explicit_instance.glob("*.db")} == {
+        "auth.db",
+        "blog.db",
+        "default.db",
+    }
+
+
+@pytest.mark.parametrize("path", ["", "relative/instance"])
+def test_rejects_non_absolute_instance_path(
+    path: str, database_startup: tuple[Mock, Mock]
+) -> None:
+    with pytest.raises(ValueError, match="absolute"):
+        _ = create_app(instance_path=path)
+    for startup in database_startup:
+        startup.assert_not_called()
+
+
+def test_testing_requires_explicit_instance_path(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    database_startup: tuple[Mock, Mock],
+) -> None:
+    monkeypatch.setenv("THEODORBLOM_INSTANCE_PATH", str(tmp_path))
+
+    with pytest.raises(ValueError, match="explicit instance_path"):
+        _ = create_app({"SECRET_KEY": "isolated-test-secret"}, mode="testing")
+
+    for startup in database_startup:
+        startup.assert_not_called()
