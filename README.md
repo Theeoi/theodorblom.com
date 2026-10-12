@@ -44,9 +44,10 @@ If you found an error or have suggestions for further development, please
 submit an issue! <3
 
 To contribute you have to set up your own instance of the app. Local development
-uses built-in defaults. To customize your instance, add a `config.py` file in
-Flask's instance directory. See [src/app/config.py](src/app/config.py) for the
-default settings.
+uses built-in defaults. To customize your instance, add `instance/config.py` at
+the repository root. Set `THEODORBLOM_INSTANCE_PATH` to a nonempty absolute path
+to use another directory; an explicit `instance_path` argument takes precedence.
+See [src/app/config.py](src/app/config.py) for the default settings.
 
 1. Clone the repo `git clone https://github.com/Theeoi/theodorblom.com`
 2. Go into the directory `cd theodorblom.com`
@@ -64,6 +65,10 @@ Run the same test command as CI:
 ```sh
 uv run --locked --extra dev pytest --cov-report=xml
 ```
+
+Direct `create_app()` calls in tests require `mode="testing"`, an isolated
+`test_config`, and an explicit absolute `instance_path`. Testing mode ignores
+`THEODORBLOM_INSTANCE_PATH` and does not load `config.py`.
 
 Please note:
 To create an account to store in the database, remove the `@login_required` on
@@ -100,9 +105,12 @@ See the [CI workflow](.github/workflows/test.yml) and
 
 ### Production Configuration
 
-Production requires a `config.py` file in Flask's instance directory with a
-private, randomly generated `SECRET_KEY`. Debug and testing settings must remain
-disabled; the application refuses to start with missing or unsafe configuration.
+Production requires a `config.py` file in the instance directory with a private,
+randomly generated `SECRET_KEY`. Set `THEODORBLOM_INSTANCE_PATH` in the service
+environment to a persistent directory outside disposable releases and virtual
+environments; otherwise, the repository-root `instance/` is used. Debug and
+testing settings must remain disabled; the application refuses to start with
+missing or unsafe configuration.
 
 Keep instance configuration out of version control and restrict access to it.
 The account running the application needs read access to the configuration and
