@@ -1,7 +1,7 @@
 import traceback
 from collections.abc import Callable, Generator
 from pathlib import Path
-from typing import TypedDict
+from typing import TypedDict, cast
 from unittest.mock import Mock
 
 import pytest
@@ -271,5 +271,5 @@ def test_default_instance_path_is_repository_root(
         _ = create_app(mode=mode)
 
     expected = Path(__file__).resolve().parents[2] / "instance"
-    app = loader.call_args.args[0]
+    app = cast(Flask, loader.call_args.args[0])
     assert Path(app.instance_path) == expected
