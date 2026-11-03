@@ -1,0 +1,19 @@
+.git/
+.venv/
+__pycache__/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+instance/
+.env
+.env.*
+*.db
+*.sqlite
+*.sqlite3
+
+node_modules/
+
+# Docker
+.docker-instance/
