@@ -32,7 +32,9 @@ def admin_credentials() -> dict[str, str]:
 
 
 @pytest.fixture(scope="module")
-def test_client() -> Generator[FlaskClient]:
+def test_client(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Generator[FlaskClient]:
     test_config: dict[str, object] = {
         "SECRET_KEY": "test-secret",
         "TESTING": True,
@@ -42,7 +44,10 @@ def test_client() -> Generator[FlaskClient]:
         },
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
     }
-    flask_app: Flask = create_app(test_config, mode="testing")
+    instance_path = tmp_path_factory.mktemp("test-instance")
+    flask_app: Flask = create_app(
+        test_config, mode="testing", instance_path=str(instance_path)
+    )
 
     with flask_app.app_context():
         try:
@@ -81,7 +86,9 @@ def admin_user(admin_credentials: dict[str, str]) -> Generator[User]:
 
 @pytest.fixture(scope="function")
 def authenticated_user(
-    test_client: FlaskClient, admin_user: User, admin_credentials: dict[str, str]
+    test_client: FlaskClient,
+    admin_user: User,
+    admin_credentials: dict[str, str],
 ) -> Generator[User]:
     _ = test_client.post("/auth/login", data=admin_credentials)
     yield admin_user

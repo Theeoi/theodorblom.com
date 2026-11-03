@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sitemap import Sitemap
@@ -13,12 +16,36 @@ ext = Sitemap()
 migrate = Migrate()
 
 
+def _resolve_instance_path(mode: str, instance_path: str | None) -> str:
+    if instance_path is None:
+        if mode == "testing":
+            raise ValueError("Testing mode requires an explicit instance_path.")
+        instance_path = os.environ.get(
+            "THEODORBLOM_INSTANCE_PATH",
+            str(Path(__file__).resolve().parents[2] / "instance"),
+        )
+
+    if not instance_path or not Path(instance_path).is_absolute():
+        raise ValueError("instance_path must be a nonempty absolute path.")
+
+    return instance_path
+
+
 def create_app(
-    test_config: dict[str, object] | None = None, *, mode: str = "production"
+    test_config: dict[str, object] | None = None,
+    *,
+    mode: str = "production",
+    instance_path: str | None = None,
 ) -> Flask:
     """Create the app in production, development, or explicit testing mode."""
+    if mode not in ("production", "development", "testing"):
+        raise ValueError("Unknown application mode.")
+
+    resolved_instance_path = _resolve_instance_path(mode, instance_path)
+
     app = Flask(
         __name__,
+        instance_path=resolved_instance_path,
         instance_relative_config=True,
         template_folder=TEMPLATE_FOLDER,
         static_folder=STATIC_FOLDER,
