@@ -16,6 +16,21 @@ ext = Sitemap()
 migrate = Migrate()
 
 
+def _resolve_instance_path(mode: str, instance_path: str | None) -> str:
+    if instance_path is None:
+        if mode == "testing":
+            raise ValueError("Testing mode requires an explicit instance_path.")
+        instance_path = os.environ.get(
+            "THEODORBLOM_INSTANCE_PATH",
+            str(Path(__file__).resolve().parents[2] / "instance"),
+        )
+
+    if not instance_path or not Path(instance_path).is_absolute():
+        raise ValueError("instance_path must be a nonempty absolute path.")
+
+    return instance_path
+
+
 def create_app(
     test_config: dict[str, object] | None = None,
     *,
@@ -26,25 +41,7 @@ def create_app(
     if mode not in ("production", "development", "testing"):
         raise ValueError("Unknown application mode.")
 
-    if mode == "testing":
-        default_instance_path = None
-    else:
-        default_instance_path = os.environ.get(
-            "THEODORBLOM_INSTANCE_PATH",
-            str(Path(__file__).resolve().parents[2] / "instance"),
-        )
-
-    resolved_instance_path = (
-        instance_path if instance_path is not None else default_instance_path
-    )
-
-    if resolved_instance_path is None:
-        raise ValueError("Testing mode requires an explicit instance_path.")
-    if (
-        not resolved_instance_path
-        or not Path(resolved_instance_path).is_absolute()
-    ):
-        raise ValueError("instance_path must be a nonempty absolute path.")
+    resolved_instance_path = _resolve_instance_path(mode, instance_path)
 
     app = Flask(
         __name__,
