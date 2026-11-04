@@ -1,6 +1,7 @@
 ---
 services:
     web:
+        init: true
         build: .
         ports:
             - "127.0.0.1:5000:5000"
@@ -16,4 +17,5 @@ services:
             - 'app:create_app(mode="development")'
             - run
             - --debug
+            - --no-debugger
             - --host=0.0.0.0
