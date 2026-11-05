@@ -13,11 +13,12 @@ services:
             UV_CACHE_DIR: /tmp/uv-cache
         volumes:
             - .:/app
+        tmpfs:
+            - /app/src/website/static/css
         command:
-            - flask
-            - --app
-            - 'app:create_app(mode="development")'
-            - run
-            - --debug
-            - --no-debugger
-            - --host=0.0.0.0
+            - sh
+            - -c
+            - |
+                uv run --locked --no-sync scripts/compile_sass.py &&
+                exec flask --app 'app:create_app(mode="development")' run \
+                  --debug --no-debugger --host=0.0.0.0
