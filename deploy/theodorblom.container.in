@@ -1,0 +1,24 @@
+[Unit]
+Description=theodorblom.com production application
+
+[Container]
+Image=@IMAGE_REFERENCE@
+ContainerName=theodorblom-production
+Pull=never
+
+PublishPort=127.0.0.1:8000:8000
+
+Volume=/srv/theodorblom.com/instance:/instance
+Environment=THEODORBLOM_INSTANCE_PATH=/instance
+
+LogDriver=journald
+NoNewPrivileges=true
+DropCapability=all
+
+[Service]
+Restart=always
+RestartSec=5
+TimeoutStartSec=120
+
+[Install]
+WantedBy=default.target

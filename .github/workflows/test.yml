@@ -11,9 +11,6 @@ permissions:
     contents: read
 
 jobs:
-    assets:
-        uses: ./.github/workflows/assets.yml
-
     development:
         uses: ./.github/workflows/container.yml
         with:
@@ -62,17 +59,15 @@ jobs:
 
     production:
         needs: test
-        # if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
+        if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
         uses: ./.github/workflows/container.yml
         with:
             target: production
 
     deploy:
-        needs: [test, assets, production]
+        needs: production
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: ./.github/workflows/deploy.yml
-        with:
-            sass_version: ${{ needs.assets.outputs.sass_version }}
         secrets:
             DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
             DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
