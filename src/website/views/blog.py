@@ -1,20 +1,23 @@
-#!/usr/bin/env python
 """Views for the /blog url."""
 
-from app.database.models import Blogpost
-from app.database import db
-from slugify import slugify
-from markdown import markdown
-from flask_login import current_user, login_required
+from collections.abc import Sequence
+
 from flask import (
     Blueprint,
-    render_template,
-    redirect,
-    url_for,
-    flash,
-    request,
     current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
 )
+from flask_login import current_user, login_required
+from markdown import markdown
+from slugify import slugify
+from sqlalchemy import select
+
+from app.database import db
+from app.database.models import Blogpost
 
 blog = Blueprint("blog", __name__, url_prefix="/blog")
 
@@ -22,7 +25,9 @@ blog = Blueprint("blog", __name__, url_prefix="/blog")
 @blog.route("/")
 def index():
     """Definition of the /blog site."""
-    blogposts = Blogpost.query.filter_by(published=True).all()
+    blogposts: Sequence[Blogpost] = db.session.scalars(
+        select(Blogpost).where(Blogpost.published.is_(True))
+    ).all()
 
     return render_template(
         "pages/blog/index.html.jinja", user=current_user, blogposts=blogposts
@@ -33,33 +38,45 @@ def index():
 @login_required
 def create_post():
     """Definition of the /blog/editor site."""
-    drafts = Blogpost.query.filter_by(published=False).all()
+    drafts: Sequence[Blogpost] = db.session.scalars(
+        select(Blogpost).where(Blogpost.published.is_(False))
+    ).all()
 
     if request.method == "POST":
-        title = request.form.get("title")
-        tags = request.form.get("tags")
-        content = request.form.get("content")
-        published = True if request.form.get("published") else False
+        title = request.form.get("title", "")
+        tags = request.form.get("tags", "")
+        content = request.form.get("content", "")
+        published = bool(request.form.get("published"))
 
         slug = slugify(title)
 
-        slug_exists = Blogpost.query.filter_by(slug=slug).first()
+        slug_exists: Blogpost | None = db.session.scalar(
+            select(Blogpost).where(Blogpost.slug == slug)
+        )
 
         if slug_exists:
             flash("Blogpost title already exists!", category="error")
-            current_app.logger.warning("Attempted to create duplicate blogpost!")
+            current_app.logger.warning(
+                "Attempted to create duplicate blogpost!"
+            )
         elif len(title) < 1:
             flash("Title is too short!", category="error")
         elif len(content) < 1:
             flash("Blogpost is too short!", category="error")
         else:
-            new_post = Blogpost(
-                slug=slug, title=title, tags=tags, content=content, published=published
-            )
+            new_post = Blogpost()
+            new_post.slug = slug
+            new_post.title = title
+            new_post.tags = tags
+            new_post.content = content
+            new_post.published = published
+
             db.session.add(new_post)
             db.session.commit()
             flash("Blogpost created!", category="success")
-            current_app.logger.info(f"Blogpost with id {new_post.id}" f" was created.")
+            current_app.logger.info(
+                f"Blogpost with id {new_post.id} was created."
+            )
             return redirect(url_for("blog.post", slug=slug))
 
     return render_template(
@@ -72,32 +89,42 @@ def create_post():
 
 @blog.route("/editor/<id>", methods=["GET", "POST"])
 @login_required
-def edit_post(id):
+def edit_post(id: int):
     """
     Definition of the /blog/editor/<id> slug.
 
     Opens the editor with the content of blogpost with the given <id>.
     """
-    blogpost = Blogpost.query.filter_by(id=id).first()
-    drafts = Blogpost.query.filter_by(published=False).all()
+    blogpost: Blogpost | None = db.session.scalar(
+        select(Blogpost).where(Blogpost.id == id)
+    )
+    drafts: Sequence[Blogpost] = db.session.scalars(
+        select(Blogpost).where(Blogpost.published.is_(False))
+    ).all()
 
     if not blogpost:
-        flash("Blogpost does not exist and can not be edited.", category="error")
+        flash(
+            "Blogpost does not exist and can not be edited.", category="error"
+        )
         return redirect(url_for("blog.index"))
     else:
         if request.method == "POST":
-            title = request.form.get("title")
-            tags = request.form.get("tags")
-            content = request.form.get("content")
-            published = True if request.form.get("published") else False
+            title = request.form.get("title", "")
+            tags = request.form.get("tags", "")
+            content = request.form.get("content", "")
+            published = bool(request.form.get("published"))
 
             slug = slugify(title)
 
-            slug_exists = Blogpost.query.filter_by(slug=slug).first()
+            slug_exists: Blogpost | None = db.session.scalar(
+                select(Blogpost).where(Blogpost.slug == slug)
+            )
 
             if slug_exists and slug_exists.id != blogpost.id:
                 flash("Blogpost title already exists!", category="error")
-                current_app.logger.warning("Attempted to create duplicate blogpost!")
+                current_app.logger.warning(
+                    "Attempted to create duplicate blogpost!"
+                )
             elif len(title) < 1:
                 flash("Title is too short!", category="error")
             elif len(content) < 1:
@@ -113,7 +140,7 @@ def edit_post(id):
                 db.session.commit()
                 flash("Blogpost edited!", category="success")
                 current_app.logger.info(
-                    f"Blogpost with id {blogpost.id}" f" was edited."
+                    f"Blogpost with id {blogpost.id} was edited."
                 )
                 return redirect(url_for("blog.post", slug=blogpost.slug))
 
@@ -127,18 +154,23 @@ def edit_post(id):
 
 @blog.route("/delete/<id>")
 @login_required
-def delete_post(id):
+def delete_post(id: int):
     """
     Definition of the /blog/delete/<id> slug.
 
     Deletes blogpost with the given <id>.
     """
-    blogpost = Blogpost.query.filter_by(id=id).first()
+    blogpost: Blogpost | None = db.session.scalar(
+        select(Blogpost).where(Blogpost.id == id)
+    )
 
     if not blogpost:
-        flash("Blogpost does not exist and could not be deleted.", category="error")
+        flash(
+            "Blogpost does not exist and could not be deleted.",
+            category="error",
+        )
         current_app.logger.warning(
-            "Deletion of non-existing blogpost was" " attempted."
+            "Deletion of non-existing blogpost was attempted."
         )
     else:
         db.session.delete(blogpost)
@@ -150,22 +182,28 @@ def delete_post(id):
 
 
 @blog.route("/post/<slug>")
-def post(slug):
+def post(slug: str):
     """
     Definition of the /blog/post/<slug> site.
 
     This is where the blogpost with the specified slug is viewed.
     """
-    blogpost = Blogpost.query.filter_by(slug=slug).first()
+    blogpost: Blogpost | None = db.session.scalar(
+        select(Blogpost).where(Blogpost.slug == slug)
+    )
 
     if not blogpost:
         flash("No blogpost with that slug exists.", category="error")
         return redirect(url_for("blog.index"))
 
     html = markdown(
-        blogpost.content, extensions=["toc", "fenced_code", "codehilite", "sane_lists"]
+        blogpost.content or "",
+        extensions=["toc", "fenced_code", "codehilite", "sane_lists"],
     )
 
     return render_template(
-        "pages/blog/post.html.jinja", user=current_user, blogpost=blogpost, html=html
+        "pages/blog/post.html.jinja",
+        user=current_user,
+        blogpost=blogpost,
+        html=html,
     )

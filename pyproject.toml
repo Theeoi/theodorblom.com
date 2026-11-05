@@ -1,7 +1,7 @@
 # pyproject.toml
 
 [build-system]
-requires = ["setuptools>=65.0.0"]
+requires = ["setuptools >= 65"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,7 +10,7 @@ version = "1.0.0"
 authors = [{ name = "Theodor Blom", email = "me@theodorblom.com" }]
 description = "A personal website deployed as a Flask app instance on a VPS."
 readme = "README.md"
-requires-python = ">=3.8,<3.9"
+requires-python = ">=3.14,<3.15"
 classifiers = [
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
@@ -19,24 +19,24 @@ classifiers = [
   "Operating System :: Unix",
 ]
 dependencies = [
-  "Flask >= 3.0.1, < 4",
+  "Flask >= 3.1.1, < 4",
   "Flask-login >= 0.6.3, < 1",
   "Flask-sqlalchemy >= 3.1.1, < 4",
+  "SQLAlchemy >= 2.0.16, < 2.1",
   "Flask-Migrate >= 4.0.5, < 5",
   "Flask-Sitemap >= 0.4.0, < 1",
-  "python-slugify >= 8.0.2, < 9",
-  "markdown >= 3.5.2, < 4",
-  "jinja2-fragments==1.7",
-  "tomli >= 2, < 3",
+  "python-slugify >= 9.1.1, < 10",
+  "markdown >= 3.11, < 4",
+  "jinja2-fragments >= 1.7, < 2",
 ]
 
 [tool.sass]
 version = "1.104.0"
 
 [project.optional-dependencies]
-dev = ["pytest >= 7.4.4, < 8", "pytest-cov >= 4.1.0, < 5"]
+dev = ["pytest >= 9.1, < 10", "pytest-cov >= 7.1, < 8"]
 deploy = [
-    "gunicorn>=23.0.0",
+    "gunicorn >= 26, < 27",
 ]
 
 [tool.setuptools.package-data]
@@ -46,6 +46,10 @@ deploy = [
 [tool.pytest.ini_options]
 addopts = "-v --cov=./src"
 testpaths = "tests"
+filterwarnings = [
+    'ignore:datetime\.datetime\.utcnow\(\) is deprecated:DeprecationWarning:flask_login\.login_manager',
+    'ignore:The Query\.get\(\) method is considered legacy:sqlalchemy.exc.LegacyAPIWarning:flask_sqlalchemy\.query',
+]
 
 [project.urls]
 homepage = "https://github.com/Theeoi/theodorblom.com"

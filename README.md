@@ -43,27 +43,48 @@ Setup is not required unless you want to explore the dev branch and/or
 If you found an error or have suggestions for further development, please
 submit an issue! <3
 
-To contribute you have to set up your own instance of the app. Local development
-uses built-in defaults. To customize your instance, add a `config.py` file in
-Flask's instance directory. See [src/app/config.py](src/app/config.py) for the
-default settings.
+Local development uses rootless [Podman](https://podman.io/) with
+[podman-compose](https://github.com/containers/podman-compose) as its Compose
+provider. Python, uv, Node.js, npm, and Sass are installed inside the development
+image; they are not required on the host.
 
-1. Clone the repo `git clone https://github.com/Theeoi/theodorblom.com`
-2. Go into the directory `cd theodorblom.com`
-3. Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
-4. Install the locked development environment: `uv sync --locked --extra dev`.
-5. Run the app `uv run --locked --extra dev flask --app 'app:create_app(mode="development")' run`
-6. View the webpage at [127.0.0.1:5000](http://127.0.0.1:5000)
-
-Python compatibility is defined by `requires-python` in
-[pyproject.toml](pyproject.toml). With its default settings, uv selects a compatible
-interpreter automatically and downloads one if needed.
-
-Run the same test command as CI:
+Clone the repository and start the development environment:
 
 ```sh
-uv run --locked --extra dev pytest --cov-report=xml
+git clone https://github.com/Theeoi/theodorblom.com
+cd theodorblom.com
+podman compose up --build
 ```
+
+Open [127.0.0.1:5000](http://127.0.0.1:5000). Source changes are visible inside
+the container, and Python changes trigger a reload. Rebuild with
+`podman compose up --build` after changing dependencies or the Dockerfile.
+Stop the environment with `podman compose down`.
+
+Local databases and optional configuration are stored in `.docker-instance/`.
+To customize development settings, add `.docker-instance/config.py`. This
+directory persists when containers are removed. Do not use production secrets
+or databases for development.
+
+See [src/app/config.py](src/app/config.py) for default settings and
+[pyproject.toml](pyproject.toml) for Python compatibility and dependencies.
+
+Run tests in a running development container:
+
+```sh
+podman compose exec web uv run --locked --extra dev --no-sync pytest
+```
+
+Run tests in a disposable development container:
+
+```sh
+podman compose run --rm --build --no-deps web \
+  uv run --locked --extra dev --no-sync pytest
+```
+
+Direct `create_app()` calls in tests require `mode="testing"`, an isolated
+`test_config`, and an explicit absolute `instance_path`. Testing mode ignores
+`THEODORBLOM_INSTANCE_PATH` and does not load `config.py`.
 
 Please note:
 To create an account to store in the database, remove the `@login_required` on
@@ -72,41 +93,45 @@ the database.
 
 ### Building Stylesheets
 
-Install the Sass CLI and ensure `sass` is on `PATH`. The required version is
-declared in `[tool.sass]` in `pyproject.toml`. With Node.js, npm, and uv installed, run:
+The development container compiles stylesheets at startup using the Sass version
+declared in [pyproject.toml](pyproject.toml). The generated CSS is kept in a
+temporary container filesystem rather than written to your checkout. After
+editing SCSS, restart the container to recompile:
 
 ```sh
-sass_version=$(uv run --locked scripts/compile_sass.py --print-configured-version)
-npm install --global "sass@$sass_version"
+podman compose restart web
 ```
 
-From the repository root, build the stylesheets with:
-
-```sh
-uv run --locked scripts/compile_sass.py
-```
+Refresh the browser after the container restarts to see the changes.
 
 ### Deployment Environment
 
-The site runs on a VPS, with Gunicorn serving the Flask application and systemd
-managing the service. CI and deployment use the committed dependency lockfile
-to keep Python dependencies consistent.
+Production uses rootless Podman, with Gunicorn running inside the production
+image and systemd managing the container through
+[Quadlet](deploy/theodorblom.container.in). Nginx and Certbot remain on the VPS,
+handling HTTPS and certificate renewal.
 
-Updates to `main` are deployed after automated tests and asset checks pass.
-Deployment prepares dependencies and stylesheets before restarting the application.
+For pushes to `main`, CI tests the application and builds the production image,
+including compiled stylesheets. Deployment transfers that image over SSH, loads
+it on the VPS, and restarts the Quadlet service. Dependencies and assets are not
+rebuilt on the VPS.
 
 See the [CI workflow](.github/workflows/test.yml) and
 [deployment workflow](.github/workflows/deploy.yml) for implementation details.
 
 ### Production Configuration
 
-Production requires a `config.py` file in Flask's instance directory with a
-private, randomly generated `SECRET_KEY`. Debug and testing settings must remain
-disabled; the application refuses to start with missing or unsafe configuration.
+The production Quadlet mounts `/srv/theodorblom.com/instance` on the VPS at
+`/instance` inside the container. This directory contains the SQLite databases
+and a private `config.py` with a randomly generated `SECRET_KEY`.
+`THEODORBLOM_INSTANCE_PATH` is set to `/instance`.
 
-Keep instance configuration out of version control and restrict access to it.
-The account running the application needs read access to the configuration and
-write access to its database files and their containing directory.
+Debug and testing settings must remain disabled; the application refuses to
+start with missing or unsafe configuration.
+
+Keep configuration private and outside version control. The application account needs
+read access to config.py and write access to the databases and their containing
+directory.
 
 ### Deployment Host Trust
 
@@ -122,22 +147,6 @@ new key. Investigate unexpected key mismatches rather than disabling verificatio
 ## Project Status
 
 The website is up but is being developed sporadically.
-
-### Roadmap
-
-Todo:
-
-- [x] Create a login system for admin access
-- [x] Build a blog
-- [x] Implement a statistics page
-- [ ] Add request filtering to the stats page
-- [ ] Add blogpost filtering based on tags
-- [ ] Implement a FTP for file transfers (Useful for hosting blog images).
-
-Room for improvement:
-
-- Improve logging
-- Improve the stats page
 
 ## Contact
 

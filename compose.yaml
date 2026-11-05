@@ -1,0 +1,24 @@
+---
+services:
+    web:
+        init: true
+        build:
+            context: .
+            target: development
+        ports:
+            - "127.0.0.1:5000:5000"
+        environment:
+            THEODORBLOM_INSTANCE_PATH: /app/.docker-instance
+            HOME: /tmp
+            UV_CACHE_DIR: /tmp/uv-cache
+        volumes:
+            - .:/app
+        tmpfs:
+            - /app/src/website/static/css
+        command:
+            - sh
+            - -c
+            - |
+                uv run --locked --no-sync scripts/compile_sass.py &&
+                exec flask --app 'app:create_app(mode="development")' run \
+                  --debug --no-debugger --host=0.0.0.0

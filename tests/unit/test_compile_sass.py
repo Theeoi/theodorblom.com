@@ -1,36 +1,35 @@
-#!/usr/bin/env python
-
 import runpy
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from unittest.mock import call, patch
+from unittest.mock import patch
 
 import pytest
 
-from app import config
-
 
 @pytest.fixture
-def script_path(pytestconfig):
+def script_path(pytestconfig: pytest.Config) -> Path:
     return pytestconfig.rootpath / "scripts" / "compile_sass.py"
 
 
 @pytest.fixture
-def sass_script(script_path):
-    # Python 3.8's runpy expects a string; filesystem paths stay as Path objects.
+def sass_script(script_path: Path) -> dict[str, Callable[..., object]]:
     return runpy.run_path(str(script_path))
 
 
-def test_compile_scss(sass_script, tmp_path):
+def test_compile_scss(
+    sass_script: dict[str, Callable[..., object]], tmp_path: Path
+) -> None:
     """Use a checked compiler command and propagate compiler failures."""
-    source = tmp_path / "input with spaces.scss"
-    target = tmp_path / "output with spaces.css"
-    command = ["sass", source, target]
+    source: Path = tmp_path / "input with spaces.scss"
+    target: Path = tmp_path / "output with spaces.css"
+    command: list[str | Path] = ["sass", source, target]
     error = subprocess.CalledProcessError(65, command)
-    with patch("subprocess.run", side_effect=error) as run:
-        with pytest.raises(subprocess.CalledProcessError) as exc:
-            sass_script["compile_scss"](source, target)
+    with patch("subprocess.run", side_effect=error) as run, pytest.raises(
+        subprocess.CalledProcessError
+    ) as exc:
+        _ = sass_script["compile_scss"](source, target)
 
     run.assert_called_once_with(command, check=True)
     assert exc.value is error
@@ -39,18 +38,23 @@ def test_compile_scss(sass_script, tmp_path):
 @pytest.mark.parametrize(
     "output", ["1.104.0\n", "1.104.0 compiled with dart2js 3.11.2\n"]
 )
-def test_matching_version(sass_script, output):
-    with patch("subprocess.run") as run:
-        run.return_value.stdout = output
-        sass_script["check_installed_sass_version"]("1.104.0")
+def test_matching_version(sass_script: dict[str, Callable[..., object]], output: str) -> None:
+    completed = subprocess.CompletedProcess(
+        args=["sass", "--version"], returncode=0, stdout=output, stderr=""
+    )
+    with patch("subprocess.run", return_value=completed):
+        _ = sass_script["check_installed_sass_version"]("1.104.0")
 
 
 @pytest.mark.parametrize("output", ["", "garbage", "1.103.0"])
-def test_mismatching_version(sass_script, output):
-    with patch("subprocess.run") as run:
-        run.return_value.stdout = output
-        with pytest.raises(RuntimeError) as exc:
-            sass_script["check_installed_sass_version"]("1.104.0")
+def test_mismatching_version(sass_script: dict[str, Callable[..., object]], output: str) -> None:
+    completed = subprocess.CompletedProcess(
+        args=["sass", "--version"], returncode=0, stdout=output, stderr=""
+    )
+    with patch("subprocess.run", return_value=completed), pytest.raises(
+        RuntimeError
+    ) as exc:
+        _ = sass_script["check_installed_sass_version"]("1.104.0")
     message = str(exc.value)
     assert "expected 1.104.0" in message
     assert f"actual {output!r}" in message
@@ -58,21 +62,21 @@ def test_mismatching_version(sass_script, output):
     assert "ensure sass is on PATH" in message
 
 
-def test_missing_sass(sass_script):
-    with patch("subprocess.run", side_effect=FileNotFoundError("missing")):
-        with pytest.raises(RuntimeError) as exc:
-            sass_script["check_installed_sass_version"]("1.104.0")
+def test_missing_sass(sass_script: dict[str, Callable[..., object]]) -> None:
+    with patch("subprocess.run", side_effect=FileNotFoundError("missing")), pytest.raises(
+        RuntimeError
+    ) as exc:
+        _ = sass_script["check_installed_sass_version"]("1.104.0")
     message = str(exc.value)
     assert "expected 1.104.0" in message
     assert "actual 'missing'" in message
     assert "Install sass@1.104.0" in message
 
 
-def test_failing_sass_command(sass_script):
+def test_failing_sass_command(sass_script: dict[str, Callable[..., object]]) -> None:
     error = subprocess.CalledProcessError(2, "sass", stderr=" broken\n")
-    with patch("subprocess.run", side_effect=error):
-        with pytest.raises(RuntimeError) as exc:
-            sass_script["check_installed_sass_version"]("1.104.0")
+    with patch("subprocess.run", side_effect=error), pytest.raises(RuntimeError) as exc:
+        _ = sass_script["check_installed_sass_version"]("1.104.0")
     message = str(exc.value)
     assert "expected 1.104.0" in message
     assert "actual 'exit 2: broken'" in message
@@ -80,12 +84,14 @@ def test_failing_sass_command(sass_script):
 
 
 @pytest.mark.parametrize("version", ["bad", 123])
-def test_invalid_sass_version(sass_script, version):
+def test_invalid_sass_version(sass_script: dict[str, Callable[..., object]], version: object) -> None:
     with pytest.raises(ValueError):
-        sass_script["validate_sass_version"](version)
+        _ = sass_script["validate_sass_version"](version)
 
 
-def test_print_configured_version(script_path, sass_script):
+def test_print_configured_version(
+    script_path: Path, sass_script: dict[str, Callable[..., object]]
+) -> None:
     result = subprocess.run(
         [sys.executable, script_path, "--print-configured-version"],
         check=True,
@@ -96,8 +102,8 @@ def test_print_configured_version(script_path, sass_script):
 
 
 def test_check_installed_version_does_not_require_project_dependencies(
-    script_path, tmp_path
-):
+    script_path: Path, tmp_path: Path
+) -> None:
     """The remote version check must run before project dependencies are installed."""
     # Reaching the Sass diagnostic proves no project import failed first.
     result = subprocess.run(
@@ -113,6 +119,7 @@ def test_check_installed_version_does_not_require_project_dependencies(
         env={"PATH": ""},
         capture_output=True,
         text=True,
+        check=False
     )
     assert result.returncode != 0
     assert "Sass version check failed: expected 1.104.0" in result.stderr

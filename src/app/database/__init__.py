@@ -1,28 +1,17 @@
-#!/usr/bin/env python
-"""Definitions of the database sub-package.
-"""
+"""Definitions of the database sub-package."""
 
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
 
-def init_db(app):
-    """Initialize the database with the app.
-
-    Args:
-        app (Flask): A Flask app instance.
-    """
+def init_db(app: Flask):
+    """Initialize the database with the app."""
     db.init_app(app)
 
 
-def create_dbs(app):
-    """Create the databases if they do not already exist.
-
-    Args:
-        app (Flask): A Flask app instance.
-    """
+def create_dbs(app: Flask):
+    """Create the databases if they do not already exist."""
     with app.app_context():
         db.create_all()
-
-    # TODO: #33 Improve create_dbs for betted logging of database issues.

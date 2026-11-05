@@ -1,54 +1,69 @@
 {% macro user_cards() %}
     {% for user in users[::] %}
-        <div class="user-card">
-            <div class="user-info">
-                <h3>{{ user.username }}</h3>
-                <p class="metainfo">Created: {{ user.date_created.date() }}</p>
-            </div>
-            <div class="user-options">
-                <button class="fa-button"
-                        hx-patch="{{ url_for("auth.change_pwd_form", user_id=user.id) }}"
-                        hx-target="closest .user-card"
-                        hx-swap="beforeend">
-                    <i class="fa-solid fa-key"></i>
-                </button>
-                <button class="fa-button"
-                        hx-delete="{{ url_for("auth.delete_user", user_id=user.id) }}"
-                        hx-confirm="Are you sure you want to delete user '{{ user.username }}'?"
-                        hx-target="body">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            </div>
-        </div>
+        {{ user_card(user) }}
     {% endfor %}
 {% endmacro %}
-{% set user_id = 0 %} ## temporarily setting user_id = 0 to allow block when importing
-{% block change_pwd_form %}
+{% block user_card_fragment %}
+    {% if card_user is defined and password_open is defined %}
+        {% from "components/_user-cards.html.jinja" import user_card %}
+        {{ user_card(card_user, password_open) }}
+    {% endif %}
+{% endblock user_card_fragment %}
+{% macro user_card(user, password_open=false) %}
+    <div class="user-card">
+        <div class="user-info">
+            <h3>{{ user.username }}</h3>
+            <p class="metainfo">Created: {{ user.date_created.date() }}</p>
+        </div>
+        {% if password_open %}
+            {{ password_form(user) }}
+        {% endif %}
+        <div class="user-options">
+            <button class="fa-button"
+                    type="button"
+                    aria-label="{{ 'Close password form' if password_open else 'Change password' }}"
+                    hx-patch="{{ url_for('auth.change_pwd_form', user_id=user.id) }}{{ '?close=1' if password_open else '' }}"
+                    hx-target="closest .user-card"
+                    hx-swap="outerHTML"
+                    hx-disabled-elt="this">
+                <i class="fa-solid {{ 'fa-x' if password_open else 'fa-key' }}"></i>
+            </button>
+            <button class="fa-button"
+                    type="button"
+                    hx-delete="{{ url_for('auth.delete_user', user_id=user.id) }}"
+                    hx-confirm="Are you sure you want to delete user '{{ user.username }}'?"
+                    hx-target="body">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>
+    </div>
+{% endmacro %}
+{% macro password_form(user) %}
     <div class="change-pwd">
-        <button class="fa-button" hx-get="" hx-target="closest .change-pwd" hx-swap="delete">
-            <i class="fa-solid fa-x"></i>
-        </button>
-        <form class="auth-form" action="{{ url_for("auth.change_user_pwd", user_id=user_id) }}"
+        <form class="auth-form"
+              action="{{ url_for('auth.change_user_pwd', user_id=user.id) }}"
               method="post">
             <input type="password"
-                   id="old_password"
+                   id="old_password-{{ user.id }}"
                    name="old_password"
                    placeholder="Current password"
                    onfocus="this.placeholder=''"
                    onblur="this.placeholder='Current password'">
             <input type="password"
-                   id="new_password1"
+                   id="new_password1-{{ user.id }}"
                    name="new_password1"
                    placeholder="New password"
                    onfocus="this.placeholder=''"
                    onblur="this.placeholder='New password'">
             <input type="password"
-                   id="new_password2"
+                   id="new_password2-{{ user.id }}"
                    name="new_password2"
                    placeholder="Repeat new password"
                    onfocus="this.placeholder=''"
                    onblur="this.placeholder='Repeat new password'">
-            <input type="submit" id="change-pwd" value="Change password" \>
+            <input type="submit"
+                   id="change-pwd-{{ user.id }}"
+                   value="Change password">
         </form>
     </div>
-{% endblock change_pwd_form %}
+{% endmacro %}

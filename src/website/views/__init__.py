@@ -1,13 +1,22 @@
 from importlib import import_module
 from pathlib import Path
+from typing import cast
+
+from flask import Blueprint, Flask
 
 
-def register_blueprints(app):
+def register_blueprints(app: Flask) -> None:
     views_directory = Path(__file__).parent
-    view_files = [f for f in views_directory.glob("*.py") if f.stem != "__init__"]
+    view_files = [
+        f for f in views_directory.glob("*.py") if f.stem != "__init__"
+    ]
 
     for view_file in view_files:
         blueprint_name = view_file.stem
-        view_module = import_module(f".{blueprint_name}", package="website.views")
-        blueprint = getattr(view_module, blueprint_name)
+        view_module = import_module(
+            f".{blueprint_name}", package="website.views"
+        )
+        blueprint: Blueprint = cast(
+            Blueprint, getattr(view_module, blueprint_name)
+        )
         app.register_blueprint(blueprint)

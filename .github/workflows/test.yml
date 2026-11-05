@@ -1,49 +1,73 @@
+---
 name: Tests
 
-on:
-  pull_request:
-    branches: [main, dev]
-  push:
-    branches: [main, dev]
+"on":
+    pull_request:
+        branches: [main, dev]
+    push:
+        branches: [main, dev]
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  assets:
-    uses: ./.github/workflows/assets.yml
-
-  test:
-    runs-on: [ubuntu-latest]
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+    development:
+        uses: ./.github/workflows/container.yml
         with:
-          python-version: "3.8"
+            target: development
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+    test:
+        needs: development
+        runs-on: [ubuntu-latest]
+        steps:
+            - name: Check out source
+              uses: actions/checkout@v6
 
-      - name: Run tests
-        run: |
-          uv run --locked --extra dev pytest --cov-report=xml
+            - name: Verify rootless Podman
+              run: |
+                  podman --version
+                  test "$(podman info --format \
+                    '{{.Host.Security.Rootless}}')" = true
 
-      - name: Coveralls GitHub Action
-        uses: coverallsapp/github-action@v2.2.3
-        continue-on-error: true
-        timeout-minutes: 5
+            - name: Download development image
+              uses: actions/download-artifact@v8
+              with:
+                  name: container-development
+                  path: ${{ runner.temp }}/container-image
+
+            - name: Load development image
+              run: |
+                  podman load \
+                    --input "$RUNNER_TEMP/container-image/container-image.tar"
+
+            - name: Run tests in container
+              run: |
+                  podman run --rm \
+                    --volume "$GITHUB_WORKSPACE:/app" \
+                    --workdir /app \
+                    localhost/theodorblom-development:ci \
+                    uv run --locked --extra dev --no-sync \
+                    pytest --cov-report=xml
+
+            - name: Coveralls GitHub Action
+              uses: coverallsapp/github-action@v2.2.3
+              continue-on-error: true
+              timeout-minutes: 5
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  path-to-lcov: coverage.xml
+
+    production:
+        needs: test
+        if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
+        uses: ./.github/workflows/container.yml
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: coverage.xml
+            target: production
 
-  deploy:
-    needs: [test, assets]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/deploy.yml
-    with:
-      sass_version: ${{ needs.assets.outputs.sass_version }}
-    secrets:
-      DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+    deploy:
+        needs: production
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: ./.github/workflows/deploy.yml
+        secrets:
+            DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+            DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
