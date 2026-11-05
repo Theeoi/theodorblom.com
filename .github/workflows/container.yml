@@ -1,0 +1,54 @@
+---
+name: Container
+
+"on":
+    workflow_call:
+        inputs:
+            target:
+                description: Dockerfile target to build
+                required: true
+                type: string
+
+permissions:
+    contents: read
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Check out source
+              uses: actions/checkout@v6
+
+            - name: Verify rootless podman
+              run: |
+                  podman --version
+                  test "$(podman info --format \
+                        '{{.Host.Security.Rootless}}')" = true
+
+            - name: Build image
+              env:
+                  BUILD_TARGET: ${{ inputs.target }}
+              run: |
+                  podman build \
+                    --target "$BUILD_TARGET" \
+                    --tag "localhost/theodorblom-${BUILD_TARGET}:ci" \
+                    .
+
+            - name: Export image
+              env:
+                  BUILD_TARGET: ${{ inputs.target }}
+              run: |
+                  podman save \
+                    --format oci-archive \
+                    --output "$RUNNER_TEMP/container-image.tar" \
+                    "localhost/theodorblom-${BUILD_TARGET}:ci"
+
+            - name: Upload image
+              uses: actions/upload-artifact@v7
+              with:
+                  name: container-${{ inputs.target }}
+                  path: ${{ runner.temp }}/container-image.tar
+                  compression-level: 0
+                  retention-days: 1
+                  if-no-files-found: error
