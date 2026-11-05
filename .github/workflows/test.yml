@@ -62,7 +62,7 @@ jobs:
 
     production:
         needs: test
-        if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
+        # if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
         uses: ./.github/workflows/container.yml
         with:
             target: production
