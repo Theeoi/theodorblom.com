@@ -29,15 +29,14 @@ RUN sass_version=$( \
 
 COPY README.md ./
 COPY src/ ./src/
+COPY scripts/compile_sass.py ./scripts/compile_sass.py
 
 RUN uv sync --locked --extra dev
 
+RUN uv run --locked --extra dev --no-sync scripts/compile_sass.py
+
 
 FROM development AS production-build
-
-COPY scripts/compile_sass.py ./scripts/compile_sass.py
-
-RUN uv run --locked --extra dev --no-sync scripts/compile_sass.py
 
 RUN uv sync --locked --no-dev --extra deploy --no-editable
 
